@@ -1,15 +1,16 @@
-import logo from './logo.svg';
-import './App.css';
-import CounterComponent from './Components/counter'; // Ensure the path is correct
+import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import HomePage from './Pages/HomePage';
+
+const theme = createTheme({
+  // You can customize the theme here if you need to
+});
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Our Setup Framework</h1>
-        <CounterComponent />
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline /> {/* This resets CSS and uses the theme's typography settings */}
+      <HomePage/>
+    </ThemeProvider>
   );
 }
 
