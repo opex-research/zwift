@@ -16,7 +16,7 @@ import SettingsIcon from "@mui/icons-material/Settings"; // Import Settings icon
 // Props:
 // - amount: The total payment amount.
 // - email: The payee's email address.
-const PayPalIntegration = ({ amount, email }) => {
+const PayPalIntegration = ({ amount, email, onSuccessfullResponse}) => {
   const [paymentDetails, setPaymentDetails] = useState(null);
 
   // Configuration for PayPalScriptProvider.
@@ -52,6 +52,7 @@ const PayPalIntegration = ({ amount, email }) => {
               return actions.order.capture().then((details) => {
                 console.log("Payment Successful:", details);
                 setPaymentDetails(details); // Update state to hide PayPalButtons
+                onSuccessfullResponse(true);
               });
             }}
             onError={(err) => console.error("Payment Error:", err)}
