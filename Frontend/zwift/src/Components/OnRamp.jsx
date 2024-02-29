@@ -1,28 +1,79 @@
-import React from "react";
-import TextField from "@mui/material/TextField";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import { Button, Stack } from "@mui/material";
+import React, { useState } from "react";
+import {
+  TextField,
+  Stack,
+  Card,
+  Typography,
+  Divider,
+  useTheme,
+  Box,
+} from "@mui/material";
+import PayPalIntegration from "./PayPalIntegration";
+import SettingsIcon from "@mui/icons-material/Settings"; // Import Settings icon
 
 const OnRamp = () => {
-  // Example emails, replace with actual data source as needed
-  const emailAddresses = [
-    "email1@example.com",
-    "email2@example.com",
-    "email3@example.com",
-  ];
+  const [amount, setAmount] = useState(0);
+  const [email, setEmail] = useState("sb-sdcta29428430@personal.example.com");
+  const theme = useTheme();
+
+  const handleAmountChange = (event) => {
+    const value = event.target.value;
+    const sanitizedValue = value.replace(",", ".").replace(/[^0-9.]/g, "");
+    setAmount(sanitizedValue);
+  };
 
   return (
-    <div>
-      <Stack alignItems="center">
-        <TextField label="Amount" variant="outlined" type="number" />
-        <div>
-        <p>Peer found: max.mustermann@example.com</p>
-        </div>
-        
-        <Button variant="outlined">Perform PayPal Transaction</Button>
-      </Stack>
-    </div>
+    <Box sx={{ maxWidth: 500, mx: "auto", mt: 5 }}>
+      {/* Headline with icon */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "left",
+          bgcolor: "blue",
+          color: "white",
+          p: 2,
+          borderRadius: "4px 4px 0 0", // Optional: rounds the top corners
+        }}
+      >
+        <SettingsIcon sx={{ mr: 1 }} />
+        <Typography variant="h6">Set Details</Typography>
+      </Box>
+
+      <Box sx={{ maxWidth: 500, mx: "auto", mt: 5 }}>
+        <Card sx={{ padding: 4, mb: 2 }}>
+          <Stack spacing={2} alignItems="flex-start">
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: "light" }}>
+              Set the amount to onramp:
+            </Typography>
+            <TextField
+              variant="outlined"
+              type="text"
+              value={amount}
+              onChange={handleAmountChange}
+              fullWidth
+            />
+            <Divider
+              sx={{ width: "100%", my: 2, borderColor: "primary.main" }}
+            />{" "}
+            {/* Spacing & Divider */}
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: "light" }}>
+              Peer to exchange with:
+            </Typography>
+            <TextField
+              disabled
+              type="email"
+              variant="outlined"
+              value={email}
+              fullWidth
+            />
+          </Stack>
+        </Card>
+        <Box sx={{ mt: 5 }}>
+          <PayPalIntegration amount={amount} email={email} />
+        </Box>
+      </Box>
+    </Box>
   );
 };
 
