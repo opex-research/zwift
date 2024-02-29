@@ -1,10 +1,22 @@
 import React from "react";
 import { Button, Typography, Stack } from "@mui/material";
+import { useAccount } from "../context/AccountContext"; // Adjust the path as necessary
+import { useNavigate } from "react-router-dom";
 
 const UserAccount = () => {
-  let walletAddress = "0x8893200204820384";
-  let walletBalance = "20Eth";
+  const { account, balance, setLogged, setAccount, setBalance } = useAccount();
+  const navigate = useNavigate();
+
+  let walletAddress = account;
+  let walletBalance = balance;
   let offRampAmount = "20Eth";
+
+  const handleLogout = () => {
+    setLogged(false);
+    setAccount(null);
+    setBalance();
+    navigate("/");
+  };
 
   return (
     <Stack
@@ -22,7 +34,7 @@ const UserAccount = () => {
         alignItems="center"
       >
         <Typography variant="h4">Sören</Typography>
-        <Button variant="text" sx={{ padding: 0 }}>
+        <Button variant="text" onClick={handleLogout} sx={{ padding: 0 }}>
           Logout
         </Button>
       </Stack>
@@ -50,6 +62,7 @@ const UserAccount = () => {
         <Typography variant="h6" component="div">
           Wallet Balance:
         </Typography>
+
         <Typography component="div">{walletBalance}</Typography>
       </Stack>
       {/* Open OffRamp */}

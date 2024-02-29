@@ -1,12 +1,11 @@
 import React from "react";
 import { Tabs, Tab, Stack, Typography } from "@mui/material";
-import OnRamp from "../Components/OnRamp";
-import OffRamp from "../Components/OffRamp";
-import UserAccount from "../Components/UserAccount";
+import OnRamp from "../components/OnRamp";
+import OffRamp from "../components/OffRamp";
+import UserAccount from "../components/UserAccount";
 
 const HomePage = () => {
   const [value, setValue] = React.useState("onramp");
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -29,7 +28,9 @@ const HomePage = () => {
       </Stack>
 
       {/* Right column: Tabs with OnRamp and OffRamp */}
-      <Stack sx={{ width: "50%", justifyContent:"center", alignItems: "center" }} >
+      <Stack
+        sx={{ width: "50%", justifyContent: "center", alignItems: "center" }}
+      >
         <Typography variant="h4">Interact with your wallet</Typography>
         <Tabs value={value} onChange={handleChange} centered>
           <Tab value="onramp" label="OnRamp" />

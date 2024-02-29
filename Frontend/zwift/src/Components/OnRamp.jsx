@@ -14,7 +14,6 @@ import SettingsIcon from "@mui/icons-material/Settings"; // Import Settings icon
 const OnRamp = () => {
   const [amount, setAmount] = useState(0);
   const [email, setEmail] = useState("sb-sdcta29428430@personal.example.com");
-  const theme = useTheme();
 
   const handleAmountChange = (event) => {
     const value = event.target.value;
@@ -40,7 +39,7 @@ const OnRamp = () => {
         <Typography variant="h6">Set Details</Typography>
       </Box>
 
-      <Box sx={{ maxWidth: 500, mx: "auto", mt: 5 }}>
+      <Box sx={{ maxWidth: 500, mx: "auto", mt: 2 }}>
         <Card sx={{ padding: 4, mb: 2 }}>
           <Stack spacing={2} alignItems="flex-start">
             <Typography variant="h5" gutterBottom sx={{ fontWeight: "light" }}>

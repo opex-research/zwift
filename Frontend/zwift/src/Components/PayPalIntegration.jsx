@@ -76,7 +76,7 @@ const PayPalIntegration = ({ amount, email }) => {
               <SettingsIcon sx={{ mr: 1 }} />
               <Typography variant="h6">Payment Response</Typography>
             </Box>
-            <Box sx={{ maxWidth: 500, mx: "auto", mt: 5 }}>
+            <Box sx={{ maxWidth: 500, mx: "auto", mt: 2 }}>
               <Card sx={{ padding: 4, mb: 2 }}>
                 <Stack alignItems="flex-start" spacing={2}>
                   <Typography
