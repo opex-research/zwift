@@ -17,6 +17,10 @@ const OnRamp = () => {
   const [email, setEmail] = useState("sb-sdcta29428430@personal.example.com");
   const [successfullResponse, setResponse] = useState(false);
   const [doReset, setDoReset] = useState(false); // State to control reset
+  const [resetCounter, setResetCounter] = useState(0);
+
+  //Here we initate the PayPal states to reset them when needed
+  const [paymentDetails, setPaymentDetails] = useState(null);
 
   const handleAmountChange = (event) => {
     const value = event.target.value;
@@ -28,6 +32,12 @@ const OnRamp = () => {
     setResponse(newValue);
   }
 
+  function handleBackButton() {
+    setAmount(0);
+    setPaymentDetails(null);
+    setResponse(false); // Reset to allow another transaction
+    setResetCounter((prev) => prev + 1);
+  }
 
   return (
     <div>
@@ -93,7 +103,7 @@ const OnRamp = () => {
       <Box sx={{ maxWidth: 500, mx: "auto", mt: 5 }}>
         <Stack direction="column">
           {successfullResponse && (
-            <Button variant="outlined">
+            <Button variant="outlined" onClick={handleBackButton}>
               Perform another OnRamp Transaction
             </Button>
           )}
@@ -101,6 +111,8 @@ const OnRamp = () => {
             amount={amount}
             email={email}
             onSuccessfullResponse={handleResponseChange}
+            paymentDetails={paymentDetails}
+            key={resetCounter} //we do this because a key forces a rerender when it changes
           />
         </Stack>
       </Box>

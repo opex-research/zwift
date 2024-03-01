@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import {
   Box,
@@ -16,8 +16,13 @@ import SettingsIcon from "@mui/icons-material/Settings"; // Import Settings icon
 // Props:
 // - amount: The total payment amount.
 // - email: The payee's email address.
-const PayPalIntegration = ({ amount, email, onSuccessfullResponse}) => {
-  const [paymentDetails, setPaymentDetails] = useState(null);
+const PayPalIntegration = ({
+  amount,
+  email,
+  onSuccessfullResponse,
+  paymentDetails,
+}) => {
+  const [internalPaymentDetails, setPaymentDetails] = useState(paymentDetails);
 
   // Configuration for PayPalScriptProvider.
   // Later use of environment variables for sensitive data like client-id.
@@ -30,10 +35,14 @@ const PayPalIntegration = ({ amount, email, onSuccessfullResponse}) => {
       "card,credit,sepa,bancontact,sofort,giropay,eps,ideal,mybank,p24",
   };
 
+  useEffect(() => {
+    setPaymentDetails(paymentDetails);
+  }, [paymentDetails]);
+
   return (
     <PayPalScriptProvider options={paypalOptions}>
       <div>
-        {!paymentDetails && ( // Conditionally render PayPalButtons
+        {!internalPaymentDetails && ( // Conditionally render PayPalButtons
           <PayPalButtons
             style={{ layout: "vertical" }}
             forceReRender={[amount]} // Ensures PayPal button updates with amount changes.
@@ -60,7 +69,7 @@ const PayPalIntegration = ({ amount, email, onSuccessfullResponse}) => {
           />
         )}
         {/* Displays payment details upon successful payment */}
-        {paymentDetails && (
+        {internalPaymentDetails && (
           <Box sx={{ maxWidth: 500, mx: "auto", mt: 5 }}>
             {/* Headline with icon */}
             <Box
@@ -93,7 +102,7 @@ const PayPalIntegration = ({ amount, email, onSuccessfullResponse}) => {
                       <ListItemText
                         primary="Payee"
                         secondary={
-                          paymentDetails?.purchase_units[0]?.payee
+                          internalPaymentDetails?.purchase_units[0]?.payee
                             ?.email_address
                         }
                       />
@@ -101,13 +110,13 @@ const PayPalIntegration = ({ amount, email, onSuccessfullResponse}) => {
                     <ListItem>
                       <ListItemText
                         primary="Amount"
-                        secondary={`€${paymentDetails?.purchase_units[0]?.amount?.value}`}
+                        secondary={`€${internalPaymentDetails?.purchase_units[0]?.amount?.value}`}
                       />
                     </ListItem>
                     <ListItem>
                       <ListItemText
                         primary="Status"
-                        secondary={paymentDetails?.status}
+                        secondary={internalPaymentDetails?.status}
                       />
                     </ListItem>
                   </List>
