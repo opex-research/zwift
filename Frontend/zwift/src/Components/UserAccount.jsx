@@ -4,12 +4,13 @@ import { useAccount } from "../context/AccountContext"; // Adjust the path as ne
 import { useNavigate } from "react-router-dom";
 
 const UserAccount = () => {
-  const { account, balance, setLogged, setAccount, setBalance } = useAccount();
+  const { account, balance, registeredEmail, setLogged, setAccount, setBalance, setRegisteredEmail } = useAccount();
   const navigate = useNavigate();
 
   let walletAddress = account;
   let walletBalance = balance;
   let offRampAmount = "20Eth";
+  let registeredEmailAddress = registeredEmail
 
   const handleLogout = () => {
     setLogged(false);
@@ -77,6 +78,18 @@ const UserAccount = () => {
           Open OffRamp:
         </Typography>
         <Typography component="div">{offRampAmount}</Typography>
+      </Stack>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        width="100%"
+        spacing={2}
+        alignItems="center"
+      >
+        <Typography variant="h6" component="div">
+          Registered Email:
+        </Typography>
+        <Typography component="div">{registeredEmailAddress}</Typography>
       </Stack>
     </Stack>
   );

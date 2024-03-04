@@ -1,5 +1,4 @@
-import  React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Typography,
@@ -11,15 +10,13 @@ import {
 } from "@mui/material";
 import Logo from "../logo_zwift.webp"; // Adjust path as necessary
 
-const LoginCard = ({ onLoginClick, onSignUpClick }) => {
-  // Define a nicer blue color for the line and the button
-  const niceBlueColor = "#89CFF0";
-  const [paypalEmail, setPaypalEmail] = useState("");
+const LoginCard = ({ onLoginClick, onSignUpClick, onEmailChange, email }) => {
   const [confirmEmail, setConfirmEmail] = useState("");
+  const niceBlueColor = "#89CFF0";
 
   const handleSignUp = () => {
-    if (paypalEmail === confirmEmail) {
-      onSignUpClick(paypalEmail);
+    if (email === confirmEmail) {
+      onSignUpClick();
     } else {
       alert("Emails do not match!");
     }
@@ -89,17 +86,17 @@ const LoginCard = ({ onLoginClick, onSignUpClick }) => {
             First time here? Sign up:
           </Typography>
           <TextField
-            label="You paypal email"
+            label="Your PayPal email"
             required
-            value={paypalEmail}
-            onChange={(e) => setPaypalEmail(e.target.value)}
+            value={email}
+            onChange={(e) => onEmailChange(e.target.value)}
             sx={{ marginBottom: "15px" }}
           />
           <TextField
             label="Confirm email"
+            required
             value={confirmEmail}
             onChange={(e) => setConfirmEmail(e.target.value)}
-            required
             sx={{ marginBottom: "15px" }}
           />
           <Button

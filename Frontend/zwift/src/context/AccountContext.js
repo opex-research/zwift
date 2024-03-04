@@ -8,10 +8,11 @@ export const AccountProvider = ({ children }) => {
   const [logged, setLogged] = useState(false);
   const [account, setAccount] = useState(null);
   const [balance, setBalance] = useState();
+  const [registeredEmail, setRegisteredEmail] = useState("")
 
   return (
     <AccountContext.Provider
-      value={{ account, setAccount, balance, setBalance, logged, setLogged }}
+      value={{ account, setAccount, balance, setBalance, logged, setLogged, registeredEmail, setRegisteredEmail}}
     >
       {children}
     </AccountContext.Provider>
