@@ -5,18 +5,16 @@ contract Registrator {
     // Mapping from wallet address to PayPal email
     mapping(address => string) private walletToEmail;
 
-    // Event to emit when a new email is registered
-    event AccountRegistered(address indexed wallet, string email);
+
 
     // Function to register a wallet address with an email
-    function registerAccount(address wallet, string calldata email) external {
+    function registerAccount(address wallet, string calldata email) external returns (bool) {
         // Check if the wallet address is already in the mapping
         require(bytes(walletToEmail[wallet]).length == 0, "Already registered");
 
         // Write new wallet/email pair into the mapping
-        walletToEmail[wallet] = email;
-        
-        emit AccountRegistered(wallet, email);
+        walletToEmail[wallet] = email;  
+        return true;
     }
 
     // Function for user login

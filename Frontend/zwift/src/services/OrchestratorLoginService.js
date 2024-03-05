@@ -40,7 +40,7 @@ export const registerUserAccount = async (email) => {
   const wallet = await loginWithMetaMask();
   if (!wallet) {
     console.log("Error during registration");
-    return null;
+    return null; // Indicate failure to register
   }
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
@@ -49,14 +49,23 @@ export const registerUserAccount = async (email) => {
     OrchestratorABI.abi,
     signer
   );
-
-  const transaction = await orchestratorContract.registerUserAccount(
-    wallet,
-    email
-  );
-  console.log("LOG BEGINS FOR REGISTRATION");
-  await transaction.wait(); // Wait for the transaction to be mined
-  return wallet;
+  try {
+    const transactionResponse = await orchestratorContract.registerUserAccount(
+      wallet,
+      email
+    );
+    const receipt = await transactionResponse.wait(); // Wait for the transaction to be mined
+    if (receipt.status === 1) {
+      console.log("Registration successful");
+      return wallet; // Indicate success
+    } else {
+      console.error("Transaction failed");
+      return null; // Indicate failure
+    }
+  } catch (error) {
+    console.error("Error with registration", error);
+    return null; // Indicate failure
+  }
 };
 
 export const loginUserAccount = async () => {
@@ -70,9 +79,13 @@ export const loginUserAccount = async () => {
     OrchestratorABI.abi,
     signer
   );
-
-  const isSuccess = await orchestratorContract.loginUserAccount(wallet);
-  return isSuccess ? wallet : null;
+  try {
+    const isSuccess = await orchestratorContract.loginUserAccount(wallet);
+    return isSuccess ? wallet : null;
+  } catch (error) {
+    console.log("Error with login", error);
+    return null;
+  }
 };
 
 export const getUserEmail = async (wallet) => {
@@ -82,8 +95,11 @@ export const getUserEmail = async (wallet) => {
     OrchestratorABI.abi,
     provider
   );
-  console.log("LOG BEGINS");
-  const email = await orchestratorContract.getUserEmail(wallet);
-  console.log("User email", email);
-  return email;
+  try {
+    const email = await orchestratorContract.getUserEmail(wallet);
+    return email;
+  } catch (error) {
+    console.log("Error with email", error);
+    return null;
+  }
 };

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 interface IRegistrator {
-    function registerAccount(address wallet, string calldata email) external;
+    function registerAccount(address wallet, string calldata email) external returns (bool);
     function login(address wallet) external view returns (bool);
     function getEmail(address wallet) external view returns (string memory);
 }
@@ -12,13 +12,14 @@ contract Orchestrator {
     
     IRegistrator public registrator;
 
+
     constructor(address _registratorAddress) {
         registrator = IRegistrator(_registratorAddress);
     }
 
     // Function to register a wallet address with an email through the registrator
-    function registerUserAccount(address wallet, string calldata email) external {
-        registrator.registerAccount(wallet, email);
+    function registerUserAccount(address wallet, string calldata email) external returns (bool){
+        return registrator.registerAccount(wallet, email);
     }
 
     // Function to perform login check through the registrator
