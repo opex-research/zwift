@@ -7,13 +7,15 @@ import {
   getAccountBalance,
   getUserEmail,
 } from "../services/OrchestratorLoginService";
+import { getOpenOffRampIntent } from "../services/OrchestratorOffRampService";
 import { Paper } from "@mui/material";
 import LoginCard from "../components/LoginCard"; // Adjust path as necessary
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { setAccount, setBalance, setLogged, setRegisteredEmail } = useAccount();
+  const { setAccount, setBalance, setLogged, setRegisteredEmail, setUsersOffRampIntent } = useAccount();
   const [email, setEmail] = useState("");
+  
 
   const handleLogin = async () => {
     const account = await loginUserAccount();
@@ -26,6 +28,9 @@ function LoginPage() {
 
       const registeredEmail = await getUserEmail(account);
       if (registeredEmail) setRegisteredEmail(registeredEmail);
+
+      const usersOffRampIntent = await getOpenOffRampIntent(account)
+      if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent)
 
       navigate("/dashboard");
     }
