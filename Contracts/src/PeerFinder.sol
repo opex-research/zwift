@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/utils/structs/DoubleEndedQueue.sol";
+import "../lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
+import "../lib/openzeppelin-contracts/contracts/utils/structs/DoubleEndedQueue.sol";
 
 contract AddressQueue {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32;
