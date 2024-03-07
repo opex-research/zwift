@@ -39,7 +39,7 @@ const LoginCard = () => {
     setLogged,
     setRegisteredEmail,
     openOffRampsInQueue,
-    setOpenOframpsInQueue,
+    setOpenOffRampsInQueue,
     usersOffRampIntent,
     setUsersOffRampIntent,
   } = useAccount();
@@ -67,7 +67,7 @@ const LoginCard = () => {
         const registeredEmail = await getUserEmail(account);
         if (registeredEmail) setRegisteredEmail(registeredEmail);
         const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
-        if (openOffRampsInQueue) setOpenOframpsInQueue(openOffRampsInQueue);
+        if (openOffRampsInQueue) setOpenOffRampsInQueue(openOffRampsInQueue);
 
         const usersOffRampIntent = await getUsersOpenOffRampIntents(account);
         if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
@@ -96,7 +96,7 @@ const LoginCard = () => {
         if (registeredEmail) setRegisteredEmail(registeredEmail);
 
         const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
-        if (openOffRampsInQueue) setOpenOframpsInQueue(openOffRampsInQueue);
+        if (openOffRampsInQueue) setOpenOffRampsInQueue(openOffRampsInQueue);
 
         const usersOffRampIntent = await getUsersOpenOffRampIntents(account);
         if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
