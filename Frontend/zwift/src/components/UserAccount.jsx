@@ -28,7 +28,7 @@ const UserAccount = () => {
     setRegisteredEmail,
     usersOffRampIntent,
     setUsersOffRampIntent,
-    setOpenOffRampsInQueue,,
+    setOpenOffRampsInQueue,
   } = useAccount();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -39,7 +39,7 @@ const UserAccount = () => {
     setBalance();
     setRegisteredEmail("");
     setUsersOffRampIntent(0);
-    setOpenOffRampsInQueue(0);;
+    setOpenOffRampsInQueue(0);
     navigate("/");
   };
 
