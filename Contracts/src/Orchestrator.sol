@@ -23,7 +23,6 @@ contract Orchestrator {
         registrator = IRegistrator(_registratorAddress);
         offRamper = IOffRamper(_offRamperAddress); // Initialize offRamper
     }
-    }
 
     //------------------- Functions for IRegistrator -------------------
     // Function to register a wallet address with an email through the registrator
