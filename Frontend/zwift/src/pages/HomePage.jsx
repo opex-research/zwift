@@ -10,14 +10,29 @@ import {
 import OnRamp from "../components/OnRamp";
 import OffRamp from "../components/OffRamp";
 import UserAccount from "../components/UserAccount";
-
+import { getOpenOffRampIntentsFromQueue } from "../services/OrchestratorOffRampService";
+import { useAccount } from "../context/AccountContext";
 const HomePage = () => {
   const [value, setValue] = React.useState("onramp");
   const theme = useTheme();
   const matchesMDUp = useMediaQuery(theme.breakpoints.up("md"));
+  const { setOpenOframpsInQueue } = useAccount();
 
+  // Here we fetch the total amount of onramps
+  const getOpenOffRampsInQueue = async () => {
+    const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
+    if (openOffRampsInQueue) {
+      setOpenOframpsInQueue(openOffRampsInQueue);
+    }
+  };
+
+  // The handleChange function is not async, and it calls the async function above
   const handleChange = (event, newValue) => {
     setValue(newValue);
+    if (newValue === "onramp") {
+      // Only fetch when the 'onramp' tab is selected
+      getOpenOffRampsInQueue(); // Call the async function
+    }
   };
 
   return (

@@ -48,3 +48,17 @@ export const getOpenOffRampIntent = async (wallet) => {
     return 0; // Indicates failure or no intent
   }
 };
+
+// function to retrieve the current open OffRamp Intent for a wallet
+export const getOpenOffRampIntentsFromQueue = async (wallet) => {
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const orchestratorContract = new ethers.Contract(orchestratorAddress, OrchestratorABI.abi, provider);
+
+  try {
+    const amount = await orchestratorContract.numberOfOpenOffRampIntents();
+    return amount; // Returns the amount of the open OffRamp Intent
+  } catch (error) {
+    console.error("Error retrieving open OffRamp Intent", error);
+    return 0; // Indicates failure or no intent
+  }
+};

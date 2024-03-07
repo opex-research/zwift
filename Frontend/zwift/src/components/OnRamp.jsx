@@ -12,6 +12,7 @@ import {
 import PayPalIntegration from "./PayPalIntegration";
 import CashIcon from "../icons/icons8-cashflow-48.png"; // Import the PNG file
 import ExchangeIcon from "../icons/icons8-transfer-zwischen-benutzern-48.png"; // Import the PNG file
+import { useAccount } from "../context/AccountContext";
 
 const OnRamp = () => {
   const [amount, setAmount] = useState(0);
@@ -19,6 +20,7 @@ const OnRamp = () => {
   const [successfullResponse, setResponse] = useState(false);
   const [resetCounter, setResetCounter] = useState(0);
   const [paymentDetails, setPaymentDetails] = useState(null);
+  const { openOffRampsInQueue } = useAccount();
 
   const handleAmountChange = (event) => {
     const value = event.target.value;
@@ -67,6 +69,29 @@ const OnRamp = () => {
           </Grid>
           <Grid item xs>
             <Typography variant="caption" display="block" color="textSecondary">
+              OPEN ONRAMP INTENTS BY PEERS
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid item>
+          <Typography variant="h5" display="block">
+            {openOffRampsInQueue}
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Divider sx={{ marginY: theme.spacing(2) }} />
+        </Grid>
+
+        <Grid item container alignItems="flex-start">
+          <Grid item>
+            <img
+              src={CashIcon}
+              alt="Cash Icon"
+              style={{ width: "50%", height: "50%" }}
+            />
+          </Grid>
+          <Grid item xs>
+            <Typography variant="caption" display="block" color="textSecondary">
               SET AMOUNT TO ONRAMP
             </Typography>
           </Grid>
@@ -83,6 +108,7 @@ const OnRamp = () => {
         <Grid item>
           <Divider sx={{ marginY: theme.spacing(2) }} />
         </Grid>
+
         <Grid item container alignItems="flex-start">
           <Grid item>
             <img
