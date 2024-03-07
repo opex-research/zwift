@@ -27,9 +27,7 @@ const UserAccount = () => {
     setRegisteredEmail,
     usersOffRampIntent,
     setUsersOffRampIntent,
-    setOpenOffRampsInQueue
-
-    
+    setOpenOffRampsInQueue,
   } = useAccount();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -178,7 +176,6 @@ const UserAccount = () => {
           </Typography>
         </Grid>
       </Grid>
-      
     </Paper>
   );
 };

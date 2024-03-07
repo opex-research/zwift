@@ -16,13 +16,13 @@ const HomePage = () => {
   const [value, setValue] = React.useState("onramp");
   const theme = useTheme();
   const matchesMDUp = useMediaQuery(theme.breakpoints.up("md"));
-  const { setOpenOframpsInQueue } = useAccount();
+  const { setOpenOffRampsInQueue } = useAccount();
 
   // Here we fetch the total amount of onramps
   const getOpenOffRampsInQueue = async () => {
     const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
     if (openOffRampsInQueue) {
-      setOpenOframpsInQueue(openOffRampsInQueue);
+      setOpenOffRampsInQueue(openOffRampsInQueue);
     }
   };
 

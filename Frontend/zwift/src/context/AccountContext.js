@@ -10,11 +10,11 @@ export const AccountProvider = ({ children }) => {
   const [balance, setBalance] = useState();
   const [registeredEmail, setRegisteredEmail] = useState("")
   const [usersOffRampIntent, setUsersOffRampIntent] = useState(0)
-  const [openOffRampsInQueue, setOpenOframpsInQueue] = useState(0)
+  const [openOffRampsInQueue, setOpenOffRampsInQueue] = useState(0)
 
   return (
     <AccountContext.Provider
-      value={{ account, setAccount, balance, setBalance, logged, setLogged, registeredEmail, setRegisteredEmail, usersOffRampIntent, setUsersOffRampIntent, openOffRampsInQueue, setOpenOframpsInQueue}}
+      value={{ account, setAccount, balance, setBalance, logged, setLogged, registeredEmail, setRegisteredEmail, usersOffRampIntent, setUsersOffRampIntent, openOffRampsInQueue, setOpenOffRampsInQueue}}
     >
       {children}
     </AccountContext.Provider>

@@ -7,7 +7,10 @@ import {
   getAccountBalance,
   getUserEmail,
 } from "../services/OrchestratorLoginService";
-import { getOpenOffRampIntentsFromQueue } from "../services/OrchestratorOffRampService";
+import {
+  getOpenOffRampIntentsFromQueue,
+  getUsersOpenOffRampIntents,
+} from "../services/OrchestratorOffRampService";
 import {
   Button,
   Typography,
@@ -21,8 +24,16 @@ import Logo from "../logo_zwift.webp"; // Adjust path as necessary
 
 const LoginCard = () => {
   const navigate = useNavigate();
-  const { setAccount, setBalance, setLogged, setRegisteredEmail, openOffRampsInQueue, setOpenOframpsInQueue } =
-    useAccount();
+  const {
+    setAccount,
+    setBalance,
+    setLogged,
+    setRegisteredEmail,
+    openOffRampsInQueue,
+    setOpenOframpsInQueue,
+    usersOffRampIntent,
+    setUsersOffRampIntent,
+  } = useAccount();
   const [email, setEmail] = useState("");
   const [confirmEmail, setConfirmEmail] = useState("");
   const niceBlueColor = "#89CFF0";
@@ -41,6 +52,9 @@ const LoginCard = () => {
 
       const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
       if (openOffRampsInQueue) setOpenOframpsInQueue(openOffRampsInQueue);
+
+      const usersOffRampIntent = await getUsersOpenOffRampIntents(account);
+      if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
       navigate("/dashboard");
     }
   };
@@ -61,6 +75,12 @@ const LoginCard = () => {
 
       const registeredEmail = await getUserEmail(account);
       if (registeredEmail) setRegisteredEmail(registeredEmail);
+
+      const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
+      if (openOffRampsInQueue) setOpenOframpsInQueue(openOffRampsInQueue);
+
+      const usersOffRampIntent = await getUsersOpenOffRampIntents(account);
+      if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
 
       navigate("/dashboard");
     }
