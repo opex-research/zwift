@@ -5,9 +5,9 @@ import "../lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol"
 import "../lib/openzeppelin-contracts/contracts/utils/structs/DoubleEndedQueue.sol";
 
 contract PeerFinder {
-    using DoubleEndedQueue for DoubleEndedQueue.Bytes32;
+    using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
 
-    DoubleEndedQueue.Bytes32 private offRamperQueue;
+    DoubleEndedQueue.Bytes32Deque private offRamperQueue;
 
     // Enqueue an address to the back of the queue
     function addOffRampersIntent(address _address) public {
@@ -18,7 +18,7 @@ contract PeerFinder {
 
     // Dequeue an address from the front of the queue, needs to be added to the front if failed
     function getAndRemoveOffRampersIntent() public returns (address) {
-        require(!offRamperQueue.isEmpty(), "Queue is empty");
+        require(!isEmpty(), "Queue is empty");
         return address(uint160(uint256(offRamperQueue.popFront())));
     }
 
@@ -31,13 +31,13 @@ contract PeerFinder {
 
     // Peek at the front address of the queue without removing it
     function peek() public view returns (address) {
-        require(!offRamperQueue.isEmpty(), "Queue is empty");
+        require(!offRamperQueue.empty(), "Queue is empty");
         return address(uint160(uint256(offRamperQueue.front())));
     }
 
     // Check if the queue is empty
     function isEmpty() public view returns (bool) {
-        return offRamperQueue.isEmpty();
+        return offRamperQueue.empty();
     }
 
     // Get the size of the queue
