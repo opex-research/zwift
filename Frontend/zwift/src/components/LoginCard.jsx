@@ -158,7 +158,6 @@ const LoginCard = () => {
                     justifyContent: "flex-start",
                     textTransform: "none",
                     marginBottom: 1,
-                    backgroundColor: "#F7FAFD",
                     "&:hover": {
                       backgroundColor: "#47a7f5",
                       color: "white",
@@ -233,7 +232,6 @@ const LoginCard = () => {
                     justifyContent: "flex-start",
                     textTransform: "none",
                     marginBottom: 1,
-                    backgroundColor: "#F7FAFD",
                     "&:hover": {
                       backgroundColor: "#47a7f5",
                       color: "white",

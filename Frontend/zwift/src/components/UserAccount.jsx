@@ -6,6 +6,7 @@ import {
   Paper,
   Divider,
   useTheme,
+  Box,
 } from "@mui/material";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import EmailIcon from "@mui/icons-material/Email";
@@ -68,7 +69,7 @@ const UserAccount = () => {
           component="h1"
           sx={{
             fontWeight: "medium",
-            marginBottom: 6, // Remove bottom margin for the title
+            marginBottom: 4, // Remove bottom margin for the title
           }}
         >
           ACCOUNT
@@ -83,23 +84,22 @@ const UserAccount = () => {
             justifyContent: "flex-start",
             textTransform: "none",
             marginBottom: 8,
-            backgroundColor: "#F7FAFD",
             "&:hover": {
-              backgroundColor: "#47a7f5",
-              color: "white",
+              backgroundColor: "white",
             },
           }}
         >
           Logout
         </Button>
       </Grid>
-
+      {/* Wallet Address Section */}
       <Grid
         container
         alignItems="center"
         spacing={2}
         sx={{ marginBottom: theme.spacing(1) }}
       >
+        {/* Icon */}
         <Grid item>
           <img
             src={WalletIcon}
@@ -107,13 +107,37 @@ const UserAccount = () => {
             style={{ width: "50%", height: "50%" }}
           />
         </Grid>
+        {/* Address Label and Value */}
         <Grid item xs>
-          <Typography variant="caption" display="block" color="textSecondary">
+          <Typography
+            variant="caption"
+            display="block"
+            color="textSecondary"
+            sx={{ marginBottom: 1 }}
+          >
             WALLET ADDRESS
           </Typography>
-          <Typography variant="body1" color="textPrimary">
-            {account}
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-start", // Align items to the start
+              alignItems: "center",
+              width: "100%", // Take full width to utilize the space
+              height: 25,
+              borderRadius: "10px",
+              backgroundColor: "#F7FAFD",
+              color: "#1B6AC8",
+              padding: theme.spacing(0, 1), // Add some padding inside the box
+            }}
+          >
+            <Typography
+              variant="body2"
+              component="span"
+              sx={{ color: "inherit" }}
+            >
+              {account}
+            </Typography>
+          </Box>
         </Grid>
       </Grid>
 
@@ -136,9 +160,23 @@ const UserAccount = () => {
           <Typography variant="caption" display="block" color="textSecondary">
             REGISTERED EMAIL
           </Typography>
-          <Typography variant="body1" color="textPrimary">
-            {registeredEmail}
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: 50, // Adjust the width of the rectangle as needed
+              height: 25, // Adjust the height of the rectangle as needed
+              borderRadius: "10px", // This creates the rounded corners
+              backgroundColor: "#F7FAFD",
+              color: "#1B6AC8",
+              marginLeft: 2,
+            }}
+          >
+            <Typography variant="h7" component="span" sx={{ color: "inherit" }}>
+              {registeredEmail}
+            </Typography>
+          </Box>
         </Grid>
       </Grid>
 
@@ -160,9 +198,23 @@ const UserAccount = () => {
           <Typography variant="caption" display="block" color="textSecondary">
             WALLET BALANCE
           </Typography>
-          <Typography variant="body1" color="textPrimary">
-            {balance}
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: 250, // Adjust the width of the rectangle as needed
+              height: 25, // Adjust the height of the rectangle as needed
+              borderRadius: "10px", // This creates the rounded corners
+              backgroundColor: "#F7FAFD",
+              color: "#1B6AC8",
+              marginLeft: 2,
+            }}
+          >
+            <Typography variant="h7" component="span" sx={{ color: "inherit" }}>
+              {balance}
+            </Typography>
+          </Box>
         </Grid>
       </Grid>
 
@@ -184,9 +236,23 @@ const UserAccount = () => {
           <Typography variant="caption" display="block" color="textSecondary">
             OPEN OFFRAMP INTENT
           </Typography>
-          <Typography variant="body1" color="textPrimary">
-            ${usersOffRampIntent}
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: 100, // Adjust the width of the rectangle as needed
+              height: 25, // Adjust the height of the rectangle as needed
+              borderRadius: "10px", // This creates the rounded corners
+              backgroundColor: "#F7FAFD",
+              color: "#1B6AC8",
+              marginLeft: 2,
+            }}
+          >
+            <Typography variant="h7" component="span" sx={{ color: "inherit" }}>
+              ${usersOffRampIntent}
+            </Typography>
+          </Box>
         </Grid>
       </Grid>
     </Paper>

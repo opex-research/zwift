@@ -90,7 +90,7 @@ const HomePage = () => {
               component="h1"
               sx={{
                 fontWeight: "medium",
-                marginBottom: 6, // Adjust according to your layout needs
+                marginBottom: 4, // Adjust according to your layout needs
               }}
             >
               TRANSFER
