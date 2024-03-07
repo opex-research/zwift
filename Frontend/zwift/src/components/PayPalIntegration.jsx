@@ -12,10 +12,6 @@ import {
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings"; // Import Settings icon
 
-// PayPalIntegration Component: Handles PayPal payment integration.
-// Props:
-// - amount: The total payment amount.
-// - email: The payee's email address.
 const PayPalIntegration = ({
   amount,
   email,

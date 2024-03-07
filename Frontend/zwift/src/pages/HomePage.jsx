@@ -6,6 +6,8 @@ import {
   Grid,
   Typography,
   useTheme,
+  Paper,
+  Box,
 } from "@mui/material";
 import OnRamp from "../components/OnRamp";
 import OffRamp from "../components/OffRamp";
@@ -21,64 +23,80 @@ const HomePage = () => {
   };
 
   return (
-    <Grid
-      container
-      spacing={2}
-      sx={{ height: matchesMDUp ? "100vh" : "auto", width: "100%", padding: 2 }}
+    <div
+      style={{
+        minHeight: "100vh",
+        width: "100vw",
+        background: "linear-gradient(to right, #bbdefb, #e1f5fe)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
     >
-      {/* UserAccount section */}
       <Grid
-        item
-        xs={12}
-        md={6}
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+        container
+        spacing={2}
+        justifyContent="center" // Center the items horizontally
+        alignItems="center" // Center the items vertically
+        style={{
+          maxWidth: "1200px", // Maximum width of the grid container
         }}
       >
-        <UserAccount />
-      </Grid>
-
-      {/* Wallet Interaction section */}
-      <Grid
-        item
-        xs={12}
-        md={6}
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h4" sx={{ textAlign: "center", marginBottom: 2 }}>
-          Interact with your wallet
-        </Typography>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          variant="fullWidth" // Ensures tabs take up the full available width
-          centered
-        >
-          <Tab value="onramp" label="OnRamp" />
-          <Tab value="offramp" label="OffRamp" />
-        </Tabs>
-        <div
-          style={{
+        <Grid
+          item
+          xs={12}
+          md={6}
+          sx={{
             display: "flex",
             justifyContent: "center",
-            paddingTop: "20px",
-            width: "100%",
+            alignItems: "center",
           }}
         >
-          <div style={{ maxWidth: "600px" }}>
-            {value === "onramp" && <OnRamp />}
-            {value === "offramp" && <OffRamp />}
-          </div>
-        </div>
+          <UserAccount />
+        </Grid>
+        {/* Wallet Interaction section within a Paper */}
+        <Grid item xs={12} md={6}>
+          <Paper
+            elevation={1}
+            sx={{
+              width: "100%",
+              maxWidth: "600px",
+              height: "600px", // Fixed height
+
+              p: theme.spacing(4),
+              borderRadius: 4,
+              flexDirection: "column",
+              alignItems: "center",
+              m: 2, // Adjust margin to ensure consistency
+            }}
+          >
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{
+                fontWeight: "medium",
+                marginBottom: 6, // Adjust according to your layout needs
+              }}
+            >
+              TRANSFER
+            </Typography>
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              variant="fullWidth"
+              centered
+            >
+              <Tab value="onramp" label="OnRamp" />
+              <Tab value="offramp" label="OffRamp" />
+            </Tabs>
+            <Box sx={{ paddingTop: "20px" }}>
+              {value === "onramp" && <OnRamp />}
+              {value === "offramp" && <OffRamp />}
+            </Box>
+          </Paper>
+        </Grid>
       </Grid>
-    </Grid>
+    </div>
   );
 };
 

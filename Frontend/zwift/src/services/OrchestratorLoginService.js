@@ -10,7 +10,9 @@ export const loginWithMetaMask = async () => {
   if (!window.ethereum || !window.ethereum.isMetaMask) {
     console.log("Need to install MetaMask");
     onboarding.startOnboarding();
-    return null;
+    throw new Error(
+      "Need to install MetaMask" || "An error occurred during login."
+    );
   }
 
   try {
@@ -20,7 +22,7 @@ export const loginWithMetaMask = async () => {
     return accounts[0];
   } catch (error) {
     console.error("Could not detect Account", error);
-    return null;
+    throw new Error(error.reason || "An error occurred during login.");
   }
 };
 
@@ -32,7 +34,7 @@ export const getAccountBalance = async (account) => {
     return ethers.utils.formatEther(balance);
   } catch (error) {
     console.error("Could not detect the Balance", error);
-    return null;
+    throw new Error(error.reason || "An error occurred during login.");
   }
 };
 
@@ -40,7 +42,9 @@ export const registerUserAccount = async (email) => {
   const wallet = await loginWithMetaMask();
   if (!wallet) {
     console.log("Error during registration");
-    return null; // Indicate failure to register
+    throw new Error(
+      "Error during registration" || "An error occurred during login."
+    );
   }
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
@@ -60,11 +64,11 @@ export const registerUserAccount = async (email) => {
       return wallet; // Indicate success
     } else {
       console.error("Transaction failed");
-      return null; // Indicate failure
+      throw new Error("Transaction failed");
     }
   } catch (error) {
-    console.error("Error with registration", error);
-    return null; // Indicate failure
+    console.error("Error with registration:", error);
+    throw new Error("You are already registered");
   }
 };
 
@@ -83,8 +87,8 @@ export const loginUserAccount = async () => {
     const isSuccess = await orchestratorContract.loginUserAccount(wallet);
     return isSuccess ? wallet : null;
   } catch (error) {
-    console.log("Error with login", error);
-    return null;
+    console.log("Error with login:", error);
+    throw new Error(error.reason || "An error occurred during login.");
   }
 };
 
@@ -99,7 +103,7 @@ export const getUserEmail = async (wallet) => {
     const email = await orchestratorContract.getUserEmail(wallet);
     return email;
   } catch (error) {
-    console.log("Error with email", error);
-    return null;
+    console.log("Error with email:", error);
+    throw new Error(error.reason || "An error occurred during login.");
   }
 };
