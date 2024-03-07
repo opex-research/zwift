@@ -1,4 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAccount } from "../context/AccountContext";
+import {
+  loginUserAccount,
+  registerUserAccount,
+  getAccountBalance,
+  getUserEmail,
+} from "../services/OrchestratorLoginService";
 import {
   Button,
   Typography,
@@ -10,15 +18,48 @@ import {
 } from "@mui/material";
 import Logo from "../logo_zwift.webp"; // Adjust path as necessary
 
-const LoginCard = ({ onLoginClick, onSignUpClick, onEmailChange, email }) => {
+const LoginCard = () => {
+  const navigate = useNavigate();
+  const { setAccount, setBalance, setLogged, setRegisteredEmail } =
+    useAccount();
+  const [email, setEmail] = useState("");
   const [confirmEmail, setConfirmEmail] = useState("");
   const niceBlueColor = "#89CFF0";
 
-  const handleSignUp = () => {
-    if (email === confirmEmail) {
-      onSignUpClick();
-    } else {
+  const handleLogin = async () => {
+    const account = await loginUserAccount();
+    if (account) {
+      setLogged(true);
+      setAccount(account);
+
+      const balance = await getAccountBalance(account);
+      if (balance) setBalance(balance);
+
+      const registeredEmail = await getUserEmail(account);
+      if (registeredEmail) setRegisteredEmail(registeredEmail);
+
+      navigate("/dashboard");
+    }
+  };
+
+  const handleSignUp = async () => {
+    if (email !== confirmEmail) {
       alert("Emails do not match!");
+      return;
+    }
+
+    const account = await registerUserAccount(email);
+    if (account) {
+      setLogged(true);
+      setAccount(account);
+
+      const balance = await getAccountBalance(account);
+      if (balance) setBalance(balance);
+
+      const registeredEmail = await getUserEmail(account);
+      if (registeredEmail) setRegisteredEmail(registeredEmail);
+
+      navigate("/dashboard");
     }
   };
 
@@ -69,7 +110,7 @@ const LoginCard = ({ onLoginClick, onSignUpClick, onEmailChange, email }) => {
             type="button"
             variant="contained"
             size="large"
-            onClick={onLoginClick}
+            onClick={handleLogin}
             sx={{
               backgroundColor: niceBlueColor,
               "&:hover": { backgroundColor: niceBlueColor },
@@ -89,7 +130,7 @@ const LoginCard = ({ onLoginClick, onSignUpClick, onEmailChange, email }) => {
             label="Your PayPal email"
             required
             value={email}
-            onChange={(e) => onEmailChange(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)} // Directly use setEmail here
             sx={{ marginBottom: "15px" }}
           />
           <TextField
