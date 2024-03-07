@@ -25,6 +25,8 @@ const UserAccount = () => {
     setAccount,
     setBalance,
     setRegisteredEmail,
+    usersOffRampIntent,
+    setUsersOffRampIntent
   } = useAccount();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -34,6 +36,7 @@ const UserAccount = () => {
     setAccount(null);
     setBalance();
     setRegisteredEmail("");
+    setUsersOffRampIntent(0)
     navigate("/");
   };
 
@@ -147,6 +150,31 @@ const UserAccount = () => {
           </Typography>
         </Grid>
       </Grid>
+
+      <Divider sx={{ marginY: theme.spacing(4) }} />
+      <Grid
+        container
+        alignItems="center"
+        spacing={2}
+        sx={{ marginBottom: theme.spacing(1) }}
+      >
+        <Grid item>
+          <img
+            src={CashIcon}
+            alt="Cash Icon"
+            style={{ width: "50%", height: "50%" }}
+          />
+        </Grid>
+        <Grid item xs>
+          <Typography variant="caption" display="block" color="textSecondary">
+            OPEN OFFRAMP INTENT
+          </Typography>
+          <Typography variant="body1" color="textPrimary">
+            ${usersOffRampIntent}
+          </Typography>
+        </Grid>
+      </Grid>
+      
     </Paper>
   );
 };

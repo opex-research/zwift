@@ -4,7 +4,7 @@ import { useAccount } from "../context/AccountContext";
 import { newOffRampIntent } from "../services/OrchestratorOffRampService";
 
 const OffRamp = () => {
-  const { account } = useAccount();
+  const { account, setUsersOffRampIntent, usersOffRampIntent } = useAccount();
   const [offRampIntentCreated, setOffRampIntentCreated] = useState(false);
   const [amount, setAmount] = useState("100"); // Keep amount as string for TextField compatibility
 
@@ -16,6 +16,11 @@ const OffRamp = () => {
       const createdOffRamp = await newOffRampIntent(account, amountNum);
       if (createdOffRamp) {
         setOffRampIntentCreated(true);
+        const newUsersOpenOffRampIntent =
+          parseInt(usersOffRampIntent, 10) + parseInt(amount, 10);
+        setUsersOffRampIntent(newUsersOpenOffRampIntent);
+
+        setUsersOffRampIntent(newUsersOpenOffRampIntent);
       } else {
         // Handle the case where creation is not successful
         console.error("Failed to create off-ramp intent.");
