@@ -10,8 +10,9 @@ function LoginPage() {
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
+
         alignItems: "center",
-        background: "linear-gradient(to right, #83a4d4, #b6fbff)",
+        background: "linear-gradient(to right, #bbdefb, #e1f5fe)",
       }}
     >
       <LoginCard />

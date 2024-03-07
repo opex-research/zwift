@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import WalletIcon from "../icons/icons8-brieftasche-48.png"; // Import the PNG file
 import MailIcon from "../icons/icons8-neuer-beitrag-48.png"; // Import the PNG file
 import CashIcon from "../icons/icons8-münzen-48.png"; // Import the PNG file
+import PendingIcon from "../icons/icons8-gegenwart-48.png"; // Import the PNG file
 
 const UserAccount = () => {
   const {
@@ -27,7 +28,7 @@ const UserAccount = () => {
     setRegisteredEmail,
     usersOffRampIntent,
     setUsersOffRampIntent,
-    setOpenOffRampsInQueue,
+    setOpenOffRampsInQueue,,
   } = useAccount();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -38,7 +39,7 @@ const UserAccount = () => {
     setBalance();
     setRegisteredEmail("");
     setUsersOffRampIntent(0);
-    setOpenOffRampsInQueue(0);
+    setOpenOffRampsInQueue(0);;
     navigate("/");
   };
 
@@ -46,10 +47,14 @@ const UserAccount = () => {
     <Paper
       elevation={1}
       sx={{
+        width: "100%",
+        maxWidth: "600px",
+        height: "600px", // Fixed height
         p: theme.spacing(4),
-        maxWidth: 500,
-        mx: "auto",
-        my: theme.spacing(3),
+        borderRadius: 4,
+        flexDirection: "column",
+        alignItems: "center",
+        m: 2, // Adjust margin to ensure consistency
       }}
     >
       <Grid
@@ -63,19 +68,26 @@ const UserAccount = () => {
           component="h1"
           sx={{
             fontWeight: "medium",
-            marginBottom: 8, // Remove bottom margin for the title
+            marginBottom: 6, // Remove bottom margin for the title
           }}
         >
-          Account Details
+          ACCOUNT
         </Typography>
         <Button
           color="primary"
           onClick={handleLogout}
           sx={{
-            fontSize: theme.typography.body1.fontSize,
-            fontWeight: "ultralight", // Ultra-light font weight
-            marginBottom: 8, // Remove bottom margin for the title
-            color: theme.palette.primary.main, // Primary color
+            color: "#1B6AC8",
+            fontSize: "20px",
+            display: "flex",
+            justifyContent: "flex-start",
+            textTransform: "none",
+            marginBottom: 8,
+            backgroundColor: "#F7FAFD",
+            "&:hover": {
+              backgroundColor: "#47a7f5",
+              color: "white",
+            },
           }}
         >
           Logout
@@ -106,6 +118,7 @@ const UserAccount = () => {
       </Grid>
 
       <Divider sx={{ marginY: theme.spacing(4) }} />
+
       <Grid
         container
         alignItems="center"
@@ -162,8 +175,8 @@ const UserAccount = () => {
       >
         <Grid item>
           <img
-            src={CashIcon}
-            alt="Cash Icon"
+            src={PendingIcon}
+            alt="Pending Icon"
             style={{ width: "50%", height: "50%" }}
           />
         </Grid>

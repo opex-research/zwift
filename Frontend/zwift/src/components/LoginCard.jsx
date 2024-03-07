@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAccount } from "../context/AccountContext";
-import {
-  loginUserAccount,
-  registerUserAccount,
-  getAccountBalance,
-  getUserEmail,
-} from "../services/OrchestratorLoginService";
+import useErrorHandler from "../hooks/useErrorHandler";
+import LoginIcon from "../icons/icons8-eintreten-48.png";
+import SignUpIcon from "../icons/icons8-anmelden-48.png";
+import Logo from "../logo_zwift.webp";
+
 import {
   getOpenOffRampIntentsFromQueue,
   getUsersOpenOffRampIntents,
@@ -17,10 +16,20 @@ import {
   Box,
   Card,
   CardContent,
+  Grid,
   Divider,
   TextField,
+  Snackbar,
+  Alert,
+  useTheme,
 } from "@mui/material";
-import Logo from "../logo_zwift.webp"; // Adjust path as necessary
+
+import {
+  loginUserAccount,
+  registerUserAccount,
+  getAccountBalance,
+  getUserEmail,
+} from "../services/OrchestratorLoginService";
 
 const LoginCard = () => {
   const navigate = useNavigate();
@@ -36,149 +45,222 @@ const LoginCard = () => {
   } = useAccount();
   const [email, setEmail] = useState("");
   const [confirmEmail, setConfirmEmail] = useState("");
-  const niceBlueColor = "#89CFF0";
+  const { error, showError } = useErrorHandler();
+  const [open, setOpen] = useState(false);
+  const theme = useTheme();
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
 
   const handleLogin = async () => {
-    const account = await loginUserAccount();
-    if (account) {
-      setLogged(true);
-      setAccount(account);
+    try {
+      const account = await loginUserAccount();
+      if (account) {
+        setLogged(true);
+        setAccount(account);
+        const balance = await getAccountBalance(account);
+        if (balance) setBalance(balance);
+        const registeredEmail = await getUserEmail(account);
+        if (registeredEmail) setRegisteredEmail(registeredEmail);
+        const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
+        if (openOffRampsInQueue) setOpenOframpsInQueue(openOffRampsInQueue);
 
-      const balance = await getAccountBalance(account);
-      if (balance) setBalance(balance);
-
-      const registeredEmail = await getUserEmail(account);
-      if (registeredEmail) setRegisteredEmail(registeredEmail);
-
-      const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
-      if (openOffRampsInQueue) setOpenOframpsInQueue(openOffRampsInQueue);
-
-      const usersOffRampIntent = await getUsersOpenOffRampIntents(account);
-      if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
-      navigate("/dashboard");
+        const usersOffRampIntent = await getUsersOpenOffRampIntents(account);
+        if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      showError(err.message || "An unexpected error occurred.");
+      setOpen(true);
     }
   };
 
   const handleSignUp = async () => {
     if (email !== confirmEmail) {
-      alert("Emails do not match!");
+      showError("Emails do not match!");
+      setOpen(true);
       return;
     }
+    try {
+      const account = await registerUserAccount(email);
+      if (account) {
+        setLogged(true);
+        setAccount(account);
+        const balance = await getAccountBalance(account);
+        if (balance) setBalance(balance);
+        const registeredEmail = await getUserEmail(account);
+        if (registeredEmail) setRegisteredEmail(registeredEmail);
 
-    const account = await registerUserAccount(email);
-    if (account) {
-      setLogged(true);
-      setAccount(account);
+        const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
+        if (openOffRampsInQueue) setOpenOframpsInQueue(openOffRampsInQueue);
 
-      const balance = await getAccountBalance(account);
-      if (balance) setBalance(balance);
-
-      const registeredEmail = await getUserEmail(account);
-      if (registeredEmail) setRegisteredEmail(registeredEmail);
-
-      const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
-      if (openOffRampsInQueue) setOpenOframpsInQueue(openOffRampsInQueue);
-
-      const usersOffRampIntent = await getUsersOpenOffRampIntents(account);
-      if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
-
-      navigate("/dashboard");
+        const usersOffRampIntent = await getUsersOpenOffRampIntents(account);
+        if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      showError(err.message || "An unexpected error occurred.");
+      setOpen(true);
     }
   };
 
   return (
-    <Card sx={{ maxWidth: 500, mx: 2, borderRadius: 4 }}>
-      <CardContent
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            marginRight: "20px",
-          }}
-        >
-          <img src={Logo} alt="Logo" style={{ height: "100px" }} />
-        </Box>
-        <Divider
-          orientation="vertical"
-          flexItem
-          sx={{
-            borderColor: niceBlueColor,
-            borderWidth: "thin",
-            marginRight: "20px",
-            minHeight: "calc(100% - 16px)",
-          }}
-        />
-        <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
-          <Typography
-            variant="h5"
-            component="h1"
-            gutterBottom
-            sx={{ color: "black", fontWeight: "300", marginBottom: "8px" }}
+    <Card
+      sx={{
+        maxWidth: 700,
+        mx: "auto",
+        borderRadius: 4,
+        display: "flex",
+        flexDirection: "row",
+      }}
+    >
+      <Box sx={{ width: "100%", p: 2 }}>
+        <CardContent>
+          <Grid item xs={7} md={7}>
+            <Typography
+              variant="h5"
+              component="h1"
+              sx={{ fontWeight: "medium", marginBottom: 4 }}
+            >
+              LOG-IN
+            </Typography>
+            <Grid
+              container
+              alignItems="center"
+              spacing={2}
+              sx={{ marginBottom: theme.spacing(2) }}
+            >
+              <Grid item>
+                <img
+                  src={LoginIcon}
+                  alt="Login Icon"
+                  style={{ width: "50%", height: "50%" }}
+                />
+              </Grid>
+              <Grid item xs>
+                <Typography
+                  variant="caption"
+                  sx={{ color: "grey", display: "block" }}
+                >
+                  RETURNING USERS CAN
+                </Typography>
+
+                <Button
+                  onClick={handleLogin}
+                  sx={{
+                    color: "#1B6AC8",
+                    fontSize: "20px",
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    textTransform: "none",
+                    marginBottom: 1,
+                    backgroundColor: "#F7FAFD",
+                    "&:hover": {
+                      backgroundColor: "#47a7f5",
+                      color: "white",
+                    },
+                  }}
+                >
+                  LOGIN
+                </Button>
+              </Grid>
+            </Grid>
+
+            <Divider sx={{ marginBottom: 4 }} />
+            <Typography
+              variant="h5"
+              component="h1"
+              sx={{ fontWeight: "medium", marginBottom: 4 }}
+            >
+              REGISTER
+            </Typography>
+            <Grid
+              container
+              alignItems="flex-start"
+              spacing={2}
+              sx={{ marginBottom: theme.spacing(2) }}
+            >
+              <Grid item>
+                <img
+                  src={SignUpIcon}
+                  alt="SignUp Icon"
+                  style={{ width: "50%", height: "50%" }}
+                />
+              </Grid>
+              <Grid item xs>
+                <Typography
+                  variant="caption"
+                  sx={{ color: "grey", display: "block" }}
+                >
+                  FIRST TIME HERE, SET YOUR PAYPAL EMAIL
+                </Typography>
+
+                <TextField
+                  required
+                  fullWidth
+                  value={email}
+                  variant="standard"
+                  onChange={(e) => setEmail(e.target.value)}
+                  sx={{ marginBottom: 2 }}
+                />
+
+                <Typography
+                  variant="caption"
+                  sx={{ color: "grey", display: "block" }}
+                >
+                  CONFIRM EMAIL
+                </Typography>
+
+                <TextField
+                  required
+                  fullWidth
+                  value={confirmEmail}
+                  variant="standard"
+                  onChange={(e) => setConfirmEmail(e.target.value)}
+                  sx={{ marginBottom: 2 }}
+                />
+
+                <Button
+                  onClick={handleSignUp}
+                  sx={{
+                    color: "#1B6AC8",
+                    fontSize: "20px",
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    textTransform: "none",
+                    marginBottom: 1,
+                    backgroundColor: "#F7FAFD",
+                    "&:hover": {
+                      backgroundColor: "#47a7f5",
+                      color: "white",
+                    },
+                  }}
+                >
+                  REGISTER
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Snackbar
+            open={open}
+            autoHideDuration={6000}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
           >
-            Welcome to Zwift
-          </Typography>
-          <Typography
-            variant="subtitle1"
-            sx={{ color: "grey", fontWeight: "300", marginBottom: "20px" }}
-          >
-            Log in to your account to continue
-          </Typography>
-          <Button
-            type="button"
-            variant="contained"
-            size="large"
-            onClick={handleLogin}
-            sx={{
-              backgroundColor: niceBlueColor,
-              "&:hover": { backgroundColor: niceBlueColor },
-              alignSelf: "flex-start",
-              marginBottom: "20px",
-            }}
-          >
-            Log In with MetaMask
-          </Button>
-          <Typography
-            variant="subtitle1"
-            sx={{ color: "grey", fontWeight: "300", marginBottom: "20px" }}
-          >
-            First time here? Sign up:
-          </Typography>
-          <TextField
-            label="Your PayPal email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)} // Directly use setEmail here
-            sx={{ marginBottom: "15px" }}
-          />
-          <TextField
-            label="Confirm email"
-            required
-            value={confirmEmail}
-            onChange={(e) => setConfirmEmail(e.target.value)}
-            sx={{ marginBottom: "15px" }}
-          />
-          <Button
-            type="button"
-            variant="outlined"
-            size="large"
-            onClick={handleSignUp}
-            sx={{
-              color: niceBlueColor,
-              "&:hover": { outlineColor: niceBlueColor },
-              alignSelf: "flex-start",
-              marginBottom: "20px",
-            }}
-          >
-            Sign up and connect Wallet
-          </Button>
-        </Box>
-      </CardContent>
+            <Alert
+              onClose={handleClose}
+              severity="error"
+              sx={{ width: "100%" }}
+            >
+              {error}
+            </Alert>
+          </Snackbar>
+        </CardContent>
+      </Box>
     </Card>
   );
 };
