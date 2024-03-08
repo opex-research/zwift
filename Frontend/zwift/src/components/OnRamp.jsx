@@ -53,7 +53,7 @@ const OnRamp = () => {
 
           <Grid item>
             <Typography variant="caption" display="block" color="textSecondary">
-              OPEN ONRAMP INTENTS BY PEERS:
+              OPEN OFFRAMP INTENTS BY PEERS:
             </Typography>
           </Grid>
           <Grid item xs>
