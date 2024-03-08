@@ -8,6 +8,8 @@ import {
   Box,
   Paper,
   Grid,
+  CircularProgress,
+  Stack,
 } from "@mui/material";
 import PayPalIntegration from "./PayPalIntegration";
 import CashIcon from "../icons/icons8-cashflow-48.png"; // Import the PNG file
@@ -22,6 +24,7 @@ const OnRamp = () => {
   const [resetCounter, setResetCounter] = useState(0);
   const [paymentDetails, setPaymentDetails] = useState(null);
   const { openOffRampsInQueue } = useAccount();
+  const [searchForPeerState, setSearchForPeer] = useState("off"); //off; searching; found
 
   const handleResponseChange = (newValue) => {
     setResponse(newValue);
@@ -31,6 +34,10 @@ const OnRamp = () => {
     setPaymentDetails(null);
     setResponse(false);
     setResetCounter((prev) => prev + 1);
+  };
+
+  const handleSearchForPeer = () => {
+    setSearchForPeer("searching");
   };
 
   const theme = useTheme();
@@ -142,29 +149,68 @@ const OnRamp = () => {
           </Grid>
         </Grid>
         <Grid item>
-          <TextField
-            disabled
-            type="email"
-            variant="outlined"
-            value={email}
-            fullWidth
-          />
+          <Stack direction="row" sx={{ width: "100%", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                height: 25,
+                borderRadius: "10px",
+                backgroundColor:
+                  searchForPeerState === "off"
+                    ? "#fff1f1"
+                    : searchForPeerState === "found"
+                    ? "#e6f3de"
+                    : "#f2f5f0", // Conditional background color
+                color:
+                  searchForPeerState === "off"
+                    ? "#ff8383"
+                    : searchForPeerState === "found"
+                    ? "#7eb55c"
+                    : "#f2f5f0",
+                padding: theme.spacing(0, 1),
+              }}
+            >
+              <Typography
+                variant="h7"
+                component="span"
+                sx={{ color: "inherit" }}
+                padding="10px"
+              >
+                {searchForPeerState === "off"
+                  ? "Please press 'Search for Peer'"
+                  : searchForPeerState === "found"
+                  ? email
+                  : "Please press 'Search for Peer"}
+              </Typography>
+            </Box>
+            <Box sx={{ flexGrow: 1 }} />
+          </Stack>
         </Grid>
 
         <Box sx={{ maxWidth: 500, mx: "auto", mt: 5 }}>
           <Grid container direction="column">
+            {!successfullResponse && searchForPeerState == "off" && (
+              <Button variant="outlined" onClick={handleSearchForPeer}>
+                Search for Peer
+              </Button>
+            )}
+            {searchForPeerState == "found" && (
+              <PayPalIntegration
+                amount="100"
+                email={email}
+                onSuccessfullResponse={handleResponseChange}
+                paymentDetails={paymentDetails}
+                key={resetCounter}
+              />
+            )}
+            {searchForPeerState == "searching" && <CircularProgress />}
             {successfullResponse && (
               <Button variant="outlined" onClick={handleBackButton}>
                 Perform another OnRamp Transaction
               </Button>
             )}
-            <PayPalIntegration
-              amount="100"
-              email={email}
-              onSuccessfullResponse={handleResponseChange}
-              paymentDetails={paymentDetails}
-              key={resetCounter}
-            />
           </Grid>
         </Box>
       </Grid>
