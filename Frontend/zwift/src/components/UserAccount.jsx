@@ -7,6 +7,7 @@ import {
   Divider,
   useTheme,
   Box,
+  Stack,
 } from "@mui/material";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import EmailIcon from "@mui/icons-material/Email";
@@ -117,27 +118,30 @@ const UserAccount = () => {
           >
             WALLET ADDRESS
           </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-start", // Align items to the start
-              alignItems: "center",
-              width: "100%", // Take full width to utilize the space
-              height: 25,
-              borderRadius: "10px",
-              backgroundColor: "#F7FAFD",
-              color: "#1B6AC8",
-              padding: theme.spacing(0, 1), // Add some padding inside the box
-            }}
-          >
-            <Typography
-              variant="body2"
-              component="span"
-              sx={{ color: "inherit" }}
+          <Stack direction="row" sx={{ width: "100%", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                height: 25,
+                borderRadius: "10px",
+                backgroundColor: "#F7FAFD",
+                color: "#1B6AC8",
+                padding: theme.spacing(0, 1),
+              }}
             >
-              {account}
-            </Typography>
-          </Box>
+              <Typography
+                variant="h7"
+                component="span"
+                sx={{ color: "inherit" }}
+                padding="10px"
+              >
+                {account}
+              </Typography>
+            </Box>
+            <Box sx={{ flexGrow: 1 }} />
+          </Stack>
         </Grid>
       </Grid>
 
@@ -160,23 +164,30 @@ const UserAccount = () => {
           <Typography variant="caption" display="block" color="textSecondary">
             REGISTERED EMAIL
           </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: 50, // Adjust the width of the rectangle as needed
-              height: 25, // Adjust the height of the rectangle as needed
-              borderRadius: "10px", // This creates the rounded corners
-              backgroundColor: "#F7FAFD",
-              color: "#1B6AC8",
-              marginLeft: 2,
-            }}
-          >
-            <Typography variant="h7" component="span" sx={{ color: "inherit" }}>
-              {registeredEmail}
-            </Typography>
-          </Box>
+          <Stack direction="row" sx={{ width: "100%", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                height: 25,
+                borderRadius: "10px",
+                backgroundColor: "#F7FAFD",
+                color: "#1B6AC8",
+                padding: theme.spacing(0, 1),
+              }}
+            >
+              <Typography
+                variant="h7"
+                component="span"
+                sx={{ color: "inherit" }}
+                padding="10px"
+              >
+                {registeredEmail}
+              </Typography>
+            </Box>
+            <Box sx={{ flexGrow: 1 }} />
+          </Stack>
         </Grid>
       </Grid>
 
@@ -198,23 +209,30 @@ const UserAccount = () => {
           <Typography variant="caption" display="block" color="textSecondary">
             WALLET BALANCE
           </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: 250, // Adjust the width of the rectangle as needed
-              height: 25, // Adjust the height of the rectangle as needed
-              borderRadius: "10px", // This creates the rounded corners
-              backgroundColor: "#F7FAFD",
-              color: "#1B6AC8",
-              marginLeft: 2,
-            }}
-          >
-            <Typography variant="h7" component="span" sx={{ color: "inherit" }}>
-              {balance}
-            </Typography>
-          </Box>
+          <Stack direction="row" sx={{ width: "100%", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                height: 25,
+                borderRadius: "10px",
+                backgroundColor: "#F7FAFD",
+                color: "#1B6AC8",
+                padding: theme.spacing(0, 1),
+              }}
+            >
+              <Typography
+                variant="h7"
+                component="span"
+                sx={{ color: "inherit" }}
+                padding="10px"
+              >
+                ETH {balance}
+              </Typography>
+            </Box>
+            <Box sx={{ flexGrow: 1 }} />
+          </Stack>
         </Grid>
       </Grid>
 
@@ -236,23 +254,30 @@ const UserAccount = () => {
           <Typography variant="caption" display="block" color="textSecondary">
             OPEN OFFRAMP INTENT
           </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: 100, // Adjust the width of the rectangle as needed
-              height: 25, // Adjust the height of the rectangle as needed
-              borderRadius: "10px", // This creates the rounded corners
-              backgroundColor: "#F7FAFD",
-              color: "#1B6AC8",
-              marginLeft: 2,
-            }}
-          >
-            <Typography variant="h7" component="span" sx={{ color: "inherit" }}>
-              ${usersOffRampIntent}
-            </Typography>
-          </Box>
+          <Stack direction="row" sx={{ width: "100%", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                height: 25,
+                borderRadius: "10px",
+                backgroundColor: "#F7FAFD",
+                color: "#1B6AC8",
+                padding: theme.spacing(0, 1),
+              }}
+            >
+              <Typography
+                variant="h7"
+                component="span"
+                sx={{ color: "inherit" }}
+                padding="10px"
+              >
+                ${usersOffRampIntent}
+              </Typography>
+            </Box>
+            <Box sx={{ flexGrow: 1 }} />
+          </Stack>
         </Grid>
       </Grid>
     </Paper>
