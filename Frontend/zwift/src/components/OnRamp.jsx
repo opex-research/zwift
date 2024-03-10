@@ -25,6 +25,7 @@ const OnRamp = () => {
   const [paymentDetails, setPaymentDetails] = useState(null);
   const { openOffRampsInQueue } = useAccount();
   const [searchForPeerState, setSearchForPeer] = useState("off"); //off; searching; found
+  const isSearchDisabled = openOffRampsInQueue === 0;
 
   const handleResponseChange = (newValue) => {
     setResponse(newValue);
@@ -155,48 +156,46 @@ const OnRamp = () => {
                   alignItems: "center",
                   height: 25,
                   borderRadius: "10px",
-                  backgroundColor:
-                    searchForPeerState === "off"
-                      ? "#fff1f1"
-                      : searchForPeerState === "found"
-                      ? "#e6f3de"
-                      : "#f2f5f0", // Conditional background color
-                  color:
-                    searchForPeerState === "off"
-                      ? "#ff8383"
-                      : searchForPeerState === "found"
-                      ? "#7eb55c"
-                      : "#f2f5f0",
+                  backgroundColor: isSearchDisabled
+                    ? "#FFCDD2"
+                    : searchForPeerState === "found"
+                    ? "#C8E6C9"
+                    : "#F7FAFD",
+                  color: isSearchDisabled
+                    ? "#ff8383"
+                    : searchForPeerState === "off"
+                    ? "#ff8383"
+                    : searchForPeerState === "found"
+                    ? "#7eb55c"
+                    : "#f2f5f0",
                   padding: theme.spacing(0, 1),
                   marginLeft: "10px",
                 }}
               >
-                <Typography
-                  variant="h7"
-                  component="span"
-                  sx={{ color: "inherit" }}
-                  padding="10px"
-                >
-                  {searchForPeerState === "off"
+                <Typography variant="body2" sx={{ color: "inherit" }}>
+                  {isSearchDisabled
+                    ? "Sorry, there are no offramp intents yet."
+                    : searchForPeerState === "off"
                     ? "Please press 'Search for Peer'"
-                    : searchForPeerState === "found"
-                    ? email
-                    : "Please press 'Search for Peer"}
+                    : email}
                 </Typography>
               </Box>
-              <Box sx={{ flexGrow: 1 }} />
             </Stack>
           </Grid>
         </Grid>
 
         <Box sx={{ maxWidth: 500, mx: "auto", mt: 5 }}>
           <Grid container direction="column">
-            {!successfullResponse && searchForPeerState == "off" && (
-              <Button variant="outlined" onClick={handleSearchForPeer}>
+            {!successfullResponse && searchForPeerState === "off" && (
+              <Button
+                variant="outlined"
+                onClick={handleSearchForPeer}
+                disabled={isSearchDisabled}
+              >
                 Search for Peer
               </Button>
             )}
-            {searchForPeerState == "found" && (
+            {searchForPeerState === "found" && (
               <PayPalIntegration
                 amount="100"
                 email={email}
@@ -205,7 +204,7 @@ const OnRamp = () => {
                 key={resetCounter}
               />
             )}
-            {searchForPeerState == "searching" && <CircularProgress />}
+            {searchForPeerState === "searching" && <CircularProgress />}
             {successfullResponse && (
               <Button variant="outlined" onClick={handleBackButton}>
                 Perform another OnRamp Transaction
