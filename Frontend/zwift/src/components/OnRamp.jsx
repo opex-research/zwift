@@ -133,8 +133,7 @@ const OnRamp = () => {
         <Grid item>
           <Divider sx={{ marginY: theme.spacing(2) }} />
         </Grid>
-
-        <Grid item container alignItems="flex-start">
+        <Grid item container alignItems="center">
           <Grid item>
             <img
               src={ExchangeIcon}
@@ -142,51 +141,52 @@ const OnRamp = () => {
               style={{ width: "50%", height: "50%" }}
             />
           </Grid>
-          <Grid item xs>
+          <Grid item>
             <Typography variant="caption" display="block" color="textSecondary">
-              PEER TO EXCHANGE WITH
+              PEER TO EXCHANGE WITH:
             </Typography>
           </Grid>
-        </Grid>
-        <Grid item>
-          <Stack direction="row" sx={{ width: "100%", alignItems: "center" }}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-start",
-                alignItems: "center",
-                height: 25,
-                borderRadius: "10px",
-                backgroundColor:
-                  searchForPeerState === "off"
-                    ? "#fff1f1"
-                    : searchForPeerState === "found"
-                    ? "#e6f3de"
-                    : "#f2f5f0", // Conditional background color
-                color:
-                  searchForPeerState === "off"
-                    ? "#ff8383"
-                    : searchForPeerState === "found"
-                    ? "#7eb55c"
-                    : "#f2f5f0",
-                padding: theme.spacing(0, 1),
-              }}
-            >
-              <Typography
-                variant="h7"
-                component="span"
-                sx={{ color: "inherit" }}
-                padding="10px"
+          <Grid item xs>
+            <Stack direction="row" sx={{ width: "100%", alignItems: "center" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                  height: 25,
+                  borderRadius: "10px",
+                  backgroundColor:
+                    searchForPeerState === "off"
+                      ? "#fff1f1"
+                      : searchForPeerState === "found"
+                      ? "#e6f3de"
+                      : "#f2f5f0", // Conditional background color
+                  color:
+                    searchForPeerState === "off"
+                      ? "#ff8383"
+                      : searchForPeerState === "found"
+                      ? "#7eb55c"
+                      : "#f2f5f0",
+                  padding: theme.spacing(0, 1),
+                  marginLeft: "10px",
+                }}
               >
-                {searchForPeerState === "off"
-                  ? "Please press 'Search for Peer'"
-                  : searchForPeerState === "found"
-                  ? email
-                  : "Please press 'Search for Peer"}
-              </Typography>
-            </Box>
-            <Box sx={{ flexGrow: 1 }} />
-          </Stack>
+                <Typography
+                  variant="h7"
+                  component="span"
+                  sx={{ color: "inherit" }}
+                  padding="10px"
+                >
+                  {searchForPeerState === "off"
+                    ? "Please press 'Search for Peer'"
+                    : searchForPeerState === "found"
+                    ? email
+                    : "Please press 'Search for Peer"}
+                </Typography>
+              </Box>
+              <Box sx={{ flexGrow: 1 }} />
+            </Stack>
+          </Grid>
         </Grid>
 
         <Box sx={{ maxWidth: 500, mx: "auto", mt: 5 }}>
