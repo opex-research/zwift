@@ -10,6 +10,7 @@ import {
   Grid,
   CircularProgress,
   Stack,
+  Slider,
 } from "@mui/material";
 import PayPalIntegration from "./PayPalIntegration";
 import CashIcon from "../icons/icons8-cashflow-48.png"; // Import the PNG file
@@ -26,9 +27,14 @@ const OnRamp = () => {
   const { openOffRampsInQueue } = useAccount();
   const [searchForPeerState, setSearchForPeer] = useState("off"); //off; searching; found
   const isSearchDisabled = openOffRampsInQueue === 0;
+  const [sliderValue, setSliderValue] = useState(25);
 
   const handleResponseChange = (newValue) => {
     setResponse(newValue);
+  };
+
+  const handleSliderChange = (event, newValue) => {
+    setSliderValue(newValue);
   };
 
   const handleBackButton = () => {
@@ -125,12 +131,37 @@ const OnRamp = () => {
                 component="span"
                 sx={{ color: "inherit" }}
               >
-                $100
+                ${sliderValue}
               </Typography>
             </Box>
           </Grid>
         </Grid>
-
+        <Grid item>
+          <Grid item xs>
+            <Stack
+              spacing={2}
+              direction="row"
+              sx={{ mb: 1, width: 300, pl: 1.7 }} // Adds padding to the left and sets a max width
+              alignItems="center"
+            >
+              <Slider
+                aria-label="Amount"
+                value={sliderValue}
+                onChange={handleSliderChange}
+                step={null} // Null step disables the default stepping behavior
+                marks={[
+                  { value: 25, label: "$25" },
+                  { value: 50, label: "$50" },
+                  { value: 75, label: "$75" },
+                  { value: 100, label: "$100" },
+                ]}
+                valueLabelDisplay="auto" // Automatically show the value label
+                min={25} // Minimum value
+                max={100} // Maximum value
+              />
+            </Stack>
+          </Grid>
+        </Grid>
         <Grid item>
           <Divider sx={{ marginY: theme.spacing(2) }} />
         </Grid>

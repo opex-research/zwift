@@ -11,16 +11,19 @@ import {
 } from "@mui/material";
 import OnRamp from "../components/OnRamp";
 import OffRamp from "../components/OffRamp";
+import { ErrorBoundary } from "react-error-boundary";
+import FallbackComponent from "../components/ErrorBoundary"; // Import your fallback component
 import UserAccount from "../components/UserAccount";
 import { getOpenOffRampIntentsFromQueue } from "../services/OrchestratorOffRampService";
 import { useAccount } from "../context/AccountContext";
+
 const HomePage = () => {
   const [value, setValue] = React.useState("onramp");
   const theme = useTheme();
   const matchesMDUp = useMediaQuery(theme.breakpoints.up("md"));
   const { setOpenOffRampsInQueue } = useAccount();
 
-  // Here we fetch the total amount of onramps
+  // Fetch the total amount of offramps
   const getOpenOffRampsInQueue = async () => {
     const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
     if (openOffRampsInQueue) {
@@ -28,12 +31,10 @@ const HomePage = () => {
     }
   };
 
-  // The handleChange function is not async, and it calls the async function above
   const handleChange = (event, newValue) => {
     setValue(newValue);
     if (newValue === "onramp") {
-      // Only fetch when the 'onramp' tab is selected
-      getOpenOffRampsInQueue(); // Call the async function
+      getOpenOffRampsInQueue();
     }
   };
 
@@ -51,12 +52,11 @@ const HomePage = () => {
       <Grid
         container
         spacing={2}
-        justifyContent="center" // Center the items horizontally
-        alignItems="center" // Center the items vertically
-        style={{
-          maxWidth: "1200px", // Maximum width of the grid container
-        }}
+        justifyContent="center"
+        alignItems="center"
+        style={{ maxWidth: "1200px" }}
       >
+        {/* Account section */}
         <Grid
           item
           xs={12}
@@ -67,44 +67,65 @@ const HomePage = () => {
             alignItems: "center",
           }}
         >
-          <UserAccount />
+          <ErrorBoundary
+            FallbackComponent={FallbackComponent}
+            onError={(error, errorInfo) =>
+              console.log("Logging error:", error, errorInfo)
+            }
+          >
+            <UserAccount />
+          </ErrorBoundary>
         </Grid>
-        {/* Wallet Interaction section within a Paper */}
+
+        {/* Transfer section */}
         <Grid item xs={12} md={6}>
           <Paper
             elevation={1}
             sx={{
               width: "100%",
               maxWidth: "600px",
-              height: "600px", // Fixed height
-
               p: theme.spacing(4),
               borderRadius: 4,
               flexDirection: "column",
               alignItems: "center",
-              m: 2, // Adjust margin to ensure consistency
+              minHeight: "600px",
+              m: 2,
             }}
           >
-            <Typography
-              variant="h4"
-              component="h1"
+            <Box sx={{ alignSelf: "flex-start", mb: 4 }}>
+              <Typography variant="h4" component="h1" sx={{ mb: 1 }}>
+                TRANSFER
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                Overview of transfer options
+              </Typography>
+            </Box>
+            <ErrorBoundary
+              FallbackComponent={FallbackComponent}
+              onError={(error, errorInfo) =>
+                console.log("Logging error:", error, errorInfo)
+              }
+            >
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                variant="fullWidth"
+                centered
+              >
+                <Tab value="onramp" label="OnRamp" />
+                <Tab value="offramp" label="OffRamp" />
+              </Tabs>
+            </ErrorBoundary>
+            <Box
               sx={{
-                fontWeight: "medium",
-                marginBottom: 4, // Adjust according to your layout needs
+                paddingTop: "20px",
+                flexGrow: 1,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                width: "100%",
               }}
             >
-              TRANSFER
-            </Typography>
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              variant="fullWidth"
-              centered
-            >
-              <Tab value="onramp" label="OnRamp" />
-              <Tab value="offramp" label="OffRamp" />
-            </Tabs>
-            <Box sx={{ paddingTop: "20px" }}>
               {value === "onramp" && <OnRamp />}
               {value === "offramp" && <OffRamp />}
             </Box>
