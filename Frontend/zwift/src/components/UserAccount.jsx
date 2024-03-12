@@ -93,19 +93,7 @@ const UserAccount = () => {
   };
 
   return (
-    <Paper
-      elevation={1}
-      sx={{
-        width: "100%",
-        maxWidth: "600px",
-        p: theme.spacing(4),
-        borderRadius: 4,
-        flexDirection: "column",
-        alignItems: "center",
-        minHeight: "600px",
-        m: 2,
-      }}
-    >
+    <div>
       {/* Account heading and logout button */}
       <Grid
         container
@@ -152,7 +140,7 @@ const UserAccount = () => {
         handleClose={handleErrorClose}
         errorMessage={error}
       />
-    </Paper>
+    </div>
   );
 };
 
