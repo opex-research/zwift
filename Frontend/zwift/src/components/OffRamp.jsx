@@ -1,72 +1,184 @@
 import React, { useState } from "react";
-import { Button, Typography, TextField, Stack } from "@mui/material";
+import {
+  TextField,
+  Typography,
+  Divider,
+  useTheme,
+  Button,
+  Box,
+  Paper,
+  Grid,
+  CircularProgress,
+  Stack,
+} from "@mui/material";
 import { useAccount } from "../context/AccountContext";
 import { newOffRampIntent } from "../services/OrchestratorOffRampService";
+import OffRampIcon from "../icons/icons8-münzen-48.png"; // Import the PNG file
+import OkIcon from "../icons/icons8-ok-48.png"; // Import the PNG file
 
 const OffRamp = () => {
   const { account, setUsersOffRampIntent, usersOffRampIntent } = useAccount();
   const [offRampIntentCreated, setOffRampIntentCreated] = useState(false);
   const [amount, setAmount] = useState("100"); // Keep amount as string for TextField compatibility
+  const theme = useTheme();
 
   const handleOffRampClick = async () => {
-    // Convert amount to number (parseInt or similar, depending on your needs)
-    const amountNum = parseInt(amount, 10); // Assuming amount is integer; use parseFloat for decimals
+    const amountNum = parseInt(amount, 10);
+
     try {
-      // Assuming newOffRampIntent is an async function
       const createdOffRamp = await newOffRampIntent(account, amountNum);
       if (createdOffRamp) {
         setOffRampIntentCreated(true);
         const newUsersOpenOffRampIntent =
           parseInt(usersOffRampIntent, 10) + parseInt(amount, 10);
         setUsersOffRampIntent(newUsersOpenOffRampIntent);
-
-        setUsersOffRampIntent(newUsersOpenOffRampIntent);
       } else {
-        // Handle the case where creation is not successful
         console.error("Failed to create off-ramp intent.");
-        // Potentially set an error state and display it to the user here
       }
     } catch (error) {
       console.error("Error creating off-ramp intent:", error);
-      // Handle error (e.g., show error message to user)
     }
   };
 
   const handleCreateAnother = () => {
     setOffRampIntentCreated(false);
-    setAmount("100"); // Reset amount or handle as needed
+    setAmount("100");
   };
 
   if (offRampIntentCreated) {
     return (
-      <Stack direction="column" spacing={2} alignItems="center">
-        <Typography variant="h6" gutterBottom>
-          Successful intent created
-        </Typography>
-        <Button variant="outlined" onClick={handleCreateAnother}>
-          Create another intent
-        </Button>
-      </Stack>
+      <div
+        style={{
+          paddingTop: "20px",
+        }}
+      >
+        <Grid container spacing={2} direction="column">
+          <Grid item container alignItems="center">
+            <Grid
+              container
+              alignItems="center"
+              spacing={2}
+              sx={{ marginBottom: theme.spacing(1) }}
+            >
+              <Grid item>
+                <img
+                  src={OkIcon}
+                  alt="Ok Icon"
+                  style={{ width: "50%", height: "50%" }}
+                />
+              </Grid>
+              <Grid item xs>
+                <Typography
+                  variant="caption"
+                  display="block"
+                  color="textSecondary"
+                  sx={{ marginBottom: 1 }}
+                >
+                  SUCCESSFULLY CREATED OFFRAMP INTENT
+                </Typography>
+                <Stack
+                  direction="row"
+                  sx={{ width: "100%", alignItems: "center" }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-start",
+                      alignItems: "center",
+                      height: 25,
+                      borderRadius: "10px",
+                      backgroundColor: "#C8E6C9",
+                      color: "#7eb55c",
+                      padding: theme.spacing(0, 1),
+                    }}
+                  >
+                    <Typography
+                      variant="h7"
+                      component="span"
+                      sx={{ color: "inherit" }}
+                      padding="10px"
+                    >
+                      The amount of $100 was Off-Ramped
+                    </Typography>
+                  </Box>
+                  <Box sx={{ flexGrow: 1 }} />
+                </Stack>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </div>
     );
   }
 
   return (
-    <div>
-      <Stack direction="column" spacing={2}>
-        <Typography variant="h5" gutterBottom sx={{ fontWeight: "light" }}>
-          Set the amount that you want to OffRamp:
-        </Typography>
-        <TextField
-          type="number"
-          variant="outlined"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)} // Added to allow amount change
-          disabled // Disable if intent is created
-        />
-        <Button variant="outlined" onClick={handleOffRampClick}>
-          Create OffRamp Intent
-        </Button>
-      </Stack>
+    <div
+      style={{
+        paddingTop: "20px",
+      }}
+    >
+      <Grid container spacing={2} direction="column">
+        <Grid item container alignItems="center">
+          <Grid
+            container
+            alignItems="center"
+            spacing={2}
+            sx={{ marginBottom: theme.spacing(1) }}
+          >
+            <Grid item>
+              <img
+                src={OffRampIcon}
+                alt="OffRamp Icon"
+                style={{ width: "50%", height: "50%" }}
+              />
+            </Grid>
+            <Grid item xs>
+              <Typography
+                variant="caption"
+                display="block"
+                color="textSecondary"
+                sx={{ marginBottom: 1 }}
+              >
+                SET THE AMOUNT TO OFFRAMP
+              </Typography>
+              <Stack
+                direction="row"
+                sx={{ width: "100%", alignItems: "center" }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    height: 25,
+                    borderRadius: "10px",
+                    backgroundColor: "#F7FAFD",
+                    color: "#1B6AC8",
+                    padding: theme.spacing(0, 1),
+                  }}
+                >
+                  <Typography
+                    variant="h7"
+                    component="span"
+                    sx={{ color: "inherit" }}
+                    padding="10px"
+                  >
+                    $100
+                  </Typography>
+                </Box>
+                <Box sx={{ flexGrow: 1 }} />
+              </Stack>
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item>
+          <Box display="flex" justifyContent="center">
+            <Button variant="outlined" onClick={handleOffRampClick}>
+              Create OffRamp Intent
+            </Button>
+          </Box>
+        </Grid>
+      </Grid>
     </div>
   );
 };

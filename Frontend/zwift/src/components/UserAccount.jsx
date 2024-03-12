@@ -161,7 +161,12 @@ const UserAccount = () => {
           />
         </Grid>
         <Grid item xs>
-          <Typography variant="caption" display="block" color="textSecondary">
+          <Typography
+            variant="caption"
+            display="block"
+            color="textSecondary"
+            sx={{ marginBottom: 1 }}
+          >
             REGISTERED EMAIL
           </Typography>
           <Stack direction="row" sx={{ width: "100%", alignItems: "center" }}>
@@ -206,7 +211,12 @@ const UserAccount = () => {
           />
         </Grid>
         <Grid item xs>
-          <Typography variant="caption" display="block" color="textSecondary">
+          <Typography
+            variant="caption"
+            display="block"
+            color="textSecondary"
+            sx={{ marginBottom: 1 }}
+          >
             WALLET BALANCE
           </Typography>
           <Stack direction="row" sx={{ width: "100%", alignItems: "center" }}>
@@ -251,7 +261,12 @@ const UserAccount = () => {
           />
         </Grid>
         <Grid item xs>
-          <Typography variant="caption" display="block" color="textSecondary">
+          <Typography
+            variant="caption"
+            display="block"
+            color="textSecondary"
+            sx={{ marginBottom: 1 }}
+          >
             OPEN OFFRAMP INTENT
           </Typography>
           <Stack direction="row" sx={{ width: "100%", alignItems: "center" }}>
