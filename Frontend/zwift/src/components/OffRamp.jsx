@@ -15,28 +15,47 @@ import { useAccount } from "../context/AccountContext";
 import { newOffRampIntent } from "../services/OrchestratorOffRampService";
 import OffRampIcon from "../icons/icons8-münzen-48.png"; // Import the PNG file
 import OkIcon from "../icons/icons8-ok-48.png"; // Import the PNG file
+import useErrorHandler from "../hooks/useErrorHandler";
+import ErrorSnackbar from "../components/ErrorSnackbar"; // Adjust the path as necessary
 
 const OffRamp = () => {
   const { account, setUsersOffRampIntent, usersOffRampIntent } = useAccount();
   const [offRampIntentCreated, setOffRampIntentCreated] = useState(false);
   const [amount, setAmount] = useState("100"); // Keep amount as string for TextField compatibility
+  const { error, showError } = useErrorHandler();
+  const [open, setOpen] = useState(false);
   const theme = useTheme();
+  // Handles closing of Snackbar
+  const handleErrorClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
 
   const handleOffRampClick = async () => {
     const amountNum = parseInt(amount, 10);
 
     try {
       const createdOffRamp = await newOffRampIntent(account, amountNum);
-      if (createdOffRamp) {
-        setOffRampIntentCreated(true);
-        const newUsersOpenOffRampIntent =
-          parseInt(usersOffRampIntent, 10) + parseInt(amount, 10);
-        setUsersOffRampIntent(newUsersOpenOffRampIntent);
-      } else {
-        console.error("Failed to create off-ramp intent.");
+
+      if (!createdOffRamp) {
+        showError("Failed tto initialize and off-ramp contract."); // Display the dynamic error message
+        setOpen(true);
+        console.error(
+          "Failed to create off-ramp intent without throwing an error."
+        );
+        return;
       }
+
+      setOffRampIntentCreated(true);
+      const newUsersOpenOffRampIntent =
+        parseInt(usersOffRampIntent, 10) + amountNum;
+      setUsersOffRampIntent(newUsersOpenOffRampIntent);
     } catch (error) {
-      console.error("Error creating off-ramp intent:", error);
+      showError(error.message || "An unexpected error occurred."); // Display the dynamic error message
+      setOpen(true);
+      console.error("Error initializing off-ramp intent:", error);
     }
   };
 
@@ -179,6 +198,11 @@ const OffRamp = () => {
           </Box>
         </Grid>
       </Grid>
+      <ErrorSnackbar
+        open={open}
+        handleClose={handleErrorClose}
+        errorMessage={error}
+      />
     </div>
   );
 };

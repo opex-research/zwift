@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAccount } from "../context/AccountContext";
 import useErrorHandler from "../hooks/useErrorHandler";
 import ErrorSnackbar from "../components/ErrorSnackbar"; // Adjust the path as necessary
-import CircularProgress from "@mui/material/CircularProgress";
+import LoadingMessage from "./LoadingMessage"; // Adjust the path as necessary
 
 // Importing UI components from MUI
 import {
@@ -48,7 +48,7 @@ const isValidEmail = (email) => {
  */
 const LoginCard = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState({ isActive: false, message: "" });
   const {
     setAccount,
     setBalance,
@@ -76,7 +76,7 @@ const LoginCard = () => {
 
   // Handles login logic with error handling and loading state
   const handleLogin = async () => {
-    setLoading(true);
+    setLoading({ isActive: true, message: "LOGGING YOU IN" });
     try {
       await delay(2000); // Simulate network delay
       const account = await loginUserAccount();
@@ -87,24 +87,46 @@ const LoginCard = () => {
         if (balance) setBalance(balance);
         const registeredEmail = await getUserEmail(account);
         if (registeredEmail) setRegisteredEmail(registeredEmail);
-        const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
+
+        let openOffRampsInQueue; // Declare the variable outside to widen its scope
+
+        try {
+          openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
+        } catch (err) {
+          // Correctly capture the error object in the catch block
+          showError(err.message || "An unexpected error occurred.");
+          setOpen(true);
+          openOffRampsInQueue = 0; // Correctly assign a fallback value outside the try block
+        }
+
         if (openOffRampsInQueue) setOpenOffRampsInQueue(openOffRampsInQueue);
-        const usersOffRampIntent = await getUsersOpenOffRampIntents(account);
+
+        let usersOffRampIntent; // Declare the variable outside to widen its scope
+
+        try {
+          usersOffRampIntent = await getUsersOpenOffRampIntents(account);
+        } catch (err) {
+          // Correctly capture the error object in the catch block
+          showError(err.message || "An unexpected error occurred.");
+          setOpen(true);
+          usersOffRampIntent = 0; // Correctly assign a fallback value outside the try block
+        }
+
         if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
 
-        setLoading(false); // Stop loading on success
+        setLoading({ isActive: false, message: "" });
         navigate("/dashboard");
       }
     } catch (err) {
       showError(err.message || "An unexpected error occurred.");
-      setLoading(false);
+      setLoading({ isActive: false, message: "" });
       setOpen(true);
     }
   };
 
   // Handles sign-up logic with error handling and loading state
   const handleSignUp = async () => {
-    setLoading(true);
+    setLoading({ isActive: true, message: "REGISTERING YOU" });
     try {
       await delay(2000); // Simulate network delay
 
@@ -121,19 +143,20 @@ const LoginCard = () => {
         const usersOffRampIntent = await getUsersOpenOffRampIntents(account);
         if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
 
-        setLoading(false); // Stop loading on success
+        setLoading({ isActive: false, message: "" });
         navigate("/dashboard");
       }
     } catch (err) {
       showError(err.message || "An unexpected error occurred.");
-      setLoading(false);
+      setLoading({ isActive: false, message: "" });
       setOpen(true);
     }
   };
 
   // Render a loading spinner when the component is in a loading state
-  if (loading) {
-    return <CircularProgress />;
+  // Assuming `loading` is a state that tracks whether your component is loading
+  if (loading.isActive) {
+    return <LoadingMessage message={loading.message} />;
   }
 
   // Main component UI

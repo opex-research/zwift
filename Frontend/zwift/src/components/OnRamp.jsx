@@ -27,7 +27,7 @@ const OnRamp = () => {
   const { openOffRampsInQueue } = useAccount();
   const [searchForPeerState, setSearchForPeer] = useState("off"); //off; searching; found
   const isSearchDisabled = openOffRampsInQueue === 0;
-  const [sliderValue, setSliderValue] = useState(25);
+  const [sliderValue, setSliderValue] = useState(100);
 
   const handleResponseChange = (newValue) => {
     setResponse(newValue);
@@ -147,7 +147,7 @@ const OnRamp = () => {
               <Slider
                 aria-label="Amount"
                 value={sliderValue}
-                onChange={handleSliderChange}
+                onChange={null}
                 step={null} // Null step disables the default stepping behavior
                 marks={[
                   { value: 25, label: "$25" },

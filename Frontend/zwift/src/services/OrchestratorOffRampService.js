@@ -18,10 +18,40 @@ export const newOffRampIntent = async (wallet, amount) => {
       amount
     );
     const receipt = await transactionResponse.wait(); // Wait for the transaction to be mined
-    return receipt.status === 1; // Returns true if transaction was successful, false otherwise
+    if (receipt.status !== 1) {
+      throw new Error("Transaction failed."); // Custom error for unsuccessful transaction
+    }
+    return true; // The function returns true, indicating success
   } catch (error) {
     console.error("Error creating new OffRamp Intent", error);
-    return false; // Indicate failure
+
+    // Default error message
+    let errorMessage =
+      "An error occurred during the off-ramp process: Already an open OffRamp Intent.";
+
+    // Check for error.reason provided by ethers for high-level error info
+    if (error.reason) {
+      errorMessage = error.reason;
+    }
+
+    // Detailed error information often resides within error.data or error.error.data
+    if (error.data && error.data.message) {
+      errorMessage = error.data.message;
+    } else if (
+      error.error &&
+      error.error.data &&
+      typeof error.error.data.message === "string"
+    ) {
+      errorMessage = error.error.data.message;
+    }
+
+    // If the error contains a revert reason within data.message
+    const revertReasonMatch = errorMessage.match(/revert: (.*)/);
+    if (revertReasonMatch && revertReasonMatch[1]) {
+      errorMessage = revertReasonMatch[1];
+    }
+
+    throw new Error(errorMessage);
   }
 };
 
@@ -45,7 +75,34 @@ export const decreaseOffRampIntentAfterTransaction = async (wallet, amount) => {
     return receipt.status === 1; // Returns true if transaction was successful, false otherwise
   } catch (error) {
     console.error("Error decreasing OffRamp Intent", error);
-    return false; // Indicate failure
+
+    // Default error message
+    let errorMessage =
+      "An error occurred during the off-ramp process: Error decreasing OffRamp Intent.";
+
+    // Check for error.reason provided by ethers for high-level error info
+    if (error.reason) {
+      errorMessage = error.reason;
+    }
+
+    // Detailed error information often resides within error.data or error.error.data
+    if (error.data && error.data.message) {
+      errorMessage = error.data.message;
+    } else if (
+      error.error &&
+      error.error.data &&
+      typeof error.error.data.message === "string"
+    ) {
+      errorMessage = error.error.data.message;
+    }
+
+    // If the error contains a revert reason within data.message
+    const revertReasonMatch = errorMessage.match(/revert: (.*)/);
+    if (revertReasonMatch && revertReasonMatch[1]) {
+      errorMessage = revertReasonMatch[1];
+    }
+
+    throw new Error(errorMessage);
   }
 };
 
@@ -65,7 +122,33 @@ export const getUsersOpenOffRampIntents = async (wallet) => {
     return amount; // Returns the amount of the open OffRamp Intent
   } catch (error) {
     console.error("Error retrieving open OffRamp Intent", error);
-    return 0; // Indicates failure or no intent
+
+    // Default error message
+    let errorMessage =
+      "An error occurred during the off-ramp process: Error retrieving open OffRamp Intent.";
+
+    // Check for error.reason provided by ethers for high-level error info
+    if (error.reason) {
+      errorMessage = error.reason;
+    }
+
+    // Detailed error information often resides within error.data or error.error.data
+    if (error.data && error.data.message) {
+      errorMessage = error.data.message;
+    } else if (
+      error.error &&
+      error.error.data &&
+      typeof error.error.data.message === "string"
+    ) {
+      errorMessage = error.error.data.message;
+    }
+
+    // If the error contains a revert reason within data.message
+    const revertReasonMatch = errorMessage.match(/revert: (.*)/);
+    if (revertReasonMatch && revertReasonMatch[1]) {
+      errorMessage = revertReasonMatch[1];
+    }
+    throw new Error(errorMessage);
   }
 };
 
@@ -87,6 +170,32 @@ export const getOpenOffRampIntentsFromQueue = async () => {
     return amount; // Returns the number of open OffRamp Intents
   } catch (error) {
     console.error("Error retrieving number of open OffRamp Intents", error);
-    return 0; // Indicates failure or no intents
+
+    // Default error message
+    let errorMessage =
+      "An error occurred during the off-ramp process: Error retrieving number of open OffRamp Intents.";
+
+    // Check for error.reason provided by ethers for high-level error info
+    if (error.reason) {
+      errorMessage = error.reason;
+    }
+
+    // Detailed error information often resides within error.data or error.error.data
+    if (error.data && error.data.message) {
+      errorMessage = error.data.message;
+    } else if (
+      error.error &&
+      error.error.data &&
+      typeof error.error.data.message === "string"
+    ) {
+      errorMessage = error.error.data.message;
+    }
+
+    // If the error contains a revert reason within data.message
+    const revertReasonMatch = errorMessage.match(/revert: (.*)/);
+    if (revertReasonMatch && revertReasonMatch[1]) {
+      errorMessage = revertReasonMatch[1];
+    }
+    throw new Error(errorMessage);
   }
 };
