@@ -66,6 +66,25 @@ const LoginCard = () => {
   // Utility function to simulate network delay
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+  const withTimeout = (promise, timeout) => {
+    return new Promise((resolve, reject) => {
+      // Set a timer that rejects the promise after timeout
+      const timer = setTimeout(() => {
+        reject(new Error("Operation timed out"));
+      }, timeout);
+
+      promise
+        .then((value) => {
+          clearTimeout(timer);
+          resolve(value);
+        })
+        .catch((error) => {
+          clearTimeout(timer);
+          reject(error);
+        });
+    });
+  };
+
   // Handles closing of Snackbar
   const handleErrorClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -130,17 +149,27 @@ const LoginCard = () => {
     try {
       await delay(2000); // Simulate network delay
 
-      const account = await registerUserAccount(email);
+      const account = await withTimeout(registerUserAccount(email), 10000);
       if (account) {
         setLogged(true);
         setAccount(account);
-        const balance = await getAccountBalance(account);
+
+        const balance = await withTimeout(getAccountBalance(account), 10000);
         if (balance) setBalance(balance);
-        const registeredEmail = await getUserEmail(account);
+
+        const registeredEmail = await withTimeout(getUserEmail(account), 10000);
         if (registeredEmail) setRegisteredEmail(registeredEmail);
-        const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
+
+        const openOffRampsInQueue = await withTimeout(
+          getOpenOffRampIntentsFromQueue(),
+          10000
+        );
         if (openOffRampsInQueue) setOpenOffRampsInQueue(openOffRampsInQueue);
-        const usersOffRampIntent = await getUsersOpenOffRampIntents(account);
+
+        const usersOffRampIntent = await withTimeout(
+          getUsersOpenOffRampIntents(account),
+          10000
+        );
         if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
 
         setLoading({ isActive: false, message: "" });

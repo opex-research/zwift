@@ -67,8 +67,34 @@ export const registerUserAccount = async (email) => {
       throw new Error("Transaction failed");
     }
   } catch (error) {
-    console.error("Error with registration:", error);
-    throw new Error("You are already registered");
+    console.error("Error during registration", error);
+
+    // Default error message
+    let errorMessage =
+      "An error occurred during registration: Possible blockchain inconsistency, restart/clear wallet.";
+
+    // Check for error.reason provided by ethers for high-level error info
+    if (error.reason) {
+      errorMessage = error.reason;
+    }
+
+    // Detailed error information often resides within error.data or error.error.data
+    if (error.data && error.data.message) {
+      errorMessage = error.data.message;
+    } else if (
+      error.error &&
+      error.error.data &&
+      typeof error.error.data.message === "string"
+    ) {
+      errorMessage = error.error.data.message;
+    }
+
+    // If the error contains a revert reason within data.message
+    const revertReasonMatch = errorMessage.match(/revert: (.*)/);
+    if (revertReasonMatch && revertReasonMatch[1]) {
+      errorMessage = revertReasonMatch[1];
+    }
+    throw new Error(errorMessage);
   }
 };
 
