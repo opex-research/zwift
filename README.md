@@ -4,7 +4,7 @@
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.x-blue.svg)](https://soliditylang.org/)
 [![React](https://img.shields.io/badge/React-17.x-61DAFB.svg)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-14.x-339933.svg)](https://nodejs.org/)
-[![License: MIT]([https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/opex-research/zwift/blob/main/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/opex-research/zwift/blob/main/LICENSE)
 
 Zwift leverages the power of Zero-Knowledge Proofs (ZKPs) and TLS Oracles to create a trustless environment for buying and selling cryptocurrencies. This platform is designed to minimize trust in traditional exchanges by allowing direct, secure, and private transactions between users.
 
