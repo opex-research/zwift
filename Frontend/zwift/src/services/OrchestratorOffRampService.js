@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 
 // function to create an OffRamp Intent
-export const newOffRampIntent = async (wallet, amount) => {
+export const newOffRampIntent = async (user, amountInEther) => {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
   const orchestratorContract = new ethers.Contract(
@@ -12,16 +12,21 @@ export const newOffRampIntent = async (wallet, amount) => {
     signer
   );
 
+  // Convert amount from Ether to Wei
+  const amountInWei = ethers.utils.parseEther(amountInEther.toString());
+
   try {
-    const transactionResponse = await orchestratorContract.newOffRampIntent(
-      wallet,
-      amount
+    // Ensure to call 'createOffRampIntentAndSendETH' and pass the amount as value
+    const transactionResponse = await orchestratorContract.createOffRampIntentAndSendETH(
+      user,
+      amountInWei, // This assumes your function expects the amount in wei
+      { value: amountInWei } // Sending ETH along with the transaction
     );
-    const receipt = await transactionResponse.wait(); // Wait for the transaction to be mined
+    const receipt = await transactionResponse.wait();
     if (receipt.status !== 1) {
-      throw new Error("Transaction failed."); // Custom error for unsuccessful transaction
+      throw new Error("Transaction failed.");
     }
-    return true; // The function returns true, indicating success
+    return true;
   } catch (error) {
     console.error("Error creating new OffRamp Intent", error);
 
