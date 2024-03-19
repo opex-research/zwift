@@ -1,6 +1,6 @@
 <div align="center">
   
-# Zwift
+# Zwift - Trustless Exchange of Crypto and FIAT
 
 [![Ethereum L2](https://img.shields.io/badge/Ethereum-L2-brightgreen)](https://ethereum.org/)
 [![React 17.x](https://img.shields.io/badge/React-17.x-61DAFB.svg)](https://reactjs.org/)
