@@ -1,77 +1,91 @@
 # Zwift
 
-[![Ethereum](https://img.shields.io/badge/Ethereum-L2-brightgreen)](https://ethereum.org/)
-[![React](https://img.shields.io/badge/React-17.x-61DAFB.svg)](https://reactjs.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-21.6.2-339933.svg)](https://nodejs.org/)
-[![Foundry](https://img.shields.io/badge/Foundry-Toolkit-orange.svg)](https://book.getfoundry.sh/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/opex-research/zwift/blob/main/LICENSE)
+[![Ethereum L2](https://img.shields.io/badge/Ethereum-L2-brightgreen)](https://ethereum.org/)
+[![React 17.x](https://img.shields.io/badge/React-17.x-61DAFB.svg)](https://reactjs.org/)
+[![Node.js 21.6.2](https://img.shields.io/badge/Node.js-21.6.2-339933.svg)](https://nodejs.org/)
+[![Foundry Toolkit](https://img.shields.io/badge/Foundry-Toolkit-orange.svg)](https://book.getfoundry.sh/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Zwift leverages the power of Zero-Knowledge Proofs (ZKPs) and TLS Oracles to create a trustless environment for buying and selling cryptocurrencies. This platform is designed to minimize trust in traditional exchanges by allowing direct, secure, and private transactions between users.
 
+## Table of Contents
+
+- [Introduction](#zwift-a-trustless-cryptocurrency-trading-platform)
+- [Objectives](#objectives)
+- [Submodules](#submodules)
+  - [TLS Oracle (ORIGO)](#tls-oracle-origo)
+  - [Forge Standard Library](#forge-standard-library)
+  - [OpenZeppelin Contracts](#openzeppelin-contracts)
+- [Getting Started](#getting-started)
+  - [How to Start](#how-to-start)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
 ## Objectives
 
-- Develop an MVP for trustless onboarding to an Ethereum L2 solution.
-- Prototype a privacy-preserving P2P Automated Market Maker (AMM).
-- Optimize SNARK-based TLS Oracles for enhanced performance.
+- **Trustless Onboarding:** Develop an MVP for seamless integration with an Ethereum L2 solution.
+- **Privacy-Preserving P2P AMM:** Prototype a decentralized, privacy-focused Automated Market Maker.
+- **Optimized TLS Oracles:** Enhance the performance and reliability of SNARK-based TLS Oracles.
 
 ## Submodules
 
-Zwift uses several submodules for development, including:
-
 ### TLS Oracle (ORIGO)
 
-**About:** ORIGO ensures data authenticity beyond the client-server TLS connection, allowing clients to obtain data from a server and prove its provenance to any third party without server-side modifications. Utilizing the TLS 1.3 protocol, ORIGO introduces a third party in a TLS session and provides a protocol to ensure the authenticity of data transmitted in a TLS session without forfeiting its confidentiality. It significantly reduces online communication and runtime compared to previous solutions.
+**Purpose:** ORIGO authenticates data outside the client-server connection, enabling data provenance verification by any third-party without server modifications. It leverages TLS 1.3 to introduce a third-party verifier into TLS sessions, ensuring data integrity and confidentiality.
 
-- **Path:** `TLS_Notary`
-- **Repository URL:** [tls-oracle-demo](https://github.com/opex-research/tls-oracle-demo)
+- **Location:** `TLS_Notary`
+- **Repository:** [tls-oracle-demo](https://github.com/opex-research/tls-oracle-demo)
 
 ### Forge Standard Library
 
-**About:** Forge Standard Library is a collection of helpful contracts for use with forge and foundry. It leverages forge's cheatcodes to make writing tests easier and faster, while improving the UX of cheatcodes. For more in-depth usage examples, checkout the tests.
+**Purpose:** This library offers a suite of utility contracts and test aids, simplifying and accelerating smart contract development with Foundry's forge.
 
-- **Path:** `Contracts/lib/forge-std`
-- **Repository URL:** [forge-std](https://github.com/foundry-rs/forge-std)
+- **Location:** `Contracts/lib/forge-std`
+- **Repository:** [forge-std](https://github.com/foundry-rs/forge-std)
 
 ### OpenZeppelin Contracts
 
-**About:** OpenZeppelin Contracts is a library for secure smart contract development.
+**Purpose:** A foundational library for secure smart contract development, offering a wide range of security-focused modules and templates.
 
-- **Path:** `Contracts/lib/openzeppelin-contracts`
-- **Repository URL:** [openzeppelin-contracts](https://github.com/OpenZeppelin/openzeppelin-contracts)
+- **Location:** `Contracts/lib/openzeppelin-contracts`
+- **Repository:** [openzeppelin-contracts](https://github.com/OpenZeppelin/openzeppelin-contracts)
 
 ## Getting Started
 
-Follow these steps to get started with the Zwift project:
-
 ### How to Start
 
-1. Run the setup script to install dependencies and configure the environment.
+1. **Setup and Dependencies:**
     ```sh
     ./setup_project.sh
     ```
-2. Integrate the local Anvil chain into your MetaMask wallet for easy interaction with your local development environment.
-3. Pick one private key from the local Ethereum blockchain generated by your local environment.
-4. Integrate the selected private key into your MetaMask wallet to interact with the deployed contracts.
+    This script installs necessary dependencies and configures the development environment.
+
+2. **Local Blockchain Integration:**
+    - Configure MetaMask to connect with the local Anvil chain for streamlined development testing.
+
+3. **Private Key Integration:**
+    - Select and integrate a private key from the local blockchain into MetaMask for contract interactions.
 
 ## Usage
 
-After installation, open [http://localhost:3000](http://localhost:3000) to view the application in the browser. The platform allows you to register as a seller or buyer to engage in cryptocurrency transactions secured by ZKPs and TLS Oracles.
+Navigate to [http://localhost:3000](http://localhost:3000) to access the platform. Users can register as buyers or sellers, engaging in secure transactions through the innovative use of ZKPs and TLS Oracles.
 
 ## Contributing
 
-We welcome contributions. Please follow these steps to contribute:
+Contributions are welcomed and appreciated:
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. **Fork** the repository.
+2. **Create** your feature branch: `git checkout -b feature/YourAmazingFeature`.
+3. **Commit** your changes: `git commit -m 'Add some YourAmazingFeature'`.
+4. **Push** to the branch: `git push origin feature/YourAmazingFeature`.
+5. **Submit** a pull request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
 ## Acknowledgments
 
-- Jens Ernstberger, Jan Lauinger, Sören Glaser-Gallion, Michel Osswald for their contributions.
-- Ethereum community for providing the foundation for this project.
+Special thanks to Jens Ernstberger, Jan Lauinger, Sören Glaser-Gallion, Michel Osswald, and the broader Ethereum community for their invaluable contributions and support.
