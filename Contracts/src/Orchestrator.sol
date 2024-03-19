@@ -7,12 +7,6 @@ interface IRegistrator {
     function getEmail(address wallet) external view returns (string memory);
 }
 
-interface IOffRamper {
-    function newOffRampIntent(address wallet, uint16 amount) external returns (bool);
-    function decreaseOffRampIntentAfterTransaction(address wallet, uint16 amount) external returns (bool);
-    function getOpenOffRampIntent(address wallet) external view returns (uint16);
-}
-
 interface IPeerFinder {
     function addOffRampersIntent(address _address) external;
     function getAndRemoveOffRampersIntent() external returns (address);
@@ -22,87 +16,90 @@ interface IPeerFinder {
     function size() external view returns (uint256);
 }
 
-
+interface IOffRamper {
+    function newOffRampIntent(address user, uint256 amount) external payable;
+    function releasePartialFundsToOnRamper(address offRamper, address onRamper, uint256 releaseAmount, uint intentIndex) external;
+    function getEscrowBalance(address user) external view returns (uint256);
+}
 
 contract Orchestrator {
-    
-    IRegistrator public registrator;
-    IOffRamper public offRamper;
-    IPeerFinder public peerFinder;
+    IRegistrator public registratorContract;
+    IOffRamper public offRamperContract;
+    IPeerFinder public peerFinderContract;
 
-    constructor(address _registratorAddress, address _offRamperAddress, address _peerFinderAddress) {
-        registrator = IRegistrator(_registratorAddress);
-        offRamper = IOffRamper(_offRamperAddress); 
-        peerFinder = IPeerFinder(_peerFinderAddress);
+    constructor(
+        address _registratorAddress,
+        address _offRamperAddress,
+        address _peerFinderAddress
+    ) {
+        registratorContract = IRegistrator(_registratorAddress);
+        offRamperContract = IOffRamper(_offRamperAddress);
+        peerFinderContract = IPeerFinder(_peerFinderAddress);
     }
 
-    //------------------- Functions for IRegistrator -------------------
-    // Function to register a wallet address with an email through the registrator
-    function registerUserAccount(address wallet, string calldata email) external returns (bool){
-        return registrator.registerAccount(wallet, email);
+
+
+
+    // Orchestrator functions for interacting with the Registrator
+    function registerUserAccount(address wallet, string calldata email) external returns (bool) {
+        return registratorContract.registerAccount(wallet, email);
     }
 
-    // Function to perform login check through the registrator
     function loginUserAccount(address wallet) external view returns (bool) {
-        return registrator.login(wallet);
+        return registratorContract.login(wallet);
     }
 
-    // Function to retrieve email for a wallet address through the registrator
     function getUserEmail(address wallet) external view returns (string memory) {
-        return registrator.getEmail(wallet);
+        return registratorContract.getEmail(wallet);
     }
 
 
 
-    //------------------ Functions for IPeerFinder ----------------------
+
+    // Orchestrator functions for managing off-ramp intents queue via PeerFinder
     function addOffRampersIntentToQueue(address _address) internal {
-        peerFinder.addOffRampersIntent(_address);
+        peerFinderContract.addOffRampersIntent(_address);
     }
 
     function getAndRemoveOffRampersIntentFromQueue() external returns (address) {
-        return peerFinder.getAndRemoveOffRampersIntent();
+        return peerFinderContract.getAndRemoveOffRampersIntent();
     }
 
     function reinsertOffRampIntentAfterFailedOnRamp(address _address) external {
-        peerFinder.reinsertOffRampIntentAfterFailedOnRamp(_address);
+        peerFinderContract.reinsertOffRampIntentAfterFailedOnRamp(_address);
     }
 
     function peekOffRamperQueue() external view returns (address) {
-        return peerFinder.peek();
+        return peerFinderContract.peek();
     }
 
     function isOffRamperQueueEmpty() external view returns (bool) {
-        return peerFinder.isEmpty();
+        return peerFinderContract.isEmpty();
     }
 
     function numberOfOpenOffRampIntents() external view returns (uint256) {
-        return peerFinder.size();
+        return peerFinderContract.size();
     }
 
 
 
-    //------------------ Functions for IOffRamper ----------------------
-    // Function to store an OffRamp Intent with a certain amount through the offRamper
-    function newOffRampIntent(address wallet, uint16 amount) external returns (bool) {
-        // Require that the new off-ramp intent is successful
-        require(offRamper.newOffRampIntent(wallet, amount), "OffRampIntent failed");
-        // Since the off-ramp intent was successful, add the wallet to the off-rampers intent queue
-        addOffRampersIntentToQueue(wallet);
-        // Return true to indicate success
-        return true;
+    // Orchestrator functions for Off-Ramp intents
+    // Function to orchestrate creating an off-ramp intent with ETH transfer
+    function createOffRampIntentAndSendETH(address user, uint256 amount) external payable {
+        require(msg.value == amount, "Incorrect ETH amount");
+        (bool success, ) = address(offRamperContract).call{value: msg.value}(
+            abi.encodeWithSignature("newOffRampIntent(address,uint256)", user, amount)
+        );
+        require(success, "Failed to send ETH or call OffRamper");
+        addOffRampersIntentToQueue(user);
     }
 
-
-    // Function to decrease OffRampIntent after a successful OnRamp transaction through the offRamper
-    function decreaseOffRampIntentAfterTransaction(address wallet, uint16 amount) external returns (bool) {
-        return offRamper.decreaseOffRampIntentAfterTransaction(wallet, amount);
+    // Additional functions to interact with the OffRamper contract
+    function releasePartialFunds(address offRamper, address onRamper, uint256 releaseAmount, uint intentIndex) external {
+        offRamperContract.releasePartialFundsToOnRamper(offRamper, onRamper, releaseAmount, intentIndex);
     }
 
-    // Function to retrieve open OffRampIntent associated with a wallet through the offRamper
-    function getOpenOffRampIntent(address wallet) external view returns (uint16) {
-        return offRamper.getOpenOffRampIntent(wallet);
+    function queryEscrowBalance(address user) external view returns (uint256) {
+        return offRamperContract.getEscrowBalance(user);
     }
-
-
-    
 }
