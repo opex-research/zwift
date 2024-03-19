@@ -17,11 +17,12 @@ export const newOffRampIntent = async (user, amountInEther) => {
 
   try {
     // Ensure to call 'createOffRampIntentAndSendETH' and pass the amount as value
-    const transactionResponse = await orchestratorContract.createOffRampIntentAndSendETH(
-      user,
-      amountInWei, // This assumes your function expects the amount in wei
-      { value: amountInWei } // Sending ETH along with the transaction
-    );
+    const transactionResponse =
+      await orchestratorContract.createOffRampIntentAndSendETH(
+        user,
+        amountInWei, // This assumes your function expects the amount in wei
+        { value: amountInWei } // Sending ETH along with the transaction
+      );
     const receipt = await transactionResponse.wait();
     if (receipt.status !== 1) {
       throw new Error("Transaction failed.");
@@ -122,7 +123,7 @@ export const getUsersOpenOffRampIntents = async (wallet) => {
 
   try {
     console.log("In here");
-    const amount = await orchestratorContract.getOpenOffRampIntent(wallet);
+    const amount = await orchestratorContract.queryEscrowBalance(wallet);
     console.log("users Intent", amount);
     return amount; // Returns the amount of the open OffRamp Intent
   } catch (error) {
