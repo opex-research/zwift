@@ -94,4 +94,4 @@ Licensed under the MIT License. See the [LICENSE](LICENSE) file for more details
 
 ## Acknowledgments
 
-Special thanks to Jens Ernstberger, Jan Lauinger, Sören Glaser-Gallion, Michel Osswald, and the broader Ethereum community for their invaluable contributions and support.
+Special thanks to Jens Ernstberger, Jan Lauinger and the broader Ethereum community for their invaluable contributions and support.
