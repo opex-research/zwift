@@ -16,7 +16,6 @@ contract OffRamper {
 
     // Function to add a new OffRamp Intent for a user
     function newOffRampIntent(address offRamperAddress, uint256 amount) external payable {
-        amount = 1000000000000000000; // This represents 1 ETH in wei, we use this for testing purposes
         require(msg.value == amount, "Sent value does not match the intent amount");
         escrowBalances[offRamperAddress] += amount;
         userOffRampIntents[offRamperAddress].push(OffRampIntent(amount, false));

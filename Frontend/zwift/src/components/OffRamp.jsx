@@ -21,7 +21,7 @@ import ErrorSnackbar from "../components/ErrorSnackbar"; // Adjust the path as n
 const OffRamp = () => {
   const { account, setUsersOffRampIntent, usersOffRampIntent } = useAccount();
   const [offRampIntentCreated, setOffRampIntentCreated] = useState(false);
-  const [amount, setAmount] = useState("100"); // Keep amount as string for TextField compatibility
+  const [amount, setAmount] = useState("1"); // Keep amount as string for TextField compatibility
   const { error, showError } = useErrorHandler();
   const [open, setOpen] = useState(false);
   const theme = useTheme();
@@ -61,7 +61,7 @@ const OffRamp = () => {
 
   const handleCreateAnother = () => {
     setOffRampIntentCreated(false);
-    setAmount("100");
+    setAmount("1");
   };
 
   if (offRampIntentCreated) {

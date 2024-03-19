@@ -2,42 +2,43 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import "../src/OffRamper.sol"; // Adjust the path to your OffRamper contract
+import "../src/OffRamper.sol";
 
 contract OffRamperTest is Test {
     OffRamper offRamper;
+    address offRamperAddress = address(1);
+    address onRamperAddress = address(2);
 
     function setUp() public {
         offRamper = new OffRamper();
+        vm.deal(offRamperAddress, 10 ether); // Providing test ether to the offRamperAddress for testing
     }
 
     function testNewOffRampIntent() public {
-        uint16 amount = 100;
-        address wallet = address(0x1);
-
-        bool success = offRamper.newOffRampIntent(wallet, amount);
-        assertTrue(success, "OffRamp intent should be successfully created");
-
-        uint16 returnedAmount = offRamper.getOpenOffRampIntent(wallet);
-        assertEq(returnedAmount, amount, "Stored amount should match the input amount");
+        vm.startPrank(offRamperAddress);
+        offRamper.newOffRampIntent{value: 1 ether}(offRamperAddress, 1 ether);
+        assertEq(offRamper.getEscrowBalance(offRamperAddress), 1 ether);
+        vm.stopPrank();
     }
 
-    function testDecreaseOffRampIntent() public {
-        uint16 initialAmount = 100;
-        uint16 decreaseAmount = 50;
-        address wallet = address(0x2);
-
-        offRamper.newOffRampIntent(wallet, initialAmount);
-        offRamper.decreaseOffRampIntentAfterTransaction(wallet, decreaseAmount);
-
-        uint16 remainingAmount = offRamper.getOpenOffRampIntent(wallet);
-        assertEq(remainingAmount, initialAmount - decreaseAmount, "Remaining amount should be correctly decreased");
+    function testReleasePartialFundsToOnRamper() public {
+        // First, create an off-ramp intent
+        vm.startPrank(offRamperAddress);
+        offRamper.newOffRampIntent{value: 1 ether}(offRamperAddress, 1 ether);
+        vm.stopPrank();
+        
+        // Attempt to release partial funds
+        offRamper.releasePartialFundsToOnRamper(offRamperAddress, onRamperAddress, 0.5 ether, 0);
+        assertEq(offRamper.getEscrowBalance(offRamperAddress), 0.5 ether);
+        assertEq(address(onRamperAddress).balance, 0.5 ether);
     }
 
-    function testFailDecreaseOffRampIntentWithoutIntent() public {
-        address wallet = address(0x3);
-        uint16 decreaseAmount = 50;
-        // This should fail as there's no intent for this wallet yet
-        offRamper.decreaseOffRampIntentAfterTransaction(wallet, decreaseAmount);
+    function testFailReleasePartialFundsExceedingIntent() public {
+        vm.startPrank(offRamperAddress);
+        offRamper.newOffRampIntent{value: 1 ether}(offRamperAddress, 1 ether);
+        vm.stopPrank();
+        
+        // This should fail as it attempts to release more funds than available in the intent
+        offRamper.releasePartialFundsToOnRamper(offRamperAddress, onRamperAddress, 2 ether, 0);
     }
 }
