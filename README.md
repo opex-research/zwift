@@ -76,6 +76,8 @@ Zwift leverages the power of Zero-Knowledge Proofs (ZKPs) and TLS Oracles to cre
 
 Navigate to [http://localhost:3000](http://localhost:3000) to access the platform. Users can register as buyers or sellers, engaging in secure transactions through the innovative use of ZKPs and TLS Oracles.
 
+![Welcome screen after opening http://localhost:3000](/welcome.jpeg)
+
 ## Contributing
 
 Contributions are welcomed and appreciated:
