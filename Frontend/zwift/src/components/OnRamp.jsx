@@ -20,7 +20,7 @@ import CancelIcon from "../icons/icons8-x-48.png"; // Import the PNG file
 import CheckIcon from "../icons/icons8-häkchen-48.png"; // Import the PNG file
 
 const OnRamp = () => {
-  const [email, setEmail] = useState("sb-sdcta29428430@personal.example.com");
+  const [email, setEmail] = useState("peer1paypal@test.comn");
   const [successfullResponse, setResponse] = useState(false);
   const [resetCounter, setResetCounter] = useState(0);
   const [paymentDetails, setPaymentDetails] = useState(null);
@@ -28,6 +28,9 @@ const OnRamp = () => {
   const [searchForPeerState, setSearchForPeer] = useState("off"); //off; searching; found
   const isSearchDisabled = openOffRampsInQueue === 0;
   const [sliderValue, setSliderValue] = useState(100);
+
+  // Utility function to simulate network delay
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const handleResponseChange = (newValue) => {
     setResponse(newValue);
@@ -43,8 +46,12 @@ const OnRamp = () => {
     setResetCounter((prev) => prev + 1);
   };
 
-  const handleSearchForPeer = () => {
+  const handleSearchForPeer = async () => {
     setSearchForPeer("searching");
+    try {
+      await delay(1000);
+      setSearchForPeer("found");
+    } catch {}
   };
 
   const theme = useTheme();
