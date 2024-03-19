@@ -1,9 +1,9 @@
 # Zwift
 
 [![Ethereum](https://img.shields.io/badge/Ethereum-L2-brightgreen)](https://ethereum.org/)
-[![Solidity](https://img.shields.io/badge/Solidity-0.8.x-blue.svg)](https://soliditylang.org/)
 [![React](https://img.shields.io/badge/React-17.x-61DAFB.svg)](https://reactjs.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-14.x-339933.svg)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-21.6.2-339933.svg)](https://nodejs.org/)
+[![Foundry](https://img.shields.io/badge/Foundry-Toolkit-orange.svg)](https://book.getfoundry.sh/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/opex-research/zwift/blob/main/LICENSE)
 
 Zwift leverages the power of Zero-Knowledge Proofs (ZKPs) and TLS Oracles to create a trustless environment for buying and selling cryptocurrencies. This platform is designed to minimize trust in traditional exchanges by allowing direct, secure, and private transactions between users.
@@ -13,6 +13,24 @@ Zwift leverages the power of Zero-Knowledge Proofs (ZKPs) and TLS Oracles to cre
 - Develop an MVP for trustless onboarding to an Ethereum L2 solution.
 - Prototype a privacy-preserving P2P Automated Market Maker (AMM).
 - Optimize SNARK-based TLS Oracles for enhanced performance.
+
+## Submodules
+
+Zwift uses several submodules for development, including:
+
+### Forge Standard Library
+
+**About:** Forge Standard Library is a collection of helpful contracts for use with forge and foundry. It leverages forge's cheatcodes to make writing tests easier and faster, while improving the UX of cheatcodes. For more in-depth usage examples, checkout the tests.
+
+- **Path:** `Contracts/lib/forge-std`
+- **Repository URL:** [forge-std](https://github.com/foundry-rs/forge-std)
+
+### OpenZeppelin Contracts
+
+**About:** OpenZeppelin Contracts is a library for secure smart contract development.
+
+- **Path:** `Contracts/lib/openzeppelin-contracts`
+- **Repository URL:** [openzeppelin-contracts](https://github.com/OpenZeppelin/openzeppelin-contracts)
 
 ## Getting Started
 
