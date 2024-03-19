@@ -18,6 +18,13 @@ Zwift leverages the power of Zero-Knowledge Proofs (ZKPs) and TLS Oracles to cre
 
 Zwift uses several submodules for development, including:
 
+### TLS Oracle (ORIGO)
+
+**About:** ORIGO ensures data authenticity beyond the client-server TLS connection, allowing clients to obtain data from a server and prove its provenance to any third party without server-side modifications. Utilizing the TLS 1.3 protocol, ORIGO introduces a third party in a TLS session and provides a protocol to ensure the authenticity of data transmitted in a TLS session without forfeiting its confidentiality. It significantly reduces online communication and runtime compared to previous solutions.
+
+- **Path:** `TLS_Notary`
+- **Repository URL:** [tls-oracle-demo](https://github.com/opex-research/tls-oracle-demo)
+
 ### Forge Standard Library
 
 **About:** Forge Standard Library is a collection of helpful contracts for use with forge and foundry. It leverages forge's cheatcodes to make writing tests easier and faster, while improving the UX of cheatcodes. For more in-depth usage examples, checkout the tests.
