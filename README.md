@@ -1,3 +1,5 @@
+<div align="center">
+  
 # Zwift
 
 [![Ethereum L2](https://img.shields.io/badge/Ethereum-L2-brightgreen)](https://ethereum.org/)
@@ -7,6 +9,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Zwift leverages the power of Zero-Knowledge Proofs (ZKPs) and TLS Oracles to create a trustless environment for buying and selling cryptocurrencies. This platform is designed to minimize trust in traditional exchanges by allowing direct, secure, and private transactions between users.
+
+</div>
 
 ## Table of Contents
 
