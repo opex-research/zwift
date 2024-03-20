@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-
+import "forge-std/console.sol";
 interface IRegistrator {
     function registerAccount(address wallet, string calldata email) external returns (bool);
     function login(address wallet) external view returns (bool);
@@ -90,6 +90,7 @@ contract Orchestrator {
         (bool success, ) = address(offRamperContract).call{value: msg.value}(
             abi.encodeWithSignature("newOffRampIntent(address,uint256)", user, amount)
         );
+        console.log("Successfull tansaction by offramper:", success);
         require(success, "Failed to send ETH or call OffRamper");
         addOffRampersIntentToQueue(user);
     }

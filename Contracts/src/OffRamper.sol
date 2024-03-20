@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-
+import "forge-std/console.sol";
 contract OffRamper {
     struct OffRampIntent {
         uint256 amount;
@@ -10,6 +10,7 @@ contract OffRamper {
     mapping(address => uint256) private escrowBalances; //direct representation of the funds that users have committed to the contract, awaiting onramps
     mapping(address => OffRampIntent[]) private userOffRampIntents; //represents the single intents of one user, important for future if user makes multiple off ramp intents
 
+
     event OffRampIntentCreated(address indexed offRamperAddess, uint256 amount);
     event FundsPartiallyReleased(address indexed offRamper, address indexed onRamper, uint256 releaseAmount);
     event EscrowRefunded(address indexed user, uint256 amount);
@@ -17,9 +18,13 @@ contract OffRamper {
     // Function to add a new OffRamp Intent for a user
     function newOffRampIntent(address offRamperAddress, uint256 amount) external payable {
         require(msg.value == amount, "Sent value does not match the intent amount");
+        console.log("inside new offramp intent");
         escrowBalances[offRamperAddress] += amount;
+        console.log("after offRamper address");
         userOffRampIntents[offRamperAddress].push(OffRampIntent(amount, false));
+        console.log("added to user offf ramp intents");
         emit OffRampIntentCreated(offRamperAddress, amount);
+        console.log("event emitted");
     }
 
     // Function to release partial funds from a user's escrow to an on-ramper
