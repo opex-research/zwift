@@ -192,7 +192,7 @@ const formatBalance = (balance) =>
 
 // Formats the offramp intent for display
 const formatOffRampIntent = (intent) =>
-  isNaN(parseFloat(intent)) ? "Error loading offramp intent" : `$${intent}`;
+  isNaN(parseFloat(intent)) ? "Error loading offramp intent" : `ETH ${intent}`;
 
 // Component to display account details with an icon
 const AccountDetails = ({ icon, label, value, infoItemStyle }) => (

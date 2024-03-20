@@ -123,9 +123,10 @@ export const getUsersOpenOffRampIntents = async (wallet) => {
 
   try {
     console.log("In here");
-    const amount = await orchestratorContract.queryEscrowBalance(wallet);
-    console.log("users Intent", amount);
-    return amount; // Returns the amount of the open OffRamp Intent
+    const amountWei = await orchestratorContract.queryEscrowBalance(wallet);
+    const amountEth = ethers.utils.formatEther(amountWei);
+    console.log("users Intent", amountEth);
+    return amountEth; // Returns the amount of the open OffRamp Intent
   } catch (error) {
     console.error("Error retrieving open OffRamp Intent", error);
 
