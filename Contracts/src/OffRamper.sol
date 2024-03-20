@@ -29,7 +29,7 @@ contract OffRamper {
     }
 
     // Function to release funds from a user's escrow to an on-ramper
-    function releaseFundsToOnRamper(
+    function releasePartialFundsToOnRamper(
         address offRamperAddress,
         address onRamperAddress,
         uint256 releaseAmount

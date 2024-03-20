@@ -2,7 +2,10 @@
 pragma solidity ^0.8.0;
 import "forge-std/console.sol";
 interface IRegistrator {
-    function registerAccount(address wallet, string calldata email) external returns (bool);
+    function registerAccount(
+        address wallet,
+        string calldata email
+    ) external returns (bool);
     function login(address wallet) external view returns (bool);
     function getEmail(address wallet) external view returns (string memory);
 }
@@ -18,7 +21,11 @@ interface IPeerFinder {
 
 interface IOffRamper {
     function newOffRampIntent(address user, uint256 amount) external payable;
-    function releasePartialFundsToOnRamper(address offRamper, address onRamper, uint256 releaseAmount, uint intentIndex) external;
+    function releasePartialFundsToOnRamper(
+        address offRamper,
+        address onRamper,
+        uint256 releaseAmount
+    ) external;
     function getEscrowBalance(address user) external view returns (uint256);
 }
 
@@ -37,11 +44,11 @@ contract Orchestrator {
         peerFinderContract = IPeerFinder(_peerFinderAddress);
     }
 
-
-
-
     // Orchestrator functions for interacting with the Registrator
-    function registerUserAccount(address wallet, string calldata email) external returns (bool) {
+    function registerUserAccount(
+        address wallet,
+        string calldata email
+    ) external returns (bool) {
         return registratorContract.registerAccount(wallet, email);
     }
 
@@ -49,19 +56,21 @@ contract Orchestrator {
         return registratorContract.login(wallet);
     }
 
-    function getUserEmail(address wallet) external view returns (string memory) {
+    function getUserEmail(
+        address wallet
+    ) external view returns (string memory) {
         return registratorContract.getEmail(wallet);
     }
-
-
-
 
     // Orchestrator functions for managing off-ramp intents queue via PeerFinder
     function addOffRampersIntentToQueue(address _address) internal {
         peerFinderContract.addOffRampersIntent(_address);
     }
 
-    function getAndRemoveOffRampersIntentFromQueue() external returns (address) {
+    function getAndRemoveOffRampersIntentFromQueue()
+        external
+        returns (address)
+    {
         return peerFinderContract.getAndRemoveOffRampersIntent();
     }
 
@@ -81,22 +90,35 @@ contract Orchestrator {
         return peerFinderContract.size();
     }
 
-
-
     // Orchestrator functions for Off-Ramp intents
     // Function to orchestrate creating an off-ramp intent with ETH transfer
-    function createOffRampIntentAndSendETH(address user, uint256 amount) external payable {
+    function createOffRampIntentAndSendETH(
+        address user,
+        uint256 amount
+    ) external payable {
         require(msg.value == amount, "Incorrect ETH amount");
         (bool success, ) = address(offRamperContract).call{value: msg.value}(
-            abi.encodeWithSignature("newOffRampIntent(address,uint256)", user, amount)
+            abi.encodeWithSignature(
+                "newOffRampIntent(address,uint256)",
+                user,
+                amount
+            )
         );
         require(success, "Failed to send ETH or call OffRamper");
         addOffRampersIntentToQueue(user);
     }
 
     // Additional functions to interact with the OffRamper contract
-    function releasePartialFunds(address offRamper, address onRamper, uint256 releaseAmount, uint intentIndex) external {
-        offRamperContract.releasePartialFundsToOnRamper(offRamper, onRamper, releaseAmount, intentIndex);
+    function releasePartialFundsToOnRamper(
+        address offRamper,
+        address onRamper,
+        uint256 releaseAmount
+    ) external {
+        offRamperContract.releasePartialFundsToOnRamper(
+            offRamper,
+            onRamper,
+            releaseAmount
+        );
     }
 
     function queryEscrowBalance(address user) external view returns (uint256) {

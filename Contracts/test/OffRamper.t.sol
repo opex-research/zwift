@@ -26,9 +26,13 @@ contract OffRamperTest is Test {
         vm.startPrank(offRamperAddress);
         offRamper.newOffRampIntent{value: 1 ether}(offRamperAddress, 1 ether);
         vm.stopPrank();
-        
+
         // Attempt to release partial funds
-        offRamper.releasePartialFundsToOnRamper(offRamperAddress, onRamperAddress, 0.5 ether, 0);
+        offRamper.releasePartialFundsToOnRamper(
+            offRamperAddress,
+            onRamperAddress,
+            0.5 ether
+        );
         assertEq(offRamper.getEscrowBalance(offRamperAddress), 0.5 ether);
         assertEq(address(onRamperAddress).balance, 0.5 ether);
     }
@@ -37,8 +41,12 @@ contract OffRamperTest is Test {
         vm.startPrank(offRamperAddress);
         offRamper.newOffRampIntent{value: 1 ether}(offRamperAddress, 1 ether);
         vm.stopPrank();
-        
+
         // This should fail as it attempts to release more funds than available in the intent
-        offRamper.releasePartialFundsToOnRamper(offRamperAddress, onRamperAddress, 2 ether, 0);
+        offRamper.releasePartialFundsToOnRamper(
+            offRamperAddress,
+            onRamperAddress,
+            2 ether
+        );
     }
 }
