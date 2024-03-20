@@ -12,7 +12,10 @@ import {
   Stack,
 } from "@mui/material";
 import { useAccount } from "../context/AccountContext";
-import { newOffRampIntent } from "../services/OrchestratorOffRampService";
+import {
+  newOffRampIntent,
+  getUsersOpenOffRampIntents,
+} from "../services/OrchestratorOffRampService";
 import OffRampIcon from "../icons/icons8-münzen-48.png"; // Import the PNG file
 import OkIcon from "../icons/icons8-ok-48.png"; // Import the PNG file
 import useErrorHandler from "../hooks/useErrorHandler";
@@ -49,9 +52,11 @@ const OffRamp = () => {
       }
 
       setOffRampIntentCreated(true);
-      const newUsersOpenOffRampIntent =
-        parseInt(usersOffRampIntent, 10) + amountNum;
-      setUsersOffRampIntent(newUsersOpenOffRampIntent);
+
+      const newOffRampIntentBalance =
+        parseFloat(usersOffRampIntent) + parseFloat(amountNum);
+      // If setUsersOffRampIntent expects a string
+      setUsersOffRampIntent(newOffRampIntentBalance);
     } catch (error) {
       showError(error.message || "An unexpected error occurred."); // Display the dynamic error message
       setOpen(true);
@@ -117,7 +122,7 @@ const OffRamp = () => {
                       sx={{ color: "inherit" }}
                       padding="10px"
                     >
-                      The amount of $100 was Off-Ramped
+                      1 ETH was offramped
                     </Typography>
                   </Box>
                   <Box sx={{ flexGrow: 1 }} />
@@ -182,7 +187,7 @@ const OffRamp = () => {
                     sx={{ color: "inherit" }}
                     padding="10px"
                   >
-                    $100
+                    1 ETH
                   </Typography>
                 </Box>
                 <Box sx={{ flexGrow: 1 }} />
