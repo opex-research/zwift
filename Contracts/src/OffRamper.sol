@@ -10,40 +10,65 @@ contract OffRamper {
     mapping(address => uint256) private escrowBalances; //direct representation of the funds that users have committed to the contract, awaiting onramps
     mapping(address => OffRampIntent[]) private userOffRampIntents; //represents the single intents of one user, important for future if user makes multiple off ramp intents
 
-
     event OffRampIntentCreated(address indexed offRamperAddess, uint256 amount);
-    event FundsPartiallyReleased(address indexed offRamper, address indexed onRamper, uint256 releaseAmount);
+    event FundsPartiallyReleased(
+        address indexed offRamper,
+        address indexed onRamper,
+        uint256 releaseAmount
+    );
     event EscrowRefunded(address indexed user, uint256 amount);
 
     // Function to add a new OffRamp Intent for a user
-    function newOffRampIntent(address offRamperAddress, uint256 amount) external payable {
-        require(msg.value == amount, "Sent value does not match the intent amount");
-        console.log("inside new offramp intent");
+    function newOffRampIntent(
+        address offRamperAddress,
+        uint256 amount
+    ) external payable {
+        require(
+            msg.value == amount,
+            "Sent value does not match the intent amount"
+        );
+
         escrowBalances[offRamperAddress] += amount;
-        console.log("after offRamper address");
         userOffRampIntents[offRamperAddress].push(OffRampIntent(amount, false));
-        console.log("added to user offf ramp intents");
         emit OffRampIntentCreated(offRamperAddress, amount);
-        console.log("event emitted");
     }
 
     // Function to release partial funds from a user's escrow to an on-ramper
-    function releasePartialFundsToOnRamper(address offRamperAddress, address onRamperAddress, uint256 releaseAmount, uint intentIndex) external {
-        require(escrowBalances[offRamperAddress] >= releaseAmount, "Release amount exceeds escrow balance");
-        require(userOffRampIntents[offRamperAddress][intentIndex].amount >= releaseAmount, "Release amount exceeds intent amount");
-        require(!userOffRampIntents[offRamperAddress][intentIndex].isFulfilled, "Intent already fulfilled");
+    function releasePartialFundsToOnRamper(
+        address offRamperAddress,
+        address onRamperAddress,
+        uint256 releaseAmount,
+        uint intentIndex
+    ) external {
+        require(
+            escrowBalances[offRamperAddress] >= releaseAmount,
+            "Release amount exceeds escrow balance"
+        );
+        require(
+            userOffRampIntents[offRamperAddress][intentIndex].amount >=
+                releaseAmount,
+            "Release amount exceeds intent amount"
+        );
+        require(
+            !userOffRampIntents[offRamperAddress][intentIndex].isFulfilled,
+            "Intent already fulfilled"
+        );
 
         escrowBalances[offRamperAddress] -= releaseAmount;
-        userOffRampIntents[offRamperAddress][intentIndex].amount -= releaseAmount;
-        if(userOffRampIntents[offRamperAddress][intentIndex].amount == 0) {
-            userOffRampIntents[offRamperAddress][intentIndex].isFulfilled = true;
+        userOffRampIntents[offRamperAddress][intentIndex]
+            .amount -= releaseAmount;
+        if (userOffRampIntents[offRamperAddress][intentIndex].amount == 0) {
+            userOffRampIntents[offRamperAddress][intentIndex]
+                .isFulfilled = true;
         }
 
         payable(onRamperAddress).transfer(releaseAmount);
-        emit FundsPartiallyReleased(offRamperAddress, onRamperAddress, releaseAmount);
+        emit FundsPartiallyReleased(
+            offRamperAddress,
+            onRamperAddress,
+            releaseAmount
+        );
     }
-
-   
 
     // Utility function to view a user's escrow balance
     function getEscrowBalance(address user) public view returns (uint256) {

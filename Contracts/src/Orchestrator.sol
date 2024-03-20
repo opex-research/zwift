@@ -90,7 +90,6 @@ contract Orchestrator {
         (bool success, ) = address(offRamperContract).call{value: msg.value}(
             abi.encodeWithSignature("newOffRampIntent(address,uint256)", user, amount)
         );
-        console.log("Successfull tansaction by offramper:", success);
         require(success, "Failed to send ETH or call OffRamper");
         addOffRampersIntentToQueue(user);
     }
