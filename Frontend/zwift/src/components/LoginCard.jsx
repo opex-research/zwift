@@ -4,6 +4,7 @@ import { useAccount } from "../context/AccountContext";
 import useErrorHandler from "../hooks/useErrorHandler";
 import ErrorSnackbar from "../components/ErrorSnackbar"; // Adjust the path as necessary
 import LoadingMessage from "./LoadingMessage"; // Adjust the path as necessary
+import RegistrationButtons from "./RegistrationButtons";
 
 // Importing UI components from MUI
 import {
@@ -57,8 +58,9 @@ const LoginCard = () => {
     setOpenOffRampsInQueue,
     setUsersOffRampIntent,
   } = useAccount();
-  const [email, setEmail] = useState("");
-  const [confirmEmail, setConfirmEmail] = useState("");
+  const { paypalEmail, setPaypalEmail } = useAccount();
+  const [email, setEmail] = useState(paypalEmail || "");
+
   const { error, showError } = useErrorHandler();
   const [open, setOpen] = useState(false);
   const theme = useTheme();
@@ -222,8 +224,6 @@ const LoginCard = () => {
           <SignUpSection
             email={email}
             setEmail={setEmail}
-            confirmEmail={confirmEmail}
-            setConfirmEmail={setConfirmEmail}
             handleSignUp={handleSignUp}
             theme={theme}
           />
@@ -294,8 +294,7 @@ const SignUpSection = ({
   theme,
 }) => {
   // Check if both emails are valid and match
-  const isFormValid =
-    email === confirmEmail && isValidEmail(email) && isValidEmail(confirmEmail);
+  const isFormValid = isValidEmail(email);
 
   return (
     <Grid
@@ -312,41 +311,43 @@ const SignUpSection = ({
         />
       </Grid>
       <Grid item xs>
-        <Typography variant="caption" sx={{ color: "grey", display: "block" }}>
-          FIRST TIME HERE, SET YOUR PAYPAL EMAIL
-        </Typography>
-        <TextField
-          required
-          fullWidth
-          value={email}
-          variant="standard"
-          onChange={(e) => setEmail(e.target.value)}
-          error={email && !isValidEmail(email)}
-          helperText={
-            email && !isValidEmail(email) ? "Please enter a valid email." : ""
-          }
-          sx={{ marginBottom: 2 }}
-        />
-        <Typography variant="caption" sx={{ color: "grey", display: "block" }}>
-          CONFIRM EMAIL
-        </Typography>
-        <TextField
-          required
-          fullWidth
-          value={confirmEmail}
-          variant="standard"
-          onChange={(e) => setConfirmEmail(e.target.value)}
-          error={confirmEmail && !isValidEmail(confirmEmail)}
-          helperText={
-            confirmEmail && !isValidEmail(confirmEmail)
-              ? "Please enter a valid email."
-              : ""
-          }
-          sx={{ marginBottom: 2 }}
-        />
-        <Button onClick={handleSignUp} disabled={!isFormValid} sx={buttonStyle}>
-          REGISTER
-        </Button>
+        {email ? (
+          <>
+            <Typography
+              variant="caption"
+              sx={{ color: "grey", display: "block" }}
+            >
+              YOUR PAYPAL EMAIL
+            </Typography>
+            <TextField
+              required
+              fullWidth
+              value={email}
+              variant="standard"
+              InputProps={{
+                readOnly: true, // Make the TextField read-only
+              }}
+              sx={{ marginBottom: 2 }}
+            />
+            <Button
+              onClick={handleSignUp}
+              disabled={!isFormValid}
+              sx={buttonStyle}
+            >
+              REGISTER
+            </Button>
+          </>
+        ) : (
+          <>
+            <Typography
+              variant="caption"
+              sx={{ color: "grey", display: "block" }}
+            >
+              FIRST TIME HERE? LOG IN TO REGISTER YOUR PAYPAL EMAIL
+            </Typography>
+            <RegistrationButtons />
+          </>
+        )}
       </Grid>
     </Grid>
   );
