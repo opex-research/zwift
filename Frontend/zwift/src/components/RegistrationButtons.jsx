@@ -9,9 +9,7 @@ const PayPalLoginButton = () => {
     const redirectURI = encodeURIComponent(
       "http://127.0.0.1:3001/auth-handler"
     );
-    // Include the 'email' scope in the request
-    const scope = encodeURIComponent("email");
-    // Generate a random state value for CSRF protection
+
     const paypalLoginURL = `https://sandbox.paypal.com/signin/authorize?client_id=${clientID}&response_type=code&redirect_uri=${redirectURI}`;
 
     // Redirect user to PayPal login
