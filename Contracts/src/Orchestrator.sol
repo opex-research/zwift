@@ -29,19 +29,35 @@ interface IOffRamper {
     function getEscrowBalance(address user) external view returns (uint256);
 }
 
+interface IOnRamper {
+    function verifyPayPalTransaction(
+        uint256 amount,
+        address onRamper,
+        address offRamper,
+        string calldata onRampersEmail,
+        string calldata offRampersEmail,
+        string calldata transactionSenderEmail,
+        string calldata transactionReceiverEmail,
+        uint256 transactionAmount
+    ) external returns (bool);
+}
+
 contract Orchestrator {
     IRegistrator public registratorContract;
     IOffRamper public offRamperContract;
     IPeerFinder public peerFinderContract;
+    IOnRamper public onRamperContract;
 
     constructor(
         address _registratorAddress,
         address _offRamperAddress,
-        address _peerFinderAddress
+        address _peerFinderAddress,
+        address _onRamperAddress
     ) {
         registratorContract = IRegistrator(_registratorAddress);
         offRamperContract = IOffRamper(_offRamperAddress);
         peerFinderContract = IPeerFinder(_peerFinderAddress);
+        onRamperContract = IOnRamper(_onRamperAddress);
     }
 
     // Orchestrator functions for interacting with the Registrator
@@ -124,4 +140,42 @@ contract Orchestrator {
     function queryEscrowBalance(address user) external view returns (uint256) {
         return offRamperContract.getEscrowBalance(user);
     }
+
+    //Onramp functions
+    // Event to be emitted in case of onRamp failure
+    event OnRampFailed(address indexed offRamper, address indexed onRamper, uint256 amount);
+    event OnRampCompleted(address indexed offRamper, address indexed onRamper, uint256 amount);
+    function onRamp(
+        uint256 amount,
+        address offRamper,
+        string calldata offRampersEmail,
+        string calldata onRampersEmail,
+        string calldata transactionSenderEmail,
+        string calldata transactionReceiverEmail,
+        uint256 transactionAmount
+    ) external {
+        address onRamper = msg.sender;
+
+        bool success = verifyPayPalTransaction(
+            amount,
+            onRamper,
+            offRamper,
+            onRampersEmail,
+            offRampersEmail,
+            transactionSenderEmail,
+            transactionReceiverEmail,
+            transactionAmount
+        );
+
+        if (success) {
+            releasePartialFundsToOnRamper(offRamper, onRamper, amount);
+            emit OnRampCompleted(offRamper, onRamper, amount)
+        } else {
+            reinsertOffRampIntentAfterFailedOnRamp(offRamper);
+            emit OnRampFailed(offRamper, onRamper, amount);
+        }
+    }
+
+    
 }
+
