@@ -59,6 +59,9 @@ contract Orchestrator {
         peerFinderContract = IPeerFinder(_peerFinderAddress);
         onRamperContract = IOnRamper(_onRamperAddress);
     }
+    // Event to be emitted in case of onRamp failure/success
+    event OnRampFailed(address indexed offRamper, address indexed onRamper, uint256 amount);
+    event OnRampCompleted(address indexed offRamper, address indexed onRamper, uint256 amount);
 
     // Orchestrator functions for interacting with the Registrator
     function registerUserAccount(
@@ -141,10 +144,9 @@ contract Orchestrator {
         return offRamperContract.getEscrowBalance(user);
     }
 
-    //Onramp functions
-    // Event to be emitted in case of onRamp failure
-    event OnRampFailed(address indexed offRamper, address indexed onRamper, uint256 amount);
-    event OnRampCompleted(address indexed offRamper, address indexed onRamper, uint256 amount);
+
+   
+    
     function onRamp(
         uint256 amount,
         address offRamper,
@@ -156,7 +158,7 @@ contract Orchestrator {
     ) external {
         address onRamper = msg.sender;
 
-        bool success = verifyPayPalTransaction(
+        bool success = onRamperContract.verifyPayPalTransaction(
             amount,
             onRamper,
             offRamper,
@@ -168,10 +170,10 @@ contract Orchestrator {
         );
 
         if (success) {
-            releasePartialFundsToOnRamper(offRamper, onRamper, amount);
-            emit OnRampCompleted(offRamper, onRamper, amount)
+            offRamperContract.releasePartialFundsToOnRamper(offRamper, onRamper, amount);
+            emit OnRampCompleted(offRamper, onRamper, amount);
         } else {
-            reinsertOffRampIntentAfterFailedOnRamp(offRamper);
+            peerFinderContract.reinsertOffRampIntentAfterFailedOnRamp(offRamper);
             emit OnRampFailed(offRamper, onRamper, amount);
         }
     }
