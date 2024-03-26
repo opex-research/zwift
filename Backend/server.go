@@ -6,8 +6,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/opex-research/zwift/router" // Adjust based on your actual package path
+	"github.com/joho/godotenv"
+	"github.com/opex-research/zwift/router"
 )
+
+func init() {
+	// Load the .env file from the current directory
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
 
 func main() {
 	app := fiber.New(fiber.Config{
