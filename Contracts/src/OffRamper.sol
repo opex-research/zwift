@@ -14,6 +14,8 @@ contract OffRamper {
         uint256 releaseAmount
     );
     event EscrowRefunded(address indexed user, uint256 amount);
+    event OffRampIntentCreated(address indexed user, uint256 amount);
+    event FundsReleased(address indexed offRamperAddress,address indexed onRamperAddress, uint256 releaseAmount);
 
     // Function to create a new off-ramp intent and add funds to a user's escrow
     function newOffRampIntent(
