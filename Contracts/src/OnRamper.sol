@@ -2,14 +2,6 @@
 pragma solidity ^0.8.0;
 
 contract OnRamper {
-    // Event to emit the result of the onRamp operation
-    event OnRampResult(
-        bool success,
-        address indexed onRamper,
-        address indexed offRamper,
-        uint256 amount
-    );
-
     // Function to simulate an onRamp operation
     // For demonstration, it performs a simple check
     // and returns the result of this check.
@@ -29,7 +21,6 @@ contract OnRamper {
             (keccak256(abi.encodePacked(offRampersEmail)) ==
                 keccak256(abi.encodePacked(transactionReceiverEmail))) &&
             amount == transactionAmount;
-
         return success;
     }
 }

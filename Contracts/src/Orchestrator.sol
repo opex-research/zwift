@@ -110,7 +110,7 @@ contract Orchestrator {
     // Orchestrator functions for managing off-ramp intents queue via PeerFinder
     function addOffRampersIntentToQueue(address _address) internal {
         peerFinderContract.addOffRampersIntent(_address);
-        emit OffRampersIntentAddedInOrchestrator(_address)
+        emit OffRampersIntentAddedInOrchestrator(_address);
     }
 
     function getAndRemoveOffRampersIntentFromQueue()
@@ -123,7 +123,7 @@ contract Orchestrator {
     }
 
     function reinsertOffRampIntentAfterFailedOnRamp(address _address) external {
-        peerFinderContract.reinsertOffRampIntentAfterFailedOnRamp(_address)
+        peerFinderContract.reinsertOffRampIntentAfterFailedOnRamp(_address);
         emit OffRampersIntentReinsertedInOrchestrator(_address);
     }
 

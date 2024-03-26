@@ -2,7 +2,8 @@ import OrchestratorABI from "../contracts/Orchestrator.json"; // Correct the pat
 import { ethers } from "ethers";
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 
-// function to create an OffRamp Intent
+
+
 export const newOffRampIntent = async (user, amountInEther) => {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
@@ -12,54 +13,40 @@ export const newOffRampIntent = async (user, amountInEther) => {
     signer
   );
 
-  // Convert amount from Ether to Wei
   const amountInWei = ethers.utils.parseEther(amountInEther.toString());
 
-  try {
-    // Ensure to call 'createOffRampIntentAndSendETH' and pass the amount as value
-    const transactionResponse =
-      await orchestratorContract.createOffRampIntentAndSendETH(
-        user,
-        amountInWei, // This assumes your function expects the amount in wei
-        { value: amountInWei } // Sending ETH along with the transaction
-      );
-    const receipt = await transactionResponse.wait();
-    if (receipt.status !== 1) {
-      throw new Error("Transaction failed.");
-    }
-    return true;
-  } catch (error) {
-    console.error("Error creating new OffRamp Intent", error);
+  return new Promise((resolve, reject) => {
+    orchestratorContract.once("OffRampIntentCreatedAndETHSent", (user, amount) => {
+      // Event listener callback
+      console.log(`Off-ramp intent created for user: ${user} with amount: ${ethers.utils.formatEther(amount)}`);
+      resolve({ user, amount: ethers.utils.formatEther(amount) });
+    });
 
-    // Default error message
-    let errorMessage =
-      "An error occurred during the off-ramp process: Already an open OffRamp Intent.";
+    orchestratorContract.createOffRampIntentAndSendETH(user, amountInWei, { value: amountInWei })
+      .then((transactionResponse) => transactionResponse.wait())
+      .then((receipt) => {
+        if (receipt.status !== 1) {
+          throw new Error("Transaction failed.");
+        }
+        // If the event doesn't get emitted, resolve or reject after a timeout
+        setTimeout(() => reject(new Error("Timeout waiting for event")), 60000); // 60 seconds timeout
+      })
+      .catch((error) => {
+        console.error("Error creating new OffRamp Intent", error);
 
-    // Check for error.reason provided by ethers for high-level error info
-    if (error.reason) {
-      errorMessage = error.reason;
-    }
+        let errorMessage = "An error occurred during the off-ramp process.";
+        if (error.reason) errorMessage = error.reason;
+        if (error.data?.message) errorMessage = error.data.message;
+        else if (error.error?.data?.message) errorMessage = error.error.data.message;
 
-    // Detailed error information often resides within error.data or error.error.data
-    if (error.data && error.data.message) {
-      errorMessage = error.data.message;
-    } else if (
-      error.error &&
-      error.error.data &&
-      typeof error.error.data.message === "string"
-    ) {
-      errorMessage = error.error.data.message;
-    }
+        const revertReasonMatch = errorMessage.match(/revert: (.*)/);
+        if (revertReasonMatch && revertReasonMatch[1]) errorMessage = revertReasonMatch[1];
 
-    // If the error contains a revert reason within data.message
-    const revertReasonMatch = errorMessage.match(/revert: (.*)/);
-    if (revertReasonMatch && revertReasonMatch[1]) {
-      errorMessage = revertReasonMatch[1];
-    }
-
-    throw new Error(errorMessage);
-  }
+        reject(new Error(errorMessage));
+      });
+  });
 };
+
 
 // function to decrease an OffRamp Intent after a transaction
 export const decreaseOffRampIntentAfterTransaction = async (wallet, amount) => {
