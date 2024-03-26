@@ -18,6 +18,7 @@ import ExchangeIcon from "../icons/icons8-transfer-zwischen-benutzern-48.png"; /
 import { useAccount } from "../context/AccountContext";
 import CancelIcon from "../icons/icons8-x-48.png"; // Import the PNG file
 import CheckIcon from "../icons/icons8-häkchen-48.png"; // Import the PNG file
+import { getPeerForOnRamp } from "../services/OrchestratorOnRampService";
 
 const OnRamp = () => {
   const [email, setEmail] = useState("peer1paypal@test.comn");
@@ -49,7 +50,8 @@ const OnRamp = () => {
   const handleSearchForPeer = async () => {
     setSearchForPeer("searching");
     try {
-      await delay(1000);
+      peerAddress, peerEmail = await getPeerForOnRamp();
+      setEmail(peerEmail)
       setSearchForPeer("found");
     } catch {}
   };
