@@ -4,15 +4,8 @@ pragma solidity ^0.8.0;
 contract OffRamper {
     mapping(address => uint256) private escrowBalances; // Direct representation of the funds that users have committed to the contract, awaiting onramps.
 
-    event OffRampIntentCreated(
-        address indexed offRamperAddress,
-        uint256 amount
-    );
-    event FundsReleased(
-        address indexed offRamper,
-        address indexed onRamper,
-        uint256 releaseAmount
-    );
+
+
     event EscrowRefunded(address indexed user, uint256 amount);
     event OffRampIntentCreated(address indexed user, uint256 amount);
     event FundsReleased(address indexed offRamperAddress,address indexed onRamperAddress, uint256 releaseAmount);

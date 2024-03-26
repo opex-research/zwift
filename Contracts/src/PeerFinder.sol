@@ -27,7 +27,7 @@ contract PeerFinder {
         address offRamperAddress = address(
             uint160(uint256(offRamperQueue.popFront()))
         );
-        emit OffRampersIntentRemoved(offRamperAddress);
+        emit GotOffRampersIntent(offRamperAddress);
         return offRamperAddress;
     }
 
