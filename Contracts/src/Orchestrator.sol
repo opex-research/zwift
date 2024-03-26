@@ -150,20 +150,19 @@ contract Orchestrator {
     function onRamp(
         uint256 amount,
         address offRamper,
-        string calldata offRampersEmail,
-        string calldata onRampersEmail,
         string calldata transactionSenderEmail,
         string calldata transactionReceiverEmail,
         uint256 transactionAmount
     ) external {
         address onRamper = msg.sender;
         string memory onRampersEmailFetched = registratorContract.getEmail(onRamper);
+        string memory offRampersEmailFetched = registratorContract.getEmail(offRamper);
         bool success = onRamperContract.verifyPayPalTransaction(
             amount,
             onRamper,
             offRamper,
             onRampersEmailFetched,
-            offRampersEmail,
+            offRampersEmailFetched,
             transactionSenderEmail,
             transactionReceiverEmail,
             transactionAmount
