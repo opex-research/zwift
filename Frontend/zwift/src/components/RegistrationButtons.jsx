@@ -7,7 +7,7 @@ const PayPalLoginButton = () => {
     const clientID =
       "ATWNj8MbBvdUupI3VbC-isIb-fxnQ7j8Op6ch7rds51niwt1xGU0yreyPaFweWF_PZE5Yi71EXILTY7-";
     const redirectURI = encodeURIComponent(
-      "http://127.0.0.1:3001/auth-handler"
+      "http://127.0.0.1:3000/auth-handler"
     );
 
     const paypalLoginURL = `https://sandbox.paypal.com/signin/authorize?client_id=${clientID}&response_type=code&redirect_uri=${redirectURI}`;

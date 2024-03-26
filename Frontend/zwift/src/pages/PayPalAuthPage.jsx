@@ -15,7 +15,7 @@ const PayPalAuthPage = () => {
     const code = urlParams.get("code");
     if (code) {
       axios
-        .post(`http://127.0.0.1:3000/api/auth/paypal?code=${code}`)
+        .post(`http://127.0.0.1:3001/api/auth/paypal?code=${code}`)
         .then((response) => {
           console.log("Success:", response.data);
           setPaypalEmail(response.data.email); // Set the PayPal email in context

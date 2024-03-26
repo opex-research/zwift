@@ -3,7 +3,6 @@
 # Sequentially update git submodules
 git submodule update --init --recursive ./
 
-
 # After submodule updates are done, proceed with other tasks in new terminals
 
 # Open new terminal for Anvil
@@ -24,5 +23,12 @@ END
 osascript <<END
 tell application "Terminal"
     do script "cd \"$(pwd)/Frontend/zwift\"; npm install; npm start"
+end tell
+END
+
+# Open new terminal for Backend setup and start
+osascript <<END
+tell application "Terminal"
+    do script "cd \"$(pwd)/Backend\"; go run server.go"
 end tell
 END
