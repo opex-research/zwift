@@ -81,6 +81,8 @@ contract OrchestratorTest is Test {
         vm.prank(onRamperUser);
         orchestratorContract.registerUserAccount(address(onRamperUser), onRampersEmail);
 
+        vm.prank(onRamperUser);
+        orchestratorContract.registerUserAccount(address(offRamperUser), offRampersEmail);
         // Simulate offRamperUser creating an off-ramp intent
         vm.prank(offRamperUser);
         orchestratorContract.createOffRampIntentAndSendETH{value: 1 ether}(
@@ -97,8 +99,6 @@ contract OrchestratorTest is Test {
         orchestratorContract.onRamp(
             transactionAmount,
             offRamperUser,
-            offRampersEmail,
-            onRampersEmail,
             transactionSenderEmail,
             transactionReceiverEmail,
             transactionAmount
@@ -135,13 +135,17 @@ contract OrchestratorTest is Test {
         // Assume `transactionAmount` is set to a value that causes the onRamp to fail
         uint256 transactionAmount = 0.5 ether; // An amount that leads to failure based on contract logic
 
+        vm.prank(onRamperUser);
+        orchestratorContract.registerUserAccount(address(onRamperUser), onRampersEmail);
+
+        vm.prank(onRamperUser);
+        orchestratorContract.registerUserAccount(address(offRamperUser), offRampersEmail);
+
         // Execute onRamp with failure scenario
         vm.prank(onRamperUser);
         orchestratorContract.onRamp(
             transactionAmount,
             offRamperUser,
-            offRampersEmail,
-            onRampersEmail,
             transactionSenderEmail,
             transactionReceiverEmail,
             transactionAmount
