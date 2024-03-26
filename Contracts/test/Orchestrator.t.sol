@@ -79,18 +79,20 @@ contract OrchestratorTest is Test {
         // Pre-test balances
         beforeOnRamperBalance = onRamperUser.balance;
         vm.prank(onRamperUser);
-        orchestratorContract.registerUserAccount(address(onRamperUser), onRampersEmail);
+        orchestratorContract.registerUserAccount(onRamperUser, onRampersEmail);
 
-        vm.prank(onRamperUser);
-        orchestratorContract.registerUserAccount(address(offRamperUser), offRampersEmail);
+        vm.prank(offRamperUser);
+        orchestratorContract.registerUserAccount(
+            offRamperUser,
+            offRampersEmail
+        );
         // Simulate offRamperUser creating an off-ramp intent
         vm.prank(offRamperUser);
         orchestratorContract.createOffRampIntentAndSendETH{value: 1 ether}(
             offRamperUser,
             1 ether
         );
-        beforeOffRamperContractBalance = address(offRamperContract)
-            .balance;
+        beforeOffRamperContractBalance = address(offRamperContract).balance;
 
         uint256 transactionAmount = 1 ether;
 
@@ -136,10 +138,13 @@ contract OrchestratorTest is Test {
         uint256 transactionAmount = 0.5 ether; // An amount that leads to failure based on contract logic
 
         vm.prank(onRamperUser);
-        orchestratorContract.registerUserAccount(address(onRamperUser), onRampersEmail);
+        orchestratorContract.registerUserAccount(onRamperUser, onRampersEmail);
 
-        vm.prank(onRamperUser);
-        orchestratorContract.registerUserAccount(address(offRamperUser), offRampersEmail);
+        vm.prank(offRamperUser);
+        orchestratorContract.registerUserAccount(
+            offRamperUser,
+            offRampersEmail
+        );
 
         // Execute onRamp with failure scenario
         vm.prank(onRamperUser);
