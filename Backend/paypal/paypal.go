@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -35,7 +36,6 @@ func RequestAccessToken(authorizationCode string) (*PayPalTokenResponse, error) 
 		return nil, fmt.Errorf("failed to create request: %v", err)
 	}
 
-	// Add required headers.
 	authHeader := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", clientID, clientSecret)))
 	req.Header.Add("Authorization", "Basic "+authHeader)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -93,4 +93,108 @@ func GetUserEmail(accessToken string) (string, error) {
 	}
 
 	return userInfo.Email, nil
+}
+
+// OrderCreationResponse represents the structure of the order creation response from PayPal.
+type OrderCreationResponse struct {
+	ID     string `json:"id"`
+	Status string `json:"status"`
+	Links  []struct {
+		Href   string `json:"href"`
+		Rel    string `json:"rel"`
+		Method string `json:"method"`
+	} `json:"links"`
+}
+
+// CreateOrder creates an order in the PayPal system.
+func CreateOrder(accessToken string, orderData map[string]interface{}) (*OrderCreationResponse, error) {
+	apiURL := "https://api-m.sandbox.paypal.com/v2/checkout/orders"
+	bodyData, err := json.Marshal(orderData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal order data: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(bodyData))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %v", err)
+	}
+
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+	req.Header.Add("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to make request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		bodyBytes, _ := io.ReadAll(resp.Body) // Ignore error on purpose for simplicity
+		return nil, fmt.Errorf("unexpected status code: %d, response: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	var orderResp OrderCreationResponse
+	if err := json.NewDecoder(resp.Body).Decode(&orderResp); err != nil {
+		return nil, fmt.Errorf("failed to decode order creation response: %v", err)
+	}
+
+	return &orderResp, nil
+}
+
+// CaptureOrderResponse represents the response structure after capturing an order.
+type CaptureOrderResponse struct {
+	ID            string `json:"id"`
+	Status        string `json:"status"`
+	PurchaseUnits []struct {
+		Payments struct {
+			Captures []struct {
+				ID     string `json:"id"`
+				Status string `json:"status"`
+				Amount struct {
+					CurrencyCode string `json:"currency_code"`
+					Value        string `json:"value"`
+				} `json:"amount"`
+				FinalCapture bool `json:"final_capture"`
+				// Add more fields as necessary
+			} `json:"captures"`
+		} `json:"payments"`
+	} `json:"purchase_units"`
+	// Include additional fields as necessary
+}
+
+// CaptureOrder captures a payment for an order by its ID using the given access token.
+func CaptureOrder(accessToken, orderID string) (*CaptureOrderResponse, error) {
+	apiURL := fmt.Sprintf("https://api-m.sandbox.paypal.com/v2/checkout/orders/%s/capture", orderID)
+
+	req, err := http.NewRequest("POST", apiURL, nil) // No body is required for this request
+	if err != nil {
+		return nil, fmt.Errorf("creating request: %v", err)
+	}
+
+	// Add necessary headers
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+	req.Header.Add("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("executing request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("reading response body: %v", err)
+		}
+		return nil, fmt.Errorf("API request failed with status code %d: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	var captureResp CaptureOrderResponse
+	if err := json.NewDecoder(resp.Body).Decode(&captureResp); err != nil {
+		return nil, fmt.Errorf("decoding response: %v", err)
+	}
+
+	return &captureResp, nil
 }
