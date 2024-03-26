@@ -60,8 +60,17 @@ contract Orchestrator {
         onRamperContract = IOnRamper(_onRamperAddress);
     }
     // Event to be emitted in case of onRamp failure/success
-    event OnRampFailed(address indexed offRamper, address indexed onRamper, uint256 amount);
-    event OnRampCompleted(address indexed offRamper, address indexed onRamper, uint256 amount);
+    event OnRampFailed(
+        address indexed offRamper,
+        address indexed onRamper,
+        uint256 amount
+    );
+    event OnRampCompleted(
+        address indexed offRamper,
+        address indexed onRamper,
+        uint256 amount
+    );
+    event GotOffRampersAddressInOrchestrator(address offRamper);
 
     // Orchestrator functions for interacting with the Registrator
     function registerUserAccount(
@@ -90,7 +99,9 @@ contract Orchestrator {
         external
         returns (address)
     {
-        return peerFinderContract.getAndRemoveOffRampersIntent();
+        address offRamper = peerFinderContract.getAndRemoveOffRampersIntent();
+        emit GotOffRampersAddressInOrchestrator(offRamper);
+        return offRamper;
     }
 
     function reinsertOffRampIntentAfterFailedOnRamp(address _address) external {
@@ -144,9 +155,6 @@ contract Orchestrator {
         return offRamperContract.getEscrowBalance(user);
     }
 
-
-   
-    
     function onRamp(
         uint256 amount,
         address offRamper,
@@ -155,8 +163,12 @@ contract Orchestrator {
         uint256 transactionAmount
     ) external {
         address onRamper = msg.sender;
-        string memory onRampersEmailFetched = registratorContract.getEmail(onRamper);
-        string memory offRampersEmailFetched = registratorContract.getEmail(offRamper);
+        string memory onRampersEmailFetched = registratorContract.getEmail(
+            onRamper
+        );
+        string memory offRampersEmailFetched = registratorContract.getEmail(
+            offRamper
+        );
         bool success = onRamperContract.verifyPayPalTransaction(
             amount,
             onRamper,
@@ -169,14 +181,17 @@ contract Orchestrator {
         );
 
         if (success) {
-            offRamperContract.releasePartialFundsToOnRamper(offRamper, onRamper, amount);
+            offRamperContract.releasePartialFundsToOnRamper(
+                offRamper,
+                onRamper,
+                amount
+            );
             emit OnRampCompleted(offRamper, onRamper, amount);
         } else {
-            peerFinderContract.reinsertOffRampIntentAfterFailedOnRamp(offRamper);
+            peerFinderContract.reinsertOffRampIntentAfterFailedOnRamp(
+                offRamper
+            );
             emit OnRampFailed(offRamper, onRamper, amount);
         }
     }
-
-    
 }
-

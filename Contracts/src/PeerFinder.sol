@@ -8,7 +8,7 @@ contract PeerFinder {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
 
     DoubleEndedQueue.Bytes32Deque private offRamperQueue;
-
+    event GotOffRampersIntent(address offRamper);
     // Enqueue an address to the back of the queue
     function addOffRampersIntent(address _address) public {
         // Ensure the address is not zero
@@ -19,7 +19,11 @@ contract PeerFinder {
     // Dequeue an address from the front of the queue, needs to be added to the front if failed
     function getAndRemoveOffRampersIntent() public returns (address) {
         require(!isEmpty(), "Queue is empty");
-        return address(uint160(uint256(offRamperQueue.popFront())));
+        address offRamperAddress = address(
+            uint160(uint256(offRamperQueue.popFront()))
+        );
+        emit GotOffRampersIntent(offRamperAddress);
+        return offRamperAddress;
     }
 
     // Reinsert offRamp intent to front of queue if onRamp did not work
@@ -27,7 +31,7 @@ contract PeerFinder {
         // Ensure the address is not zero
         require(_address != address(0), "Invalid address");
         offRamperQueue.pushFront(bytes32(uint256(uint160(_address))));
-    } 
+    }
 
     // Peek at the front address of the queue without removing it
     function peek() public view returns (address) {

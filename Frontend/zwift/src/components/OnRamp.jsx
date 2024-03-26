@@ -50,10 +50,18 @@ const OnRamp = () => {
   const handleSearchForPeer = async () => {
     setSearchForPeer("searching");
     try {
-      peerAddress, peerEmail = await getPeerForOnRamp();
-      setEmail(peerEmail)
+      // Await the async call to getPeerForOnRamp and then destructure the result
+      const { peerAddress, peerEmail } = await getPeerForOnRamp();
+      // Assuming you want to do something with peerAddress as well
+      console.log("Peer Address:", peerAddress); // You can remove this line; it's just for demonstration
+      setEmail(peerEmail);
       setSearchForPeer("found");
-    } catch {}
+    } catch (error) {
+      console.error("Error searching for Peer:", error);
+      // Handle the error state appropriately
+      setSearchForPeer("off");
+      // Optionally, set some error message state here to display to the user
+    }
   };
 
   const theme = useTheme();
