@@ -12,7 +12,6 @@ export const getPeerForOnRamp = async () => {
   );
 
   try {
-
     const peerAddress =
       await orchestratorContract.getAndRemoveOffRampersIntentFromQueue();
     const receipt = await transactionResponse.wait();
@@ -26,7 +25,6 @@ export const getPeerForOnRamp = async () => {
         throw new Error("Transaction failed.");
       }
       return peerAddress, peerEmail;
-
     } catch (error) {
       console.error("Error finding Email", error);
     }
@@ -62,7 +60,13 @@ export const getPeerForOnRamp = async () => {
   }
 };
 
-export const onRamp = async (amount, offRamperAddress, onRamperEmail, offRamperEmail, transctionSenderEmail, transactionReceiverEmail) => {
+export const onRamp = async (
+  amount,
+  offRamper,
+  transactionSenderEmail,
+  transactionReceiverEmail,
+  transactionAmount
+) => {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
   const orchestratorContract = new ethers.Contract(
@@ -71,11 +75,46 @@ export const onRamp = async (amount, offRamperAddress, onRamperEmail, offRamperE
     signer
   );
   try {
-      await orchestratorContract.onRamp(amount, );
+    await orchestratorContract.onRamp(
+      amount,
+      offRamper,
+      transactionSenderEmail,
+      transactionReceiverEmail,
+      transactionAmount
+    );
     const receipt = await transactionResponse.wait();
     if (receipt.status !== 1) {
       throw new Error("Transaction failed.");
     }
+    return true;
+  } catch (error) {
+    console.error("Error performing onRamp", error);
 
-  } catch (error) {}
+    // Default error message
+    let errorMessage = "An error occurred during the onRamping process ...";
+
+    // Check for error.reason provided by ethers for high-level error info
+    if (error.reason) {
+      errorMessage = error.reason;
+    }
+
+    // Detailed error information often resides within error.data or error.error.data
+    if (error.data && error.data.message) {
+      errorMessage = error.data.message;
+    } else if (
+      error.error &&
+      error.error.data &&
+      typeof error.error.data.message === "string"
+    ) {
+      errorMessage = error.error.data.message;
+    }
+
+    // If the error contains a revert reason within data.message
+    const revertReasonMatch = errorMessage.match(/revert: (.*)/);
+    if (revertReasonMatch && revertReasonMatch[1]) {
+      errorMessage = revertReasonMatch[1];
+    }
+
+    throw new Error(errorMessage);
+  }
 };
