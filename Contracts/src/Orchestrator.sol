@@ -157,12 +157,12 @@ contract Orchestrator {
         uint256 transactionAmount
     ) external {
         address onRamper = msg.sender;
-
+        string memory onRampersEmailFetched = registratorContract.getEmail(onRamper);
         bool success = onRamperContract.verifyPayPalTransaction(
             amount,
             onRamper,
             offRamper,
-            onRampersEmail,
+            onRampersEmailFetched,
             offRampersEmail,
             transactionSenderEmail,
             transactionReceiverEmail,
