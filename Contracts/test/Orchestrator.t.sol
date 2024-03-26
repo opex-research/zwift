@@ -78,7 +78,8 @@ contract OrchestratorTest is Test {
     function testOnRampFunctionSuccess() public {
         // Pre-test balances
         beforeOnRamperBalance = onRamperUser.balance;
-        
+        vm.prank(onRamperUser);
+        orchestratorContract.registerUserAccount(address(onRamperUser), onRampersEmail);
 
         // Simulate offRamperUser creating an off-ramp intent
         vm.prank(offRamperUser);
