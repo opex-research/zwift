@@ -73,13 +73,28 @@ contract Orchestrator {
     event GotOffRampersAddressInOrchestrator(address offRamper);
     event OffRampersIntentAddedInOrchestrator(address offRamper);
     event OffRampIntentCreatedAndETHSent(address indexed user, uint256 amount);
+    event UserRegisteredInOrchestrator(address indexed user, bool success);
+    event OffRampersIntentReinsertedInOrchestrator(address indexed offRamper);
+    event OnRampCompletedInOrchestrator(
+        address indexed offRamper,
+        address indexed onRamper,
+        uint256 amount
+    );
+    event OnRampFailedInOrchestrator(
+        address indexed offRamper,
+        address indexed onRamper,
+        uint256 amount
+    );
+    event  ReleasedPartialFundsToOnRamperInOrchestrator(address indexed offRamper, address indexed onRamper,uint256 releaseAmount);
 
-    // Orchestrator functions for interacting with the Registrator
+
     function registerUserAccount(
         address wallet,
         string calldata email
     ) external returns (bool) {
-        return registratorContract.registerAccount(wallet, email);
+        bool success = registratorContract.registerAccount(wallet, email);
+        emit UserRegisteredInOrchestrator(wallet, success);
+        return success;
     }
 
     function loginUserAccount(address wallet) external view returns (bool) {
@@ -108,7 +123,8 @@ contract Orchestrator {
     }
 
     function reinsertOffRampIntentAfterFailedOnRamp(address _address) external {
-        peerFinderContract.reinsertOffRampIntentAfterFailedOnRamp(_address);
+        peerFinderContract.reinsertOffRampIntentAfterFailedOnRamp(_address)
+        emit OffRampersIntentReinsertedInOrchestrator(_address);
     }
 
     function peekOffRamperQueue() external view returns (address) {
@@ -153,6 +169,7 @@ contract Orchestrator {
             onRamper,
             releaseAmount
         );
+        emit ReleasedPartialFundsToOnRamperInOrchestrator(offRamper, onRamper, releaseAmount);
     }
 
     function queryEscrowBalance(address user) external view returns (uint256) {
@@ -190,12 +207,12 @@ contract Orchestrator {
                 onRamper,
                 amount
             );
-            emit OnRampCompleted(offRamper, onRamper, amount);
+            emit OnRampCompletedInOrchestrator(offRamper, onRamper, amount);
         } else {
             peerFinderContract.reinsertOffRampIntentAfterFailedOnRamp(
                 offRamper
             );
-            emit OnRampFailed(offRamper, onRamper, amount);
+            emit OnRampFailedInOrchestrator(offRamper, onRamper, amount);
         }
     }
 }
