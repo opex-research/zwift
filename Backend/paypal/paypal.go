@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 // PayPalTokenResponse represents the PayPal token response structure.
@@ -23,9 +24,8 @@ type PayPalUserInfo struct {
 // RequestAccessToken requests an access token from PayPal using the authorization code.
 func RequestAccessToken(authorizationCode string) (*PayPalTokenResponse, error) {
 	apiURL := "https://api-m.sandbox.paypal.com/v1/oauth2/token"
-	clientID := "ATWNj8MbBvdUupI3VbC-isIb-fxnQ7j8Op6ch7rds51niwt1xGU0yreyPaFweWF_PZE5Yi71EXILTY7-"
-	clientSecret := "EJtd8zeo_9Y-iFOUNJ_Z7UM5U-qzeY8A9QrFx_dyheBV0WoB9WB4fGGjSqdrIVWf1CilBbd_ow1h2qDv"
-
+	clientID := os.Getenv("PAYPAL_CLIENT_ID")
+	clientSecret := os.Getenv("PAYPAL_CLIENT_SECRET")
 	data := url.Values{}
 	data.Set("grant_type", "authorization_code")
 	data.Set("code", authorizationCode)
