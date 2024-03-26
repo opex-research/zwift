@@ -71,6 +71,8 @@ contract Orchestrator {
         uint256 amount
     );
     event GotOffRampersAddressInOrchestrator(address offRamper);
+    event OffRampersIntentAddedInOrchestrator(address offRamper);
+    event OffRampIntentCreatedAndETHSent(address indexed user, uint256 amount);
 
     // Orchestrator functions for interacting with the Registrator
     function registerUserAccount(
@@ -93,6 +95,7 @@ contract Orchestrator {
     // Orchestrator functions for managing off-ramp intents queue via PeerFinder
     function addOffRampersIntentToQueue(address _address) internal {
         peerFinderContract.addOffRampersIntent(_address);
+        emit OffRampersIntentAddedInOrchestrator(_address)
     }
 
     function getAndRemoveOffRampersIntentFromQueue()
@@ -136,6 +139,7 @@ contract Orchestrator {
         );
         require(success, "Failed to send ETH or call OffRamper");
         addOffRampersIntentToQueue(user);
+        emit OffRampIntentCreatedAndETHSent(user, amount);
     }
 
     // Additional functions to interact with the OffRamper contract
