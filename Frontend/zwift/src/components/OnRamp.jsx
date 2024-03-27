@@ -18,14 +18,18 @@ import ExchangeIcon from "../icons/icons8-transfer-zwischen-benutzern-48.png"; /
 import { useAccount } from "../context/AccountContext";
 import CancelIcon from "../icons/icons8-x-48.png"; // Import the PNG file
 import CheckIcon from "../icons/icons8-häkchen-48.png"; // Import the PNG file
-import { getPeerForOnRamp } from "../services/OrchestratorOnRampService";
+import {
+  getPeerForOnRamp,
+  onRamp,
+} from "../services/OrchestratorOnRampService";
 
 const OnRamp = () => {
-  const [email, setEmail] = useState("peer1paypal@test.comn");
+  const [email, setEmail] = useState("");
   const [successfullResponse, setResponse] = useState(false);
   const [resetCounter, setResetCounter] = useState(0);
   const [paymentDetails, setPaymentDetails] = useState(null);
-  const { openOffRampsInQueue } = useAccount();
+  const [offRamperAddress, setOffRamperAddress] = useState(null);
+  const { openOffRampsInQueue, registeredEmail } = useAccount();
   const [searchForPeerState, setSearchForPeer] = useState("off"); //off; searching; found
   const isSearchDisabled = openOffRampsInQueue === 0;
   const [sliderValue, setSliderValue] = useState(100);
@@ -48,13 +52,13 @@ const OnRamp = () => {
   };
 
   const handleSearchForPeer = async () => {
-    setSearchForPeer("searching");
     try {
       // Await the async call to getPeerForOnRamp and then destructure the result
       const { peerAddress, peerEmail } = await getPeerForOnRamp();
       // Assuming you want to do something with peerAddress as well
       console.log("Peer Address:", peerAddress); // You can remove this line; it's just for demonstration
       setEmail(peerEmail);
+      setOffRamperAddress(peerAddress);
       setSearchForPeer("found");
     } catch (error) {
       console.error("Error searching for Peer:", error);
@@ -63,7 +67,37 @@ const OnRamp = () => {
       // Optionally, set some error message state here to display to the user
     }
   };
+  const handleOnRamp = async () => {
+    try {
+      // Assuming `amount` and `transactionAmount` should be passed as strings representing ether (to be parsed in the onRamp function)
+      // And offRamperAddress, registeredEmail, peerEmail are already defined with appropriate values.
+      console.log(
+        "offRamper address: ",
+        offRamperAddress,
+        " registeredEmail: ",
+        registeredEmail,
+        " PeerEmail: ",
+        email
+      );
+      const result = await onRamp(
+        "1",
+        offRamperAddress,
+        registeredEmail,
+        email,
+        "1"
+      ); // Amounts passed as strings, for example
 
+      console.log("OnRamp Success:", result);
+      // Do something with the result if needed
+      // Update UI state to reflect success
+      setSearchForPeer("found"); // Or another appropriate state/action
+    } catch (error) {
+      console.error("Error performing OnRamp:", error);
+      // Handle the error state appropriately
+      setSearchForPeer("off");
+      // Optionally, set some error message state here to display to the user, such as an error notification
+    }
+  };
   const theme = useTheme();
 
   return (
@@ -244,13 +278,17 @@ const OnRamp = () => {
               </Button>
             )}
             {searchForPeerState === "found" && (
+              /*
               <PayPalIntegration
                 amount="100"
                 email={email}
                 onSuccessfullResponse={handleResponseChange}
                 paymentDetails={paymentDetails}
                 key={resetCounter}
-              />
+              />*/
+              <Button variant="outlined" onClick={handleOnRamp}>
+                Perform OnRamp
+              </Button>
             )}
             {searchForPeerState === "searching" && <CircularProgress />}
             {successfullResponse && (

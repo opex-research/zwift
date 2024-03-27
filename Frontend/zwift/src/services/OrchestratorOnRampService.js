@@ -51,37 +51,54 @@ export const getPeerForOnRamp = async () => {
   };
   
 
-export const onRamp = async (
-  amount,
-  offRamper,
-  transactionSenderEmail,
-  transactionReceiverEmail,
-  transactionAmount
-) => {
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  const orchestratorContract = new ethers.Contract(
-    orchestratorAddress,
-    OrchestratorABI.abi,
-    signer
-  );
-
-  try {
-    // Assuming this initiates a state-changing transaction
-    const onRampTransaction = await orchestratorContract.onRamp(
-      amount,
-      offRamper,
-      transactionSenderEmail,
-      transactionReceiverEmail,
-      transactionAmount
+  export const onRamp = async (
+    amount,
+    offRamper,
+    transactionSenderEmail,
+    transactionReceiverEmail,
+    transactionAmount
+  ) => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const orchestratorContract = new ethers.Contract(
+      orchestratorAddress,
+      OrchestratorABI.abi,
+      signer
     );
-    const receipt = await onRampTransaction.wait();
-    if (receipt.status !== 1) {
-      throw new Error("Transaction failed.");
-    }
-    return true;
-  } catch (error) {
-    console.error("Error performing onRamp", error);
-    throw error; // Re-throw the error after logging
-  }
-};
+  
+    return new Promise((resolve, reject) => {
+      // Listen for success event
+      const successFilter = orchestratorContract.filters.OnRampCompletedInOrchestrator(offRamper, null, null);
+      orchestratorContract.once(successFilter, (offRamper, onRamper, amount) => {
+        console.log(`OnRamp successful for ${offRamper} with amount ${ethers.utils.formatEther(amount)}`);
+        resolve({ success: true, offRamper, onRamper, amount: ethers.utils.formatEther(amount) });
+      });
+  
+      // Listen for failure event
+      const failureFilter = orchestratorContract.filters.OnRampFailedInOrchestrator(offRamper, null, null);
+      orchestratorContract.once(failureFilter, (offRamper, onRamper, amount) => {
+        console.error(`OnRamp failed for ${offRamper} with amount ${ethers.utils.formatEther(amount)}`);
+        reject(new Error(`OnRamp failed for ${offRamper}`));
+      });
+  
+      // Send the transaction
+      orchestratorContract.onRamp(
+        ethers.utils.parseUnits(amount.toString(), "ether"),
+        offRamper,
+        transactionSenderEmail,
+        transactionReceiverEmail,
+        ethers.utils.parseUnits(transactionAmount.toString(), "ether")
+      )
+      .then((onRampTransaction) => onRampTransaction.wait())
+      .then((receipt) => {
+        if (receipt.status !== 1) {
+          throw new Error("Transaction failed.");
+        }
+        // The promise is resolved or rejected by the event listeners.
+      })
+      .catch((error) => {
+        console.error("Error performing onRamp", error);
+        reject(error); // Reject the promise if there's an issue with the transaction
+      });
+    });
+  };
