@@ -52,7 +52,7 @@ const PayPalCheckoutPage = () => {
   const handleCheckout = async (code) => {
     try {
       const checkoutUrl = await paypalCheckoutService.initiateCheckout(code);
-      window.open(checkoutUrl, "_blank");
+      window.location.href = checkoutUrl;
     } catch (error) {
       console.error("Checkout error:", error);
       navigate("/error");
@@ -82,7 +82,7 @@ const PayPalCheckoutPage = () => {
   const navigateBasedOnVerification = (status) => {
     switch (status) {
       case "success":
-        navigate("/success");
+        navigate("/dashboard");
         break;
       case "failed":
         navigate("/error");
