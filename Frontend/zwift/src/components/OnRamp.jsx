@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TextField,
   Typography,
@@ -12,7 +12,7 @@ import {
   Stack,
   Slider,
 } from "@mui/material";
-import PayPalIntegration from "./PayPalIntegration";
+import PayPalPaymentButton from "./PaymentButton";
 import CashIcon from "../icons/icons8-cashflow-48.png"; // Import the PNG file
 import ExchangeIcon from "../icons/icons8-transfer-zwischen-benutzern-48.png"; // Import the PNG file
 import { useAccount } from "../context/AccountContext";
@@ -33,6 +33,17 @@ const OnRamp = () => {
   const [searchForPeerState, setSearchForPeer] = useState("off"); //off; searching; found
   const isSearchDisabled = openOffRampsInQueue === 0;
   const [sliderValue, setSliderValue] = useState(100);
+  // State to manage the visibility of the payment success message
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
+
+  useEffect(() => {
+    const paymentVerified = sessionStorage.getItem("paymentVerified");
+    if (paymentVerified === "success") {
+      setShowPaymentSuccess(true);
+      // Optionally clear the status if you don't need it anymore
+      sessionStorage.removeItem("paymentVerified");
+    }
+  }, []);
 
   // Utility function to simulate network delay
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -277,18 +288,15 @@ const OnRamp = () => {
                 Search for Peer
               </Button>
             )}
-            {searchForPeerState === "found" && (
-              /*
-              <PayPalIntegration
-                amount="100"
-                email={email}
-                onSuccessfullResponse={handleResponseChange}
-                paymentDetails={paymentDetails}
-                key={resetCounter}
-              />*/
-              <Button variant="outlined" onClick={handleOnRamp}>
-                Perform OnRamp
-              </Button>
+            {searchForPeerState === "found" && <PayPalPaymentButton />}
+            {showPaymentSuccess && (
+              <Box
+                sx={{ p: 2, backgroundColor: "#d4edda", textAlign: "center" }}
+              >
+                <Typography variant="h6" color="green">
+                  PAYMENT SUCCESSFUL
+                </Typography>
+              </Box>
             )}
             {searchForPeerState === "searching" && <CircularProgress />}
             {successfullResponse && (

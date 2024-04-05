@@ -1,15 +1,15 @@
 import React from "react";
 // Importing UI components from MUI
 import { Button } from "@mui/material";
-const PayPalLoginButton = () => {
-  const handleLogin = () => {
+const PayPalPaymentButton = () => {
+  const handlePayment = () => {
     sessionStorage.removeItem("checkoutInitiated");
     sessionStorage.removeItem("paymentVerified");
 
     const clientID =
       "ATWNj8MbBvdUupI3VbC-isIb-fxnQ7j8Op6ch7rds51niwt1xGU0yreyPaFweWF_PZE5Yi71EXILTY7-";
     const redirectURI = encodeURIComponent(
-      "http://127.0.0.1:3000/auth-handler"
+      "http://127.0.0.1:3000/checkout-handler"
     );
 
     const paypalLoginURL = `https://sandbox.paypal.com/signin/authorize?client_id=${clientID}&response_type=code&redirect_uri=${redirectURI}`;
@@ -19,8 +19,8 @@ const PayPalLoginButton = () => {
   };
 
   return (
-    <Button onClick={handleLogin} sx={buttonStyle}>
-      GET PAYPAL EMAIL
+    <Button onClick={handlePayment} sx={buttonStyle}>
+      PAY
     </Button>
   );
 };
@@ -37,4 +37,4 @@ const buttonStyle = {
     color: "white",
   },
 };
-export default PayPalLoginButton;
+export default PayPalPaymentButton;

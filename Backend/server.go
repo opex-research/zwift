@@ -6,9 +6,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/joho/godotenv"
 	"github.com/opex-research/zwift/router"
 )
+
+var store = session.New() // Initialize a session store
 
 func init() {
 	// Load the .env file from the current directory
@@ -54,7 +57,7 @@ func main() {
 	app.Use(recover.New())
 
 	// Setup routes
-	router.SetupRoutes(app)
+	router.SetupRoutes(app, store)
 
 	// Start the server
 	log.Fatal(app.Listen(":3001"))

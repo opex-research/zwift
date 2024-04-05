@@ -4,9 +4,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import PayPalAuthPage from "./pages/PayPalAuthPage";
+import PayPalCheckoutPage from "./pages/PayPalCheckoutPage";
 import { AccountProvider } from "./context/AccountContext";
 import ProtectedRoute from "./components/ProtectedRoute"; // Adjust the path as necessary
-import { AlertProvider } from "./context/AlertContext";
 
 const theme = createTheme({
   // Theme customization goes here
@@ -21,6 +21,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/auth-handler" element={<PayPalAuthPage />} />
+            <Route path="/checkout-handler" element={<PayPalCheckoutPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<HomePage />} />
             </Route>
