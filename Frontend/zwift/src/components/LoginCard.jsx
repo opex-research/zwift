@@ -25,6 +25,7 @@ import {
   registerUserAccount,
   getAccountBalance,
   getUserEmail,
+  loginWithMetaMask,
 } from "../services/OrchestratorLoginService";
 
 // Importing offramp service functions
@@ -57,6 +58,8 @@ const LoginCard = () => {
     setRegisteredEmail,
     setOpenOffRampsInQueue,
     setUsersOffRampIntent,
+    metaMaskLogged,
+    setMetaMaskLogged,
   } = useAccount();
   const { paypalEmail, setPaypalEmail } = useAccount();
   const [email, setEmail] = useState(paypalEmail || "");
@@ -93,6 +96,19 @@ const LoginCard = () => {
       return;
     }
     setOpen(false);
+  };
+
+  // Handles closing of Snackbar
+  const handleMetaMaskConnection = async () => {
+    try {
+      const success = await loginWithMetaMask();
+      if (success) {
+        setMetaMaskLogged(true);
+      }
+    } catch (err) {
+      showError(err.message || "An unexpected error occurred.");
+      setOpen(true);
+    }
   };
 
   // Handles login logic with error handling and loading state
@@ -188,6 +204,27 @@ const LoginCard = () => {
   // Assuming `loading` is a state that tracks whether your component is loading
   if (loading.isActive) {
     return <LoadingMessage message={loading.message} />;
+  }
+
+  if (!metaMaskLogged) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh", // Adjust the height as needed to center vertically
+        }}
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleMetaMaskConnection}
+        >
+          Connect MetaMask
+        </Button>
+      </Box>
+    );
   }
 
   // Main component UI

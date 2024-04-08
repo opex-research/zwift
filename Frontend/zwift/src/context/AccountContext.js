@@ -6,6 +6,7 @@ export const useAccount = () => useContext(AccountContext);
 
 export const AccountProvider = ({ children }) => {
   const [logged, setLogged] = useState(false);
+  const [metaMaskLogged, setMetaMaskLogged] = useState(false);
   const [account, setAccount] = useState(null);
   const [balance, setBalance] = useState();
   const [registeredEmail, setRegisteredEmail] = useState("");
@@ -22,6 +23,8 @@ export const AccountProvider = ({ children }) => {
         setBalance,
         logged,
         setLogged,
+        metaMaskLogged,
+        setMetaMaskLogged,
         registeredEmail,
         setRegisteredEmail,
         usersOffRampIntent,
