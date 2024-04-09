@@ -14,23 +14,16 @@ def create_tables():
         "sslmode": "disable",  # if SSL is required
     }
 
-    # Table creation statements
-    users_table = """
-    CREATE TABLE IF NOT EXISTS Users (
-        id SERIAL PRIMARY KEY
-    );
-    """
-
     transactions_table = """
-    CREATE TABLE IF NOT EXISTS Transaction (
-        id SERIAL PRIMARY KEY,
-        user_id INT,
-        transaction_hash STRING,
-        transaction_type STRING NOT NULL CHECK (transaction_type IN ('register', 'onramp', 'offramp')),
-        transaction_status STRING NOT NULL CHECK (transaction_status IN ('pending', 'success', 'failed')),
-        created_at TIMESTAMPTZ DEFAULT now(),
-        FOREIGN KEY (user_id) REFERENCES Users(id)
-    );
+    CREATE TABLE IF NOT EXISTS transactions (
+    id SERIAL PRIMARY KEY,
+    wallet_address TEXT,
+    transaction_hash TEXT,
+    transaction_type TEXT NOT NULL CHECK (transaction_type IN ('register', 'onramp', 'offramp')),
+    transaction_status TEXT NOT NULL CHECK (transaction_status IN ('pending', 'success', 'failed')),
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
     """
 
     # Connect to CockroachDB
@@ -39,10 +32,9 @@ def create_tables():
 
     # Execute the table creation statements
     try:
-        cur.execute(users_table)
         cur.execute(transactions_table)
         conn.commit()  # Commit the transaction
-        print("Tables created successfully")
+        print("Table created successfully")
     except Exception as e:
         print(f"An error occurred: {e}")
         conn.rollback()  # Roll back the transaction on error
