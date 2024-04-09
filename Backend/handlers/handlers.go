@@ -74,7 +74,8 @@ func (h *Handler) InitiateCheckout(c *fiber.Ctx) error {
 // VerifyPayment captures and checks the payment status for the given order ID.
 func (h *Handler) VerifyPayment(c *fiber.Ctx) error {
 	type VerifyRequest struct {
-		OrderID string `json:"orderId"`
+		OrderID string `json:"token"`
+		PayerID string `json:"PayerID"`
 	}
 
 	var request VerifyRequest
