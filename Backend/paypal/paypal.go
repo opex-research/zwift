@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -174,6 +175,8 @@ func CaptureOrder(accessToken, orderID string) (*CaptureOrderResponse, error) {
 
 	// Add necessary headers
 	req.Header.Add("Authorization", "Bearer "+accessToken)
+	log.Printf("token in order: %s", accessToken)
+
 	req.Header.Add("Content-Type", "application/json")
 
 	client := &http.Client{}

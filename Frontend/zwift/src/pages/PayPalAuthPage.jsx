@@ -11,26 +11,31 @@ const PayPalAuthPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Extract the code from the URL
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
 
-    if (!code) {
-      setLoading(false);
-      return;
-    }
+    if (code) {
+      const formData = new FormData();
+      formData.append("authorizationCode", code); // Assuming the backend expects an 'access_token' field
 
-    axios
-      .post(`http://127.0.0.1:3001/api/auth/paypal?code=${code}`)
-      .then((response) => {
-        console.log("Success:", response.data);
-        setPaypalEmail(response.data.email);
-        setLoading(false);
-        navigate("/dashboard");
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setLoading(false);
-      });
+      // Make the Axios POST request with formData
+      axios
+        .post(`http://127.0.0.1:3001/api/auth/login`, formData, {
+          withCredentials: true, // Important for sessions/cookies to be included
+          headers: { "Content-Type": "multipart/form-data" }, // Set the Content-Type for form data
+        })
+        .then((loginResponse) => {
+          console.log("Login success:", loginResponse.data);
+          setPaypalEmail(loginResponse.data.email);
+          setLoading(false);
+          navigate("/");
+        })
+        .catch((loginError) => {
+          console.error("Login error:", loginError);
+          setLoading(false);
+        });
+    }
   }, [navigate, setPaypalEmail]);
 
   if (loading) {

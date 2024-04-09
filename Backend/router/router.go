@@ -10,17 +10,18 @@ import (
 // SetupRoutes func
 func SetupRoutes(app *fiber.App, store *session.Store) {
 
+	h := &handlers.Handler{Store: store}
+
+	// Allow Cors from certain IP
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://127.0.0.1:3000",
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowOrigins:     "http://127.0.0.1:3000",
+		AllowHeaders:     "Origin, Content-Type, Accept",
+		AllowCredentials: true,
 	}))
 
-	// Routes
-	app.Post("/api/auth/paypal/", handlers.CreateAccessTokenAndGetEmail)
-	app.Post("/api/paypal/checkout/", handlers.InitiateCheckout)
-	app.Post("/api/paypal/verify-payment/", handlers.VerifyPayment)
-	app.Get("/test-error/", func(c *fiber.Ctx) error {
-		// This should trigger the global error handler and log the error.
-		return fiber.NewError(fiber.StatusInternalServerError, "Test error")
-	})
+	// Public routes
+	app.Post("/api/auth/login", h.Login)
+	app.Get("/api/auth/checksession", h.CheckSession)
+	app.Post("/api/paypal/checkout/", h.InitiateCheckout)
+	app.Post("/api/paypal/verify-payment/", h.VerifyPayment)
 }

@@ -23,10 +23,16 @@ const PayPalService = {
   initiateCheckout: async (loginToken, amount = "100", currency = "USD") => {
     try {
       const orderData = createOrderData(amount, currency);
-      const response = await axios.post(`${API_BASE_URL}/checkout`, {
-        loginToken,
-        orderData,
-      });
+      const response = await axios.post(
+        `${API_BASE_URL}/checkout`,
+        {
+          loginToken,
+          orderData,
+        },
+        {
+          withCredentials: true, // Add this option
+        }
+      );
       console.log(response);
       return response.data.checkoutUrl;
     } catch (error) {
@@ -34,16 +40,23 @@ const PayPalService = {
       throw error; // Rethrow to let the caller handle it
     }
   },
-  verifyPayment: async (orderId) => {
+  verifyPayment: async (token, PayerID) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/verify-payment`, {
-        orderId,
-      });
+      const response = await axios.post(
+        `${API_BASE_URL}/verify-payment`,
+        {
+          token,
+          PayerID,
+        },
+        {
+          withCredentials: true, // Add this option
+        }
+      );
       console.log(response);
       return response.data;
     } catch (error) {
       console.error("Error verifying payment:", error);
-      throw error; // Rethrow to let the caller handle it
+      throw error;
     }
   },
 };
