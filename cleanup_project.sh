@@ -7,6 +7,6 @@ pkill -f 'cockroach'
 sleep 2
 
 # Remove the CockroachDB data directory
-rm -rf ./Backend/cockroach-data
+rm -rf ./cockroach-data
 
 echo "Cleanup completed."

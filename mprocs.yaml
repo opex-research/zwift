@@ -25,12 +25,11 @@ procs:
 
   Database Setup and Start:
     shell: |
+      sleep 10 #wait for the cockorach server to run
       pip3 install -r ../../requirements.txt
       python3 init_db.py
       uvicorn main:app --reload
     cwd: "./Backend/Database"
 
   CockroachDB Server:
-    shell:
-      cockroach start-single-node --insecure --advertise-addr='127.0.0.1'
-
+    shell: cockroach start-single-node --insecure --advertise-addr='127.0.0.1'
