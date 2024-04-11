@@ -5,7 +5,10 @@ import useErrorHandler from "../hooks/useErrorHandler";
 import ErrorSnackbar from "../components/ErrorSnackbar"; // Adjust the path as necessary
 import LoadingMessage from "./LoadingMessage"; // Adjust the path as necessary
 import RegistrationButtons from "./RegistrationButtons";
-import { getRegistrationStatus } from "../services/DatabaseService";
+import {
+  getRegistrationStatus,
+  simulateRegistrationChangeToSuccess,
+} from "../services/DatabaseService";
 // Importing UI components from MUI
 import {
   Button,
@@ -193,6 +196,14 @@ const LoginCard = () => {
     }
   };
 
+  const handleRegistrationSuccessSimulation = async () => {
+    try {
+      await simulateRegistrationChangeToSuccess(metaMaskAccountHelperAddress);
+    } catch (err) {
+      showError(err.message || "An unexpected error occurred.");
+    }
+  };
+
   // Handles sign-up logic with error handling and loading state
   const handleSignUp = async () => {
     setLoading({ isActive: true, message: "REGISTERING YOU" });
@@ -354,7 +365,9 @@ const LoginCard = () => {
             >
               Registration is pending
             </Typography>
-            <Button>(Simulate a server check that confirms transaction)</Button>
+            <Button onClick={handleRegistrationSuccessSimulation}>
+              (Simulate a server check that confirms transaction)
+            </Button>
             <ErrorSnackbar
               open={open}
               handleClose={handleErrorClose}
@@ -386,7 +399,7 @@ const LoginCard = () => {
     );
   }
 
-  if ((registrationStatus = "registered" && metaMaskLogged))
+  if (registrationStatus == "registered" && metaMaskLogged)
     return (
       <Card
         sx={{

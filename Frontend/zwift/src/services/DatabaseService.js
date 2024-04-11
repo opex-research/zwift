@@ -67,3 +67,27 @@ export const getRegistrationStatus = async (walletAddress) => {
     console.error("Error fetching pending transactions:", error);
   }
 };
+
+//this calls the function in the backend to update the transaction to success, this function is just for testing
+export const simulateRegistrationChangeToSuccess = async (walletAddress) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8000/transactions/${walletAddress}/update_registration_status`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log("received message from success simulation:", data["message"]);
+  } catch (error) {
+    console.error("Error fetching pending transactions:", error);
+  }
+};

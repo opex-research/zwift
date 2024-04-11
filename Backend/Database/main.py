@@ -58,6 +58,37 @@ def get_register_status(wallet_address: str):
         conn.close()
 
 
+#Helper function to simulate an update from the blcokcchain
+@app.put("/transactions/{wallet_address}/update_registration_status")
+def update_register_status(wallet_address: str):
+    conn = database.get_db_connection()
+    cur = conn.cursor()
+    try:
+       
+        cur.execute(
+            "SELECT id FROM transactions WHERE wallet_address = %s AND transaction_type = 'register' AND transaction_status = 'pending'",
+            (wallet_address,)
+        )
+        transaction = cur.fetchone()
+        
+        # Step 2: If a pending registration transaction exists, update it to 'success'
+        if transaction:
+            cur.execute(
+                "UPDATE transactions SET transaction_status = 'success' WHERE id = %s",
+                (transaction['id'],)  # Assuming you're using RealDictCursor or similar
+            )
+            conn.commit()  # Don't forget to commit the transaction to make the update permanent
+            return {"message": "Registration status updated to success."}
+        else:
+            raise HTTPException(status_code=404, detail="No pending registration transactions found for this wallet address.")
+
+    except Exception as e:
+        conn.rollback()  # Roll back in case of any error
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
+
 
 @app.get("/transactions/{wallet_address}/pending")
 def get_pending_transactions(wallet_address: str):
