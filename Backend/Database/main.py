@@ -1,7 +1,24 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 import database
 from schemas import TransactionBase
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+
+
+# For development, you might allow all origins. Be more restrictive for production.
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Allows specified origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 
 @app.get("/transactions/{wallet_address}/pending")
@@ -25,10 +42,12 @@ def get_pending_transactions(wallet_address: str):
     finally:
         cur.close()
         conn.close()
+    pass
 
 
 ###########################################################
-#Implement function to fetch all statuses from the pending transactions and update them if the status changed in the blockchain
+# Implement function to fetch all statuses from the pending transactions and update them if the status changed in the blockchain
+# We will immitate that with a function sets sets all pending transactions to true for the local development
 ###########################################################
 
 
@@ -64,3 +83,4 @@ def create_transaction(transaction: TransactionBase):
     finally:
         cur.close()
         conn.close()
+    pass

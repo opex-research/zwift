@@ -1,9 +1,9 @@
-async function postTransaction(
+export const postTransaction = async (
   walletAddress,
   transactionHash,
   transactionType,
   transactionStatus
-) {
+) => {
   const transactionData = {
     wallet_address: walletAddress,
     transaction_hash: transactionHash,
@@ -30,9 +30,9 @@ async function postTransaction(
   } catch (error) {
     console.error("Error posting transaction:", error);
   }
-}
+};
 
-async function getPendingTransactions(walletAddress) {
+export const getPendingTransactions = async (walletAddress) => {
   try {
     const response = await fetch(
       `http://localhost:8000/transactions/${walletAddress}/pending`
@@ -48,5 +48,4 @@ async function getPendingTransactions(walletAddress) {
   } catch (error) {
     console.error("Error fetching pending transactions:", error);
   }
-}
-
+};

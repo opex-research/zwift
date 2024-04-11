@@ -1,6 +1,7 @@
 import OrchestratorABI from "../contracts/Orchestrator.json"; // Correct the path as needed
 import MetaMaskOnboarding from "@metamask/onboarding";
 import { ethers } from "ethers";
+import {postTransaction} from "../services/DatabaseService"
 
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 const forwarderOrigin = "http://localhost:3000";
@@ -58,14 +59,16 @@ export const registerUserAccount = async (email) => {
       wallet,
       email
     );
-    const receipt = await transactionResponse.wait(); // Wait for the transaction to be mined
-    if (receipt.status === 1) {
-      console.log("Registration successful");
-      return wallet; // Indicate success
-    } else {
-      console.error("Transaction failed");
-      throw new Error("Transaction failed");
-    }
+    console.log(
+      "Registration request submitted, transaction hash:",
+      transactionResponse.hash
+    );
+    const registrationReturn = await postTransaction(wallet, transactionResponse.hash, "register", "pending");
+    return {
+      wallet,
+      status: "pending",
+      transactionHash: transactionResponse.hash,
+    };
   } catch (error) {
     console.error("Error during registration", error);
 
