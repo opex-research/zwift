@@ -49,3 +49,21 @@ export const getPendingTransactions = async (walletAddress) => {
     console.error("Error fetching pending transactions:", error);
   }
 };
+
+export const getRegistrationStatus = async (walletAddress) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8000/transactions/${walletAddress}/registrationstatus`
+    );
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log("Received registration status:", data);
+    return data["registration_status"];
+  } catch (error) {
+    console.error("Error fetching pending transactions:", error);
+  }
+};

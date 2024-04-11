@@ -26,12 +26,13 @@ def get_register_status(wallet_address: str):
     conn = database.get_db_connection()
     cur = conn.cursor()
     try:
+        print(wallet_address)
         cur.execute(
             "SELECT * FROM transactions WHERE wallet_address = %s AND transaction_type = 'register'",
             (wallet_address,),
         )
         transactions = cur.fetchall()
-        
+        print(transactions)
         # Check if there are no transactions first
         if not transactions:
             return {"registration_status": "not_registered"}

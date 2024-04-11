@@ -13,7 +13,7 @@ export const AccountProvider = ({ children }) => {
   const [usersOffRampIntent, setUsersOffRampIntent] = useState(0);
   const [openOffRampsInQueue, setOpenOffRampsInQueue] = useState(0);
   const [paypalEmail, setPaypalEmail] = useState("");
-
+  
   return (
     <AccountContext.Provider
       value={{
