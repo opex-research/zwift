@@ -3,3 +3,4 @@
 .env
 cockroach-data/
 *.log
+/Backend/Database/__pycache__/
