@@ -1,7 +1,7 @@
 import OrchestratorABI from "../contracts/Orchestrator.json"; // Correct the path as needed
 import MetaMaskOnboarding from "@metamask/onboarding";
 import { ethers } from "ethers";
-import { postTransaction } from "../services/DatabaseService";
+import { postTransactionToDatabase } from "../services/DatabaseService";
 import { useAccount } from "../context/AccountContext";
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 const forwarderOrigin = "http://localhost:3000";
@@ -53,17 +53,17 @@ export const registerUserAccount = async (email) => {
       "Registration request submitted, transaction hash:",
       transactionResponse.hash
     );
-    const registrationReturn = await postTransaction(
+    const registrationReturn = await postTransactionToDatabase(
       wallet,
       transactionResponse.hash,
       "register",
       "pending"
     );
-    /*return {
+    return {
       wallet,
       status: "pending",
       transactionHash: transactionResponse.hash,
-    };*/
+    };
   } catch (error) {
     console.error("Error during registration", error);
 

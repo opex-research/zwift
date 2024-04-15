@@ -8,6 +8,8 @@ import {
   useTheme,
   Paper,
   Box,
+  Button,
+  Stack,
 } from "@mui/material";
 import OnRamp from "../components/OnRamp";
 import OffRamp from "../components/OffRamp";
@@ -15,7 +17,8 @@ import { ErrorBoundary } from "react-error-boundary";
 import FallbackComponent from "../components/ErrorBoundary";
 import UserAccount from "../components/UserAccount";
 import { getOpenOffRampIntentsFromQueue } from "../services/AccountInfoService";
-import { useAccount } from "../context/AccountContext";
+import { AccountProvider, useAccount } from "../context/AccountContext";
+import { simulateAllPendingTransactionsToSuccess } from "../services/DatabaseService";
 
 /**
  * HomePage component serves as the landing page for the application.
@@ -26,7 +29,7 @@ const HomePage = () => {
   const [value, setValue] = useState("onramp"); // State to manage tab selection
   const theme = useTheme(); // Access MUI theme for consistent styling
   const matchesMDUp = useMediaQuery(theme.breakpoints.up("md")); // Breakpoint check for responsive design
-  const { setOpenOffRampsInQueue } = useAccount(); // Account context for managing state
+  const { setOpenOffRampsInQueue, account } = useAccount(); // Account context for managing state
 
   // Effect to fetch the total amount of open offramps when component mounts or value changes to 'onramp'
   useEffect(() => {
@@ -54,34 +57,56 @@ const HomePage = () => {
     setValue(newValue);
   };
 
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        width: "100vw",
-        background: "linear-gradient(to right, #bbdefb, #e1f5fe)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Grid
-        container
-        spacing={2}
-        justifyContent="center"
-        alignItems="center"
-        style={{ maxWidth: "1200px" }}
-      >
-        {/* Account Section */}
-        <AccountSection theme={theme} />
+  // Simulate transaction success function
+  const simulateTransactionSuccess = async () => {
+    try {
+      await simulateAllPendingTransactionsToSuccess(account);
+    } catch (error) {
+      console.log("Error updating transactions to success", error);
+    }
+    // Implement any further logic needed for simulation
+  };
 
-        {/* Transfer Section */}
-        <TransferSection
-          theme={theme}
-          value={value}
-          handleChange={handleChange}
-        />
-      </Grid>
+  return (
+    <div>
+      <Stack direction={"column"}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={simulateTransactionSuccess}
+          sx={{ mx: theme.spacing(50), my: theme.spacing(2) }}
+        >
+          Simulate Transaction Success
+        </Button>
+        <div
+          style={{
+            minHeight: "100vh",
+            width: "100vw",
+            background: "linear-gradient(to right, #bbdefb, #e1f5fe)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Grid
+            container
+            spacing={2}
+            justifyContent="center"
+            alignItems="center"
+            style={{ maxWidth: "1200px" }}
+          >
+            {/* Account Section */}
+            <AccountSection theme={theme} />
+
+            {/* Transfer Section */}
+            <TransferSection
+              theme={theme}
+              value={value}
+              handleChange={handleChange}
+            />
+          </Grid>
+        </div>
+      </Stack>
     </div>
   );
 };

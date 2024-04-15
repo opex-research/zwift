@@ -11,6 +11,7 @@ export const AccountProvider = ({ children }) => {
   const [balance, setBalance] = useState();
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [usersOffRampIntent, setUsersOffRampIntent] = useState(0);
+  const [usersPendingOffRampIntents, setUsersPendingOffRampIntents] = useState(0);
   const [openOffRampsInQueue, setOpenOffRampsInQueue] = useState(0);
   const [paypalEmail, setPaypalEmail] = useState("");
   
@@ -33,6 +34,8 @@ export const AccountProvider = ({ children }) => {
         setOpenOffRampsInQueue,
         paypalEmail,
         setPaypalEmail,
+        usersPendingOffRampIntents,
+        setUsersPendingOffRampIntents,
       }}
     >
       {children}

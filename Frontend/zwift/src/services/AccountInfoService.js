@@ -1,5 +1,6 @@
 import OrchestratorABI from "../contracts/Orchestrator.json"; // Correct the path as needed
 import { ethers } from "ethers";
+import { getUsersPendingOffRampIntentsFromDatabase } from "./DatabaseService";
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 
 // function to retrieve the current open OffRamp Intent for a wallet
@@ -12,10 +13,9 @@ export const getUsersOpenOffRampIntents = async (wallet) => {
   );
 
   try {
-    console.log("In here");
     const amountWei = await orchestratorContract.queryEscrowBalance(wallet);
     const amountEth = ethers.utils.formatEther(amountWei);
-    console.log("users Intent", amountEth);
+    console.log("Amount open offramps on blockchain for this user", amountEth);
     return amountEth; // Returns the amount of the open OffRamp Intent
   } catch (error) {
     console.error("Error retrieving open OffRamp Intent", error);
@@ -63,7 +63,6 @@ export const getOpenOffRampIntentsFromQueue = async () => {
       await orchestratorContract.numberOfOpenOffRampIntents();
     // Use BigNumber methods to convert to a number or string
     const amount = bigNumberAmount.toNumber(); // or .toString() if the number could be large
-    console.log("This is the amount", amount);
     return amount; // Returns the number of open OffRamp Intents
   } catch (error) {
     console.error("Error retrieving number of open OffRamp Intents", error);
@@ -125,16 +124,32 @@ export const getUserEmail = async (wallet) => {
   }
 };
 
-export const getAccountInfo = async (wallet) => {
-  const balance = await getAccountBalance(wallet);
-  const registeredEmail = await getUserEmail(wallet);
-  const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
-  const usersOffRampIntents = await getUsersOpenOffRampIntents(wallet);
+export const getUsersPendingOffRampIntents = async (wallet) => {
+  try {
+    const count = getUsersPendingOffRampIntentsFromDatabase(wallet);
+    return count;
+  } catch (error) {
+    console.log(
+      "Error with retrieving pending transactions from database",
+      error
+    );
+    throw new Error(error.reason || "An error occured retrieving user data");
+  }
+};
 
+export const getAccountInfo = async (wallet) => {
+  const returnedBalance = await getAccountBalance(wallet);
+  const returnedRegisteredEmail = await getUserEmail(wallet);
+  const returnedOpenOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
+  const returnedUsersOffRampIntent = await getUsersOpenOffRampIntents(wallet);
+  const returnedUsersPendingOffRampIntents = await getUsersPendingOffRampIntents(
+    wallet
+  );
   return {
-    balance, // shorthand for balance: balance
-    registeredEmail,
-    openOffRampsInQueue,
-    usersOffRampIntents,
+    returnedBalance, // shorthand for balance: balance
+    returnedRegisteredEmail,
+    returnedOpenOffRampsInQueue,
+    returnedUsersOffRampIntent,
+    returnedUsersPendingOffRampIntents,
   };
 };

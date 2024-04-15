@@ -1,4 +1,4 @@
-export const postTransaction = async (
+export const postTransactionToDatabase = async (
   walletAddress,
   transactionHash,
   transactionType,
@@ -32,7 +32,7 @@ export const postTransaction = async (
   }
 };
 
-export const getPendingTransactions = async (walletAddress) => {
+export const getPendingTransactionsFromDatabase = async (walletAddress) => {
   try {
     const response = await fetch(
       `http://localhost:8000/transactions/${walletAddress}/pending`
@@ -50,10 +50,32 @@ export const getPendingTransactions = async (walletAddress) => {
   }
 };
 
-export const getRegistrationStatus = async (walletAddress) => {
+export const getUsersPendingOffRampIntentsFromDatabase = async (
+  walletAddress
+) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/transactions/${walletAddress}/registrationstatus`
+      `http://localhost:8000/transactions/${walletAddress}/pending_offramps`
+    );
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log("Pending Offramp transactions:", data);
+    const count = data["pending_transactions"].length;
+    console.log("amount pending offramps", count);
+    return count;
+  } catch (error) {
+    console.error("Error fetching pending transactions:", error);
+  }
+};
+
+export const getRegistrationStatusFromDatabase = async (walletAddress) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8000/transactions/${walletAddress}/registration_status`
     );
 
     if (!response.ok) {
@@ -73,6 +95,32 @@ export const simulateRegistrationChangeToSuccess = async (walletAddress) => {
   try {
     const response = await fetch(
       `http://localhost:8000/transactions/${walletAddress}/update_registration_status`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log("received message from success simulation:", data["message"]);
+  } catch (error) {
+    console.error("Error fetching pending transactions:", error);
+  }
+};
+
+//this calls the function in the backend to update the transaction to success, this function is just for testing
+export const simulateAllPendingTransactionsToSuccess = async (
+  walletAddress
+) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8000/transactions/${walletAddress}/update_all_transactions`,
       {
         method: "PUT",
         headers: {

@@ -6,7 +6,7 @@ import ErrorSnackbar from "../components/ErrorSnackbar"; // Adjust the path as n
 import LoadingMessage from "./LoadingMessage"; // Adjust the path as necessary
 import RegistrationButtons from "./RegistrationButtons";
 import {
-  getRegistrationStatus,
+  getRegistrationStatusFromDatabase,
   simulateRegistrationChangeToSuccess,
 } from "../services/DatabaseService";
 // Importing UI components from MUI
@@ -87,7 +87,7 @@ const LoginCard = () => {
       if (metaMaskLogged) {
         // Only fetch registration status if metaMaskLogged is true
         try {
-          const status = await getRegistrationStatus(
+          const status = await getRegistrationStatusFromDatabase(
             metaMaskAccountHelperAddress
           );
           setRegistrationStatus(status); // Update state based on the fetched status

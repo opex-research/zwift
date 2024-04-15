@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useAccount } from "../context/AccountContext";
 import useErrorHandler from "../hooks/useErrorHandler";
 import ErrorSnackbar from "../components/ErrorSnackbar"; // Import components
-
+import RefreshIcon from "@mui/icons-material/Refresh";
 // Importing icons and logo
 import WalletIcon from "../icons/icons8-brieftasche-48.png";
 import MailIcon from "../icons/icons8-neuer-beitrag-48.png";
@@ -32,6 +32,7 @@ import { getAccountInfo } from "../services/AccountInfoService";
  */
 const UserAccount = () => {
   const [loading, setLoading] = useState(false);
+  const [refreshLoading, setRefreshLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
@@ -48,22 +49,32 @@ const UserAccount = () => {
     usersOffRampIntent,
     setUsersOffRampIntent,
     setOpenOffRampsInQueue,
+    usersPendingOffRampIntents,
+    setUsersPendingOffRampIntents,
   } = useAccount();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const {
-          balance,
-          registeredEmail,
-          openOffRampsInQueue,
-          usersOffRampIntent,
+          returnedBalance,
+          returnedRegisteredEmail,
+          returnedOpenOffRampsInQueue,
+          returnedUsersOffRampIntent,
+          returnedUsersPendingOffRampIntents,
         } = await getAccountInfo(account); // Assuming getAccountInfo is adjusted to return an object
-
-        if (balance) setBalance(balance);
-        if (registeredEmail) setRegisteredEmail(registeredEmail);
-        if (openOffRampsInQueue) setOpenOffRampsInQueue(openOffRampsInQueue);
-        if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
+        if (returnedBalance) setBalance(returnedBalance);
+        if (returnedRegisteredEmail)
+          setRegisteredEmail(returnedRegisteredEmail);
+        if (returnedOpenOffRampsInQueue)
+          setOpenOffRampsInQueue(returnedOpenOffRampsInQueue);
+        if (returnedUsersOffRampIntent)
+          setUsersOffRampIntent(returnedUsersOffRampIntent);
+        console.log("test", returnedUsersPendingOffRampIntents);
+        if (returnedUsersPendingOffRampIntents)
+          setUsersPendingOffRampIntents(returnedUsersPendingOffRampIntents);
+        setRefreshLoading(false);
+        console.log(usersPendingOffRampIntents);
       } catch (error) {
         console.error("Error fetching account info:", error);
         // Optionally handle the error (e.g., show an error message)
@@ -110,9 +121,42 @@ const UserAccount = () => {
       setRegisteredEmail("");
       setUsersOffRampIntent(0);
       setOpenOffRampsInQueue(0);
+      setUsersPendingOffRampIntents(0);
       navigate("/");
     } catch (err) {
       showError(err.message || "An unexpected error occurred.");
+      setLoading(false);
+      setOpen(true);
+    }
+  };
+
+  // Handles the logout process
+  const handleRefresh = async () => {
+    setRefreshLoading(true);
+    await delay(1000);
+    try {
+      const {
+        returnedBalance,
+        returnedRegisteredEmail,
+        returnedOpenOffRampsInQueue,
+        returnedUsersOffRampIntent,
+        returnedUsersPendingOffRampIntents,
+      } = await getAccountInfo(account); // Assuming getAccountInfo is adjusted to return an object
+      if (returnedBalance) setBalance(returnedBalance);
+      if (returnedRegisteredEmail) setRegisteredEmail(returnedRegisteredEmail);
+      if (returnedOpenOffRampsInQueue)
+        setOpenOffRampsInQueue(returnedOpenOffRampsInQueue);
+      if (returnedUsersOffRampIntent)
+        setUsersOffRampIntent(returnedUsersOffRampIntent);
+      console.log("test", returnedUsersPendingOffRampIntents);
+      if (returnedUsersPendingOffRampIntents)
+        setUsersPendingOffRampIntents(returnedUsersPendingOffRampIntents);
+      setRefreshLoading(false);
+      console.log(usersPendingOffRampIntents);
+    } catch (error) {
+      console.error("Error fetching account info:", error);
+      // Optionally handle the error (e.g., show an error message)
+      showError(error.message || "An unexpected error occurred.");
       setLoading(false);
       setOpen(true);
     }
@@ -128,6 +172,7 @@ const UserAccount = () => {
         sx={{ marginBottom: 8 }}
       >
         <TypographyHeader />
+        <RefreshButton loading={refreshLoading} handleRefresh={handleRefresh} />
         <LogoutButton loading={loading} handleLogout={handleLogout} />
       </Grid>
 
@@ -155,8 +200,15 @@ const UserAccount = () => {
       <Divider sx={{ marginY: theme.spacing(4) }} />
       <AccountDetails
         icon={PendingIcon}
-        label="OPEN OFFRAMP INTENT"
+        label="OPEN OFFRAMP INTENTS"
         value={formatOffRampIntent(usersOffRampIntent)}
+        infoItemStyle={infoItemStyle}
+      />
+      <Divider sx={{ marginY: theme.spacing(4) }} />
+      <AccountDetails
+        icon={PendingIcon}
+        label="PENDING OFFRAMP INTENTS"
+        value={formatOffRampIntent(usersPendingOffRampIntents)}
         infoItemStyle={infoItemStyle}
       />
 
@@ -200,6 +252,26 @@ const LogoutButton = ({ loading, handleLogout }) => (
       >
         LOGOUT
       </Button>
+    )}
+  </Box>
+);
+
+// Logout button component
+const RefreshButton = ({ loading, handleRefresh }) => (
+  <Box sx={{ display: "flex", alignItems: "center" }}>
+    {loading ? (
+      <CircularProgress size={24} />
+    ) : (
+      <RefreshIcon
+        color="primary"
+        onClick={handleRefresh}
+        sx={{
+          color: "#1B6AC8",
+          fontSize: "40px",
+          textTransform: "none",
+          "&:hover": { backgroundColor: "#bbdef8" },
+        }}
+      ></RefreshIcon>
     )}
   </Box>
 );
