@@ -155,37 +155,6 @@ const LoginCard = () => {
       if (account) {
         setLogged(true);
         setAccount(account);
-        const balance = await getAccountBalance(account);
-        if (balance) setBalance(balance);
-        const registeredEmail = await getUserEmail(account);
-        if (registeredEmail) setRegisteredEmail(registeredEmail);
-
-        let openOffRampsInQueue; // Declare the variable outside to widen its scope
-
-        try {
-          openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
-        } catch (err) {
-          // Correctly capture the error object in the catch block
-          showError(err.message || "An unexpected error occurred.");
-          setOpen(true);
-          openOffRampsInQueue = 0; // Correctly assign a fallback value outside the try block
-        }
-
-        if (openOffRampsInQueue) setOpenOffRampsInQueue(openOffRampsInQueue);
-
-        let usersOffRampIntent; // Declare the variable outside to widen its scope
-
-        try {
-          usersOffRampIntent = await getUsersOpenOffRampIntents(account);
-        } catch (err) {
-          // Correctly capture the error object in the catch block
-          showError(err.message || "An unexpected error occurred.");
-          setOpen(true);
-          usersOffRampIntent = 0; // Correctly assign a fallback value outside the try block
-        }
-
-        if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
-
         setLoading({ isActive: false, message: "" });
         navigate("/dashboard");
       }
@@ -210,29 +179,10 @@ const LoginCard = () => {
     try {
       await delay(2000); // Simulate network delay
 
-      const account = await withTimeout(registerUserAccount(email), 10000);
+      const account = await registerUserAccount(email);
       if (account) {
         setLogged(true);
         setAccount(account);
-
-        const balance = await withTimeout(getAccountBalance(account), 10000);
-        if (balance) setBalance(balance);
-
-        const registeredEmail = await withTimeout(getUserEmail(account), 10000);
-        if (registeredEmail) setRegisteredEmail(registeredEmail);
-
-        const openOffRampsInQueue = await withTimeout(
-          getOpenOffRampIntentsFromQueue(),
-          10000
-        );
-        if (openOffRampsInQueue) setOpenOffRampsInQueue(openOffRampsInQueue);
-
-        const usersOffRampIntent = await withTimeout(
-          getUsersOpenOffRampIntents(account),
-          10000
-        );
-        if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
-
         setLoading({ isActive: false, message: "" });
         navigate("/dashboard");
       }

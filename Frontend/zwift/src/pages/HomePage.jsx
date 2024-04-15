@@ -14,7 +14,7 @@ import OffRamp from "../components/OffRamp";
 import { ErrorBoundary } from "react-error-boundary";
 import FallbackComponent from "../components/ErrorBoundary";
 import UserAccount from "../components/UserAccount";
-import { getOpenOffRampIntentsFromQueue } from "../services/OrchestratorOffRampService";
+import { getOpenOffRampIntentsFromQueue } from "../services/AccountInfoService";
 import { useAccount } from "../context/AccountContext";
 
 /**

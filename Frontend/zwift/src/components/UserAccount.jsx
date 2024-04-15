@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 // Importing UI components from MUI
 import {
@@ -25,6 +25,7 @@ import MailIcon from "../icons/icons8-neuer-beitrag-48.png";
 import CashIcon from "../icons/icons8-münzen-48.png";
 import PendingIcon from "../icons/icons8-gegenwart-48.png";
 
+import { getAccountInfo } from "../services/AccountInfoService";
 /**
  * UserAccount Component
  * Displays user's account information including wallet address, email, balance, and offramp intent.
@@ -48,6 +49,31 @@ const UserAccount = () => {
     setUsersOffRampIntent,
     setOpenOffRampsInQueue,
   } = useAccount();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const {
+          balance,
+          registeredEmail,
+          openOffRampsInQueue,
+          usersOffRampIntent,
+        } = await getAccountInfo(account); // Assuming getAccountInfo is adjusted to return an object
+
+        if (balance) setBalance(balance);
+        if (registeredEmail) setRegisteredEmail(registeredEmail);
+        if (openOffRampsInQueue) setOpenOffRampsInQueue(openOffRampsInQueue);
+        if (usersOffRampIntent) setUsersOffRampIntent(usersOffRampIntent);
+      } catch (error) {
+        console.error("Error fetching account info:", error);
+        // Optionally handle the error (e.g., show an error message)
+      }
+    };
+
+    if (account) {
+      fetchData();
+    }
+  }, [account]); // Dependency array ensures this effect runs when 'account' changes
 
   // Simulates network delay
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
