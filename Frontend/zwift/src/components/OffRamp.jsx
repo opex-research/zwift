@@ -22,7 +22,8 @@ import useErrorHandler from "../hooks/useErrorHandler";
 import ErrorSnackbar from "../components/ErrorSnackbar"; // Adjust the path as necessary
 
 const OffRamp = () => {
-  const { account, setUsersOffRampIntent, usersOffRampIntent } = useAccount();
+  const { account, setUsersPendingOffRampIntents, usersPendingOffRampIntents } =
+    useAccount();
   const [offRampIntentCreated, setOffRampIntentCreated] = useState(false);
   const [amount, setAmount] = useState("1"); // Keep amount as string for TextField compatibility
   const { error, showError } = useErrorHandler();
@@ -53,10 +54,10 @@ const OffRamp = () => {
 
       setOffRampIntentCreated(true);
 
-      const newOffRampIntentBalance =
-        parseFloat(usersOffRampIntent) + parseFloat(amountNum);
+      const newPendingOffRampIntentBalance =
+        parseFloat(usersPendingOffRampIntents) + parseFloat(amountNum);
       // If setUsersOffRampIntent expects a string
-      setUsersOffRampIntent(newOffRampIntentBalance);
+      setUsersPendingOffRampIntents(newPendingOffRampIntentBalance);
     } catch (error) {
       showError(error.message || "An unexpected error occurred."); // Display the dynamic error message
       setOpen(true);
@@ -98,7 +99,7 @@ const OffRamp = () => {
                   color="textSecondary"
                   sx={{ marginBottom: 1 }}
                 >
-                  SUCCESSFULLY CREATED OFFRAMP INTENT
+                  YOUR OFFRAMP INTENT IS CREATED AND WILL BE MINED ON THE CHAIN
                 </Typography>
                 <Stack
                   direction="row"
@@ -122,7 +123,7 @@ const OffRamp = () => {
                       sx={{ color: "inherit" }}
                       padding="10px"
                     >
-                      1 ETH was offramped
+                      INTENT CREATED
                     </Typography>
                   </Box>
                   <Box sx={{ flexGrow: 1 }} />

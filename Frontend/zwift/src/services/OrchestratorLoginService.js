@@ -1,7 +1,8 @@
 import OrchestratorABI from "../contracts/Orchestrator.json"; // Correct the path as needed
 import MetaMaskOnboarding from "@metamask/onboarding";
 import { ethers } from "ethers";
-
+import { postTransactionToDatabase } from "../services/DatabaseService";
+import { useAccount } from "../context/AccountContext";
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 const forwarderOrigin = "http://localhost:3000";
 const onboarding = new MetaMaskOnboarding({ forwarderOrigin });
@@ -26,17 +27,7 @@ export const loginWithMetaMask = async () => {
   }
 };
 
-export const getAccountBalance = async (account) => {
-  if (!account) return null;
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  try {
-    const balance = await provider.getBalance(account);
-    return ethers.utils.formatEther(balance);
-  } catch (error) {
-    console.error("Could not detect the Balance", error);
-    throw new Error(error.reason || "An error occurred during login.");
-  }
-};
+
 
 export const registerUserAccount = async (email) => {
   const wallet = await loginWithMetaMask();
@@ -58,14 +49,21 @@ export const registerUserAccount = async (email) => {
       wallet,
       email
     );
-    const receipt = await transactionResponse.wait(); // Wait for the transaction to be mined
-    if (receipt.status === 1) {
-      console.log("Registration successful");
-      return wallet; // Indicate success
-    } else {
-      console.error("Transaction failed");
-      throw new Error("Transaction failed");
-    }
+    console.log(
+      "Registration request submitted, transaction hash:",
+      transactionResponse.hash
+    );
+    const registrationReturn = await postTransactionToDatabase(
+      wallet,
+      transactionResponse.hash,
+      "register",
+      "pending"
+    );
+    return {
+      wallet,
+      status: "pending",
+      transactionHash: transactionResponse.hash,
+    };
   } catch (error) {
     console.error("Error during registration", error);
 
@@ -118,18 +116,5 @@ export const loginUserAccount = async () => {
   }
 };
 
-export const getUserEmail = async (wallet) => {
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const orchestratorContract = new ethers.Contract(
-    orchestratorAddress,
-    OrchestratorABI.abi,
-    provider
-  );
-  try {
-    const email = await orchestratorContract.getUserEmail(wallet);
-    return email;
-  } catch (error) {
-    console.log("Error with email:", error);
-    throw new Error(error.reason || "An error occurred during login.");
-  }
-};
+
+

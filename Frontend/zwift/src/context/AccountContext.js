@@ -21,11 +21,13 @@ export const useAccount = () => useContext(AccountContext);
 
 export const AccountProvider = ({ children }) => {
   const [logged, setLogged] = useState(false);
+  const [metaMaskLogged, setMetaMaskLogged] = useState(false);
   const [loading, setLoading] = useState(true); // New loading state
   const [account, setAccount] = useState(null);
   const [balance, setBalance] = useState();
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [usersOffRampIntent, setUsersOffRampIntent] = useState(0);
+  const [usersPendingOffRampIntents, setUsersPendingOffRampIntents] = useState(0);
   const [openOffRampsInQueue, setOpenOffRampsInQueue] = useState(0);
   const [paypalEmail, setPaypalEmail] = useState("");
 
@@ -99,6 +101,8 @@ export const AccountProvider = ({ children }) => {
         setBalance,
         logged,
         setLogged,
+        metaMaskLogged,
+        setMetaMaskLogged,
         registeredEmail,
         setRegisteredEmail,
         usersOffRampIntent,
@@ -107,6 +111,8 @@ export const AccountProvider = ({ children }) => {
         setOpenOffRampsInQueue,
         paypalEmail,
         setPaypalEmail,
+        usersPendingOffRampIntents,
+        setUsersPendingOffRampIntents,
         checkSessionAndFetchUserData,
       }}
     >
