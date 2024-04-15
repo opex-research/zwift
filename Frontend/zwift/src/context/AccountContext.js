@@ -9,11 +9,7 @@ import {
   getUserEmail,
 } from "../services/OrchestratorLoginService";
 
-// Importing offramp service functions
-import {
-  getOpenOffRampIntentsFromQueue,
-  getUsersOpenOffRampIntents,
-} from "../services/OrchestratorOffRampService";
+import { getAccountInfo } from "../services/AccountInfoService";
 
 const AccountContext = createContext();
 
@@ -27,37 +23,30 @@ export const AccountProvider = ({ children }) => {
   const [balance, setBalance] = useState();
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [usersOffRampIntent, setUsersOffRampIntent] = useState(0);
-  const [usersPendingOffRampIntents, setUsersPendingOffRampIntents] = useState(0);
+  const [usersPendingOffRampIntents, setUsersPendingOffRampIntents] =
+    useState(0);
   const [openOffRampsInQueue, setOpenOffRampsInQueue] = useState(0);
   const [paypalEmail, setPaypalEmail] = useState("");
 
   const fetchUserData = async (account) => {
     try {
-      const balance = await getAccountBalance(account);
-      setBalance(balance);
+      const {
+        returnedBalance,
+        returnedRegisteredEmail,
+        returnedOpenOffRampsInQueue,
+        returnedUsersOffRampIntent,
+        returnedUsersPendingOffRampIntents,
+      } = await getAccountInfo(account); // Assuming getAccountInfo is adjusted to return an object
+      if (returnedBalance) setBalance(returnedBalance);
+      if (returnedRegisteredEmail) setRegisteredEmail(returnedRegisteredEmail);
+      if (returnedOpenOffRampsInQueue)
+        setOpenOffRampsInQueue(returnedOpenOffRampsInQueue);
+      if (returnedUsersOffRampIntent)
+        setUsersOffRampIntent(returnedUsersOffRampIntent);
+      if (returnedUsersPendingOffRampIntents)
+        setUsersPendingOffRampIntents(returnedUsersPendingOffRampIntents);
     } catch (error) {
-      console.log("Failed to fetch account balance.");
-    }
-
-    try {
-      const email = await getUserEmail(account);
-      setRegisteredEmail(email);
-    } catch (error) {
-      console.log("Failed to fetch user email.");
-    }
-
-    try {
-      const offRampsInQueue = await getOpenOffRampIntentsFromQueue();
-      setOpenOffRampsInQueue(offRampsInQueue);
-    } catch (error) {
-      console.log("Failed to fetch open off-ramp intents from queue.");
-    }
-
-    try {
-      const userOffRampIntent = await getUsersOpenOffRampIntents(account);
-      setUsersOffRampIntent(userOffRampIntent);
-    } catch (error) {
-      console.log("Failed to fetch users open off-ramp intents.");
+      console.log("Error fetching user data", error);
     }
   };
 
