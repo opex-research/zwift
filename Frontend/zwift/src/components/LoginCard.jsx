@@ -150,7 +150,6 @@ const LoginCard = () => {
   const handleLogin = async () => {
     setLoading({ isActive: true, message: "LOGGING YOU IN" });
     try {
-      await delay(2000); // Simulate network delay
       const account = await loginUserAccount();
       if (account) {
         setLogged(true);
@@ -177,15 +176,9 @@ const LoginCard = () => {
   const handleSignUp = async () => {
     setLoading({ isActive: true, message: "REGISTERING YOU" });
     try {
-      await delay(2000); // Simulate network delay
-
-      const account = await registerUserAccount(email);
-      if (account) {
-        setLogged(true);
-        setAccount(account);
-        setLoading({ isActive: false, message: "" });
-        navigate("/dashboard");
-      }
+      await registerUserAccount(email);
+      setLoading({ isActive: false, message: "REGISTERING YOU" });
+      setRegistrationStatus("pending");
     } catch (err) {
       showError(err.message || "An unexpected error occurred.");
       setLoading({ isActive: false, message: "" });
