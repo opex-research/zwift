@@ -24,49 +24,44 @@ contract PeerFinder {
 
     // Function to remove first element, and if that is not the element we look for we handle edge case of elements behind it
     function dequeueOffRampIntent(address targetAddress) public {
-        require(!offRamperQueue.empty(), "Queue is empty");
+    require(!offRamperQueue.empty(), "Queue is empty");
 
-        // Peek at the front of the queue
-        address frontAddress = address(
-            uint160(uint256(offRamperQueue.front()))
-        );
-        if (frontAddress == targetAddress) {
-            // If the front of the queue is the target, pop and finish
-            offRamperQueue.popFront();
-            emit AddressRemoved(targetAddress);
-            return;
-        }
-
-        // If the target is not at the front (edge case), proceed with the search
-        uint256 length = offRamperQueue.length();
-        bool found = false;
-
-        // Temporary storage to hold elements while searching
-        bytes32[] memory tempStorage = new bytes32[](length - 1); // Adjust size as the first element is already checked
-        uint256 count = 0;
-
-        // Start from the second element as the first was already checked
-        offRamperQueue.popFront(); // Remove the first element which we already checked
-        for (uint256 i = 1; i < length; ++i) {
-            bytes32 currentElement = offRamperQueue.popFront();
-            if (
-                address(uint160(uint256(currentElement))) == targetAddress &&
-                !found
-            ) {
-                found = true;
-                emit AddressRemoved(targetAddress);
-            } else {
-                tempStorage[count++] = currentElement;
-            }
-        }
-
-        // Reinsert elements into the queue in their original order
-        for (uint256 j = 0; j < count; ++j) {
-            offRamperQueue.pushBack(tempStorage[j]);
-        }
-
-        require(found, "Address not found in the queue");
+    // Peek at the front of the queue
+    address frontAddress = address(uint160(uint256(offRamperQueue.front())));
+    if (frontAddress == targetAddress) {
+        // If the front of the queue is the target, pop and finish
+        offRamperQueue.popFront();
+        emit AddressRemoved(targetAddress);
+        return;
     }
+
+    // If the target is not at the front (edge case), proceed with the search
+    uint256 length = offRamperQueue.length();
+    bool found = false;
+
+    // Temporary storage to hold elements while searching
+    bytes32[] memory tempStorage = new bytes32[](length); // Adjust size as the first element is already checked
+    uint256 count = 0;
+    tempStorage[0] = offRamperQueue.popFront(); // Remove the first element which we already checked and is not the target
+
+    for (uint256 i = 1; i < length; ++i) {
+        bytes32 currentElement = offRamperQueue.popFront();
+        if (address(uint160(uint256(currentElement))) == targetAddress) {
+            found = true;
+            emit AddressRemoved(targetAddress);
+            break; // Exit the loop once the target is found
+        }
+        tempStorage[count++] = currentElement;
+    }
+
+    // Reinsert elements into the queue in their original order by pushing them back to the front in reverse order
+    for (int j = int(count); j >= 0; --j) {
+        offRamperQueue.pushFront(tempStorage[uint256(j)]);
+    }
+
+    require(found, "Address not found in the queue");
+}
+
 
     /*
     // Dequeue an address from the front of the queue
