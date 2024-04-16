@@ -12,8 +12,9 @@ interface IRegistrator {
 
 interface IPeerFinder {
     function addOffRampersIntent(address _address) external;
-    function getAndRemoveOffRampersIntent() external returns (address);
-    function reinsertOffRampIntentAfterFailedOnRamp(address _address) external;
+    //function getAndRemoveOffRampersIntent() external returns (address);
+    //function reinsertOffRampIntentAfterFailedOnRamp(address _address) external;
+    function dequeueOffRampIntent(address _address) external;
     function peek() external view returns (address);
     function isEmpty() external view returns (bool);
     function size() external view returns (uint256);
@@ -113,21 +114,8 @@ contract Orchestrator {
         emit OffRampersIntentAddedInOrchestrator(_address);
     }
 
-    function getAndRemoveOffRampersIntentFromQueue()
-        external
-        returns (address)
-    {
-        address offRamper = peerFinderContract.getAndRemoveOffRampersIntent();
-        emit GotOffRampersAddressInOrchestrator(offRamper);
-        return offRamper;
-    }
 
-    function reinsertOffRampIntentAfterFailedOnRamp(address _address) external {
-        peerFinderContract.reinsertOffRampIntentAfterFailedOnRamp(_address);
-        emit OffRampersIntentReinsertedInOrchestrator(_address);
-    }
-
-    function peekOffRamperQueue() external view returns (address) {
+    function getLongestQueuingOffRampIntentAddress() external view returns (address) {
         return peerFinderContract.peek();
     }
 
@@ -202,6 +190,7 @@ contract Orchestrator {
         );
 
         if (success) {
+            peerFinderContract.dequeueOffRampIntent(offRamper);
             offRamperContract.releasePartialFundsToOnRamper(
                 offRamper,
                 onRamper,
@@ -209,9 +198,6 @@ contract Orchestrator {
             );
             emit OnRampCompletedInOrchestrator(offRamper, onRamper, amount);
         } else {
-            peerFinderContract.reinsertOffRampIntentAfterFailedOnRamp(
-                offRamper
-            );
             emit OnRampFailedInOrchestrator(offRamper, onRamper, amount);
         }
     }
