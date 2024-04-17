@@ -1,6 +1,28 @@
 import OrchestratorABI from "../contracts/Orchestrator.json";
 import { ethers } from "ethers";
+import { getOfframpAddressesInUse } from "./DatabaseService";
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
+
+// Function to validate and convert addresses
+function validateAndConvertAddresses(addresses) {
+  // Ensure addresses is always treated as an array
+  if (!Array.isArray(addresses)) {
+    return []; // Return an empty array if the input is not an array
+  }
+
+  // Map and filter addresses
+  return addresses
+    .map((address) => {
+      try {
+        // This will throw an error if the address is not valid
+        return ethers.utils.getAddress(address);
+      } catch (error) {
+        console.error(`${address} is not a valid Ethereum address:`, error);
+        return null; // Return null for invalid addresses, to be filtered out
+      }
+    })
+    .filter(Boolean); // Removes any null entries if invalid addresses were found
+}
 
 export const getPeerForOnRamp = async () => {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -11,9 +33,25 @@ export const getPeerForOnRamp = async () => {
     signer
   );
   try {
-    const peerEmail = await orchestratorContract.getUserEmail(peerAddress);
-    console.log({ peerAddress, peerEmail }); // Do something with peerAddress and peerEmail
-    return { peerAddress, peerEmail };
+    const walletAddressesAlreadyUsedForOnramp =
+      await getOfframpAddressesInUse();
+    console.log("Address return", walletAddressesAlreadyUsedForOnramp);
+    const validatedWalletAddressesAlreadyUsedForOnramp =
+      validateAndConvertAddresses(walletAddressesAlreadyUsedForOnramp);
+    console.log(validatedWalletAddressesAlreadyUsedForOnramp);
+
+    const [offRampAddress, offRampEmail] =
+      await orchestratorContract.getLongestQueuingOffRampIntentAddress(
+        validatedWalletAddressesAlreadyUsedForOnramp
+      );
+    console.log(
+      "The addresses from the smart contract",
+      offRampAddress,
+      offRampEmail
+    );
+    //const peerEmail = await orchestratorContract.getLongestQueuingOffRampIntentAddress(peerAddress);
+    //console.log({ peerAddress, peerEmail }); // Do something with peerAddress and peerEmail
+    return { offRampAddress, offRampEmail };
   } catch (error) {
     console.error("Error finding Email", error);
   }

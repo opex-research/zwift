@@ -47,7 +47,13 @@ def create_tables():
 );
 
     """
-
+    openonramps_table = """
+    CREATE TABLE IF NOT EXISTS openonramps (
+        id SERIAL PRIMARY KEY,
+        wallet_address TEXT UNIQUE NOT NULL,
+        added_at TIMESTAMPTZ DEFAULT now()
+    );
+    """
     # Connect to CockroachDB
     conn = psycopg2.connect(**params)
     cur = conn.cursor()
@@ -55,8 +61,9 @@ def create_tables():
     # Execute the table creation statements
     try:
         cur.execute(transactions_table)
+        cur.execute(openonramps_table)
         conn.commit()  # Commit the transaction
-        print("Table created successfully")
+        print("Tables created successfully")
     except Exception as e:
         print(f"An error occurred: {e}")
         conn.rollback()  # Roll back the transaction on error

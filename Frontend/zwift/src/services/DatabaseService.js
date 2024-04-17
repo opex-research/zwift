@@ -50,6 +50,26 @@ export const getPendingTransactionsFromDatabase = async (walletAddress) => {
   }
 };
 
+
+export const getOfframpAddressesInUse = async () => {
+  try {
+    const response = await fetch(
+      `http://localhost:8000/wallets/`
+    );
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log("Wallet addresses already used", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching pending transactions:", error);
+  }
+};
+
+
 export const getUsersPendingOffRampIntentsFromDatabase = async (
   walletAddress
 ) => {
