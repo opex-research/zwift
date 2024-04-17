@@ -15,7 +15,9 @@ interface IPeerFinder {
     //function getAndRemoveOffRampersIntent() external returns (address);
     //function reinsertOffRampIntentAfterFailedOnRamp(address _address) external;
     function dequeueOffRampIntent(address _address) external;
-    function peek() external view returns (address);
+    function peek(
+        address[] memory excludedAddresses
+    ) external view returns (address);
     function isEmpty() external view returns (bool);
     function size() external view returns (uint256);
 }
@@ -86,8 +88,11 @@ contract Orchestrator {
         address indexed onRamper,
         uint256 amount
     );
-    event  ReleasedPartialFundsToOnRamperInOrchestrator(address indexed offRamper, address indexed onRamper,uint256 releaseAmount);
-
+    event ReleasedPartialFundsToOnRamperInOrchestrator(
+        address indexed offRamper,
+        address indexed onRamper,
+        uint256 releaseAmount
+    );
 
     function registerUserAccount(
         address wallet,
@@ -114,9 +119,11 @@ contract Orchestrator {
         emit OffRampersIntentAddedInOrchestrator(_address);
     }
 
-
-    function getLongestQueuingOffRampIntentAddress() external view returns (address) {
-        return peerFinderContract.peek();
+    function getLongestQueuingOffRampIntentAddress(
+        address[] memory excludedAddresses
+    ) external view returns (address, string memory) {
+        address retrievedAddress = peerFinderContract.peek(excludedAddresses);
+        return (retrievedAddress, registratorContract.getEmail(retrievedAddress));
     }
 
     function isOffRamperQueueEmpty() external view returns (bool) {
@@ -142,7 +149,7 @@ contract Orchestrator {
             )
         );
         require(success, "Failed to send ETH or call OffRamper");
-        addOffRampersIntentToQueue(user);
+        peerFinderContract.addOffRampersIntent(user);
         emit OffRampIntentCreatedAndETHSent(user, amount);
     }
 
@@ -157,7 +164,11 @@ contract Orchestrator {
             onRamper,
             releaseAmount
         );
-        emit ReleasedPartialFundsToOnRamperInOrchestrator(offRamper, onRamper, releaseAmount);
+        emit ReleasedPartialFundsToOnRamperInOrchestrator(
+            offRamper,
+            onRamper,
+            releaseAmount
+        );
     }
 
     function queryEscrowBalance(address user) external view returns (uint256) {

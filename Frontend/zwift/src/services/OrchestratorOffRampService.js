@@ -68,6 +68,7 @@ export const newOffRampIntent = async (wallet, amountInEther) => {
   }
 };
 
+/*
 // function to decrease an OffRamp Intent after a transaction
 export const decreaseOffRampIntentAfterTransaction = async (wallet, amount) => {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -118,3 +119,4 @@ export const decreaseOffRampIntentAfterTransaction = async (wallet, amount) => {
     throw new Error(errorMessage);
   }
 };
+*/

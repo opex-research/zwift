@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import "../src/Orchestrator.sol"; // Assumes Orchestrator and all used contracts are in the src directory
+import "../src/Orchestrator.sol";
 import "../src/OffRamper.sol";
 import "../src/PeerFinder.sol";
 import "../src/Registrator.sol";
@@ -13,27 +13,13 @@ contract OrchestratorTest is Test {
     OffRamper offRamperContract;
     PeerFinder peerFinderContract;
     Registrator registratorContract;
-    OnRamper onRamperContract; // Use the interface type for the OnRamper
-    // Declare the missing variables here
-    address onRamperUser;
-    address offRamperUser;
-    uint256 beforeOnRamperBalance;
-    uint256 beforeOffRamperContractBalance;
-
-    // Add the email strings if they are used in multiple functions
-    string offRampersEmail = "offramper@paypal.com";
-    string onRampersEmail = "onramper@paypal.com";
-    string transactionSenderEmail = "onramper@paypal.com";
-    string transactionReceiverEmail = "offramper@paypal.com";
+    OnRamper onRamperContract;
 
     function setUp() public {
         address registratorAddress = address(new Registrator());
         address offRamperAddress = address(new OffRamper());
         address peerFinderAddress = address(new PeerFinder());
         address onRamperAddress = address(new OnRamper());
-
-        onRamperUser = makeAddr("onRamperUser");
-        offRamperUser = makeAddr("offRamperUser");
 
         orchestratorContract = new Orchestrator(
             registratorAddress,
@@ -42,140 +28,213 @@ contract OrchestratorTest is Test {
             onRamperAddress
         );
         offRamperContract = OffRamper(offRamperAddress);
-
-        // Fund users to simulate Ether availability for transactions
-        vm.deal(onRamperUser, 10 ether);
-        vm.deal(offRamperUser, 10 ether);
     }
 
     function testCreateOffRampIntentAndSendETH() public {
-        address user = address(this);
+        address user = makeAddr("testUser");
+        string memory email = "test@email.com";
+        vm.deal(user, 10 ether);
         uint256 amount = 1 ether;
-
-        // Pre-test balance check
         uint256 beforeBalance = address(offRamperContract).balance;
 
-        // Simulate sending ETH to the createOffRampIntentAndSendETH function
+        vm.prank(user);
+        orchestratorContract.registerUserAccount(user, email);
+
         vm.prank(user);
         orchestratorContract.createOffRampIntentAndSendETH{value: amount}(
             user,
             amount
         );
 
-        // Post-test balance check
         uint256 afterBalance = address(offRamperContract).balance;
+        assertEq(
+            9 ether,
+            user.balance,
+            "User shoul have decreased its balance by 1"
+        );
         assertEq(
             afterBalance,
             beforeBalance + amount,
             "OffRamperContract did not receive the correct amount of ETH"
         );
-
-        // Record the initial balances
-        beforeOnRamperBalance = onRamperUser.balance;
-        beforeOffRamperContractBalance = address(offRamperContract).balance;
     }
 
     function testOnRampFunctionSuccess() public {
-        // Pre-test balances
-        beforeOnRamperBalance = onRamperUser.balance;
+        address onRamperUser = makeAddr("onRamperUser");
+        address offRamperUser = makeAddr("offRamperUser");
+        string memory onRampersEmail = "onramper@paypal.com";
+        string memory offRampersEmail = "offramper@paypal.com";
+
+        vm.deal(onRamperUser, 10 ether);
+        vm.deal(offRamperUser, 10 ether);
+
         vm.prank(onRamperUser);
         orchestratorContract.registerUserAccount(onRamperUser, onRampersEmail);
-
         vm.prank(offRamperUser);
         orchestratorContract.registerUserAccount(
             offRamperUser,
             offRampersEmail
         );
-        // Simulate offRamperUser creating an off-ramp intent
+
         vm.prank(offRamperUser);
         orchestratorContract.createOffRampIntentAndSendETH{value: 1 ether}(
             offRamperUser,
             1 ether
         );
-        beforeOffRamperContractBalance = address(offRamperContract).balance;
+
+        uint256 beforeOnRamperBalance = onRamperUser.balance;
+        uint256 beforeOffRamperContractBalance = address(offRamperContract)
+            .balance;
 
         uint256 transactionAmount = 1 ether;
+        address[] memory noExclusions = new address[](0);
 
-        // Execute onRamp
+        vm.prank(onRamperUser);
+        (address targetUser, string memory targetEmail) = orchestratorContract
+            .getLongestQueuingOffRampIntentAddress(noExclusions);
+
         vm.prank(onRamperUser);
         orchestratorContract.onRamp(
             transactionAmount,
-            offRamperUser,
-            transactionSenderEmail,
-            transactionReceiverEmail,
+            targetUser,
+            onRampersEmail,
+            targetEmail,
             transactionAmount
         );
 
-        // Post-test balances and assertions
         uint256 afterOnRamperBalance = onRamperUser.balance;
         uint256 afterOffRamperContractBalance = address(offRamperContract)
             .balance;
 
-        // Expect the onRamperUser's balance to increase by 1 ether after a successful onRamp
         assertEq(
             afterOnRamperBalance,
             beforeOnRamperBalance + 1 ether,
             "onRamperUser balance should increase by 1 ether"
         );
-
-        // Expect the OffRamper contract's balance to decrease by 1 ether
         assertEq(
-            beforeOffRamperContractBalance - 1 ether,
             afterOffRamperContractBalance,
+            beforeOffRamperContractBalance - 1 ether,
             "offRamperContract balance should decrease by 1 ether"
         );
     }
 
     function failTestOnRampFunction() public {
-        // Similar setup as the success test but with conditions that lead to failure
-        // For simplicity, let's assume the failure is due to an incorrect transactionAmount
-        // Adjust the setup to reflect a scenario that would lead to onRamp failure
+        address onRamperUser = makeAddr("onRamperUser");
+        address offRamperUser = makeAddr("offRamperUser");
+        string memory onRampersEmail = "onramper@paypal.com";
+        string memory offRampersEmail = "offramper@paypal.com";
 
-        uint256 initialQueueSize = orchestratorContract
-            .numberOfOpenOffRampIntents();
-
-        // Assume `transactionAmount` is set to a value that causes the onRamp to fail
-        uint256 transactionAmount = 0.5 ether; // An amount that leads to failure based on contract logic
+        vm.deal(onRamperUser, 10 ether);
+        vm.deal(offRamperUser, 10 ether);
 
         vm.prank(onRamperUser);
         orchestratorContract.registerUserAccount(onRamperUser, onRampersEmail);
-
         vm.prank(offRamperUser);
         orchestratorContract.registerUserAccount(
             offRamperUser,
             offRampersEmail
         );
 
-        // Execute onRamp with failure scenario
+        uint256 transactionAmount = 0.5 ether;
+
         vm.prank(onRamperUser);
         orchestratorContract.onRamp(
             transactionAmount,
             offRamperUser,
-            transactionSenderEmail,
-            transactionReceiverEmail,
+            onRampersEmail,
+            offRampersEmail,
             transactionAmount
         );
 
-        // Verify the peerFinder.size() increased by 1
         uint256 finalQueueSize = orchestratorContract
             .numberOfOpenOffRampIntents();
+
         assertEq(
             finalQueueSize,
-            initialQueueSize + 1,
+            1,
             "PeerFinder size should increase by 1 on onRamp failure"
         );
+    }
 
-        // Verify balances remain unchanged
+    function testOnRampFunctionMultipleOffRampIntentsWithExclusion() public {
+        address onRamperUser = makeAddr("onRamperUser");
+        address offRamperUser = makeAddr("offRamperUser");
+        address additionalOffRamperUser = makeAddr("additionalOffRamperUser");
+        string memory onRampersEmail = "onramper@paypal.com";
+        string memory offRampersEmail = "offramper@paypal.com";
+        string
+            memory additionalOffRampersEmail = "additionalOfframper@paypal.com";
+
+        vm.deal(onRamperUser, 10 ether);
+        vm.deal(offRamperUser, 10 ether);
+        vm.deal(additionalOffRamperUser, 10 ether);
+
+        vm.prank(offRamperUser);
+        orchestratorContract.registerUserAccount(
+            offRamperUser,
+            offRampersEmail
+        );
+        vm.prank(additionalOffRamperUser);
+        orchestratorContract.registerUserAccount(
+            additionalOffRamperUser,
+            additionalOffRampersEmail
+        );
+        vm.prank(onRamperUser);
+        orchestratorContract.registerUserAccount(onRamperUser, onRampersEmail);
+
+        vm.prank(offRamperUser);
+        orchestratorContract.createOffRampIntentAndSendETH{value: 1 ether}(
+            offRamperUser,
+            1 ether
+        );
+        vm.prank(additionalOffRamperUser);
+        orchestratorContract.createOffRampIntentAndSendETH{value: 1 ether}(
+            additionalOffRamperUser,
+            1 ether
+        );
+
+        uint256 beforeOffRamperContractBalance = address(offRamperContract)
+            .balance;
+
+        address[] memory exclusions = new address[](1);
+        exclusions[0] = offRamperUser;
+
+        uint256 transactionAmount = 1 ether;
+
+        vm.prank(onRamperUser);
+        (address targetUser, string memory targetEmail) = orchestratorContract
+            .getLongestQueuingOffRampIntentAddress(exclusions);
+
+        uint256 beforeQueueSize = orchestratorContract.numberOfOpenOffRampIntents();
+
+        vm.prank(onRamperUser);
+        orchestratorContract.onRamp(
+            transactionAmount,
+            targetUser,
+            onRampersEmail,
+            targetEmail,
+            transactionAmount
+        );
+
+        uint256 afterQueueSize = orchestratorContract.numberOfOpenOffRampIntents();
+        uint256 afterOnRamperBalance = onRamperUser.balance;
+        uint256 afterOffRamperContractBalance = address(offRamperContract)
+            .balance;
+
         assertEq(
-            onRamperUser.balance,
-            beforeOnRamperBalance,
-            "onRamperUser balance should remain unchanged"
+            afterOnRamperBalance,
+            11 ether,
+            "onRamperUser balance should increase by 1 ether"
         );
         assertEq(
-            address(offRamperContract).balance,
-            beforeOffRamperContractBalance,
-            "offRamperContract balance should remain unchanged"
+            afterOffRamperContractBalance,
+            beforeOffRamperContractBalance - 1 ether,
+            "offRamperContract balance should decrease by 1 ether"
         );
-        // This check ensures that when the `onRamp` process fails, the `offRamperUser` intent is correctly reinserted back into the queue without affecting the balances of the `onRamperUser` and `offRamperContract`, which should remain as they were before the failed `onRamp` attempt.
+        assertEq(
+            beforeQueueSize,
+            afterQueueSize + 1,
+            "OffRamp queue should have decreased by 1 after onRamp"
+        );
     }
 }
