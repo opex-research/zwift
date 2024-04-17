@@ -6,6 +6,7 @@ import {
   useTheme,
   Button,
   Box,
+  MenuItem,
   Paper,
   Grid,
   CircularProgress,
@@ -22,6 +23,7 @@ import {
   getPeerForOnRamp,
   onRamp,
 } from "../services/OrchestratorOnRampService";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 const OnRamp = () => {
   const [email, setEmail] = useState("");
@@ -35,7 +37,14 @@ const OnRamp = () => {
   const [sliderValue, setSliderValue] = useState(100);
   // State to manage the visibility of the payment success message
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
+  const theme = useTheme();
+  const currencies = ["ETH", "BTC", "LTC"]; // Example currencies, replace with actual data as necessary
 
+  const [selectedCurrency, setSelectedCurrency] = useState("ETH");
+
+  const handleCurrencyChange = (event) => {
+    setSelectedCurrency(event.target.value);
+  };
   useEffect(() => {
     const paymentVerified = sessionStorage.getItem("paymentVerified");
     if (paymentVerified === "success") {
@@ -109,7 +118,6 @@ const OnRamp = () => {
       // Optionally, set some error message state here to display to the user, such as an error notification
     }
   };
-  const theme = useTheme();
 
   return (
     <div
@@ -117,6 +125,104 @@ const OnRamp = () => {
         paddingTop: "20px",
       }}
     >
+      <Paper
+        sx={{
+          padding: theme.spacing(3),
+          background: "black", // Assuming a dark theme as in the screenshot
+          color: "white",
+          borderRadius: "16px",
+        }}
+        elevation={4}
+      >
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Typography variant="h6" color="primary">
+              Off-Ramp
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography>You pay</Typography>
+              <TextField
+                select
+                value={selectedCurrency}
+                onChange={handleCurrencyChange}
+                variant="outlined"
+                sx={{
+                  width: 120,
+                  textAlign: "right",
+                  ".MuiSelect-select": {
+                    pr: 1,
+                    color: "white",
+                    backgroundColor: "#333",
+                  },
+                }}
+                SelectProps={{
+                  IconComponent: () => (
+                    <ArrowDownwardIcon sx={{ color: "white" }} />
+                  ),
+                }}
+              >
+                {currencies.map((currency) => (
+                  <MenuItem
+                    key={currency}
+                    value={currency}
+                    sx={{ color: "black" }}
+                  >
+                    {currency}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography>You receive</Typography>
+              <TextField
+                disabled
+                variant="outlined"
+                defaultValue={0}
+                InputProps={{
+                  endAdornment: (
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      sx={{ borderRadius: "20px" }}
+                    >
+                      Select token
+                    </Button>
+                  ),
+                  sx: {
+                    color: "white",
+                    ".MuiOutlinedInput-notchedOutline": {
+                      borderColor: "white",
+                    },
+                  },
+                }}
+              />
+            </Box>
+          </Grid>
+
+          {/* ... Rest of the component with updated styles ... */}
+
+          {/* For actions like Search for Peer, Payment button, etc, style them appropriately as in the screenshot */}
+          {/* ... */}
+        </Grid>
+      </Paper>
       <Grid container spacing={2} direction="column">
         <Grid item container alignItems="center">
           <Grid item>
