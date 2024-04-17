@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract OffRampContract {
+contract PeerFinderv2 {
     struct OffRampIntent {
         uint amount;
         uint timestamp;
@@ -40,7 +40,7 @@ contract OffRampContract {
         }
         timestamps.pop(); // Remove the last element
     }
-}
+
 
     function getNewestEntry(bytes32[] memory intentsAlreadyUsed) public view returns (OffRampIntent memory) {
         require(timestamps.length > 0, "No entries found.");
