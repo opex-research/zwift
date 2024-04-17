@@ -159,3 +159,44 @@ export const simulateAllPendingTransactionsToSuccess = async (
     console.error("Error fetching pending transactions:", error);
   }
 };
+
+export const deleteInUseOfframpWalletAddressFromDatabase = async (walletAddress) => {
+  try {
+    const response = await fetch(`http://localhost:8000/wallets/${walletAddress}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log("Wallet address deleted:", data);
+    return data;
+  } catch (error) {
+    console.error("Error deleting wallet address:", error);
+  }
+};
+
+
+export const addInUseOfframpWalletAddressToDatabase = async (walletAddress) => {
+  try {
+    const response = await fetch("http://localhost:8000/wallets/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ wallet_address: walletAddress })
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log("Wallet address added:", data);
+    return data;
+  } catch (error) {
+    console.error("Error adding wallet address:", error);
+  }
+};

@@ -67,9 +67,9 @@ const OnRamp = () => {
       // Await the async call to getPeerForOnRamp and then destructure the result
       const { peerAddress, peerEmail } = await getPeerForOnRamp();
       // Assuming you want to do something with peerAddress as well
-      console.log("Peer Address:", peerAddress); // You can remove this line; it's just for demonstration
+      //console.log("Peer Address:", peerAddress); // You can remove this line; it's just for demonstration
       setEmail(peerEmail);
-      setOffRamperAddress(peerAddress);
+      //setOffRamperAddress(peerAddress);
       setSearchForPeer("found");
     } catch (error) {
       console.error("Error searching for Peer:", error);

@@ -71,6 +71,33 @@ export const onRamp = async (
     OrchestratorABI.abi,
     signer
   );
+  try {
+    await orchestratorContract.onRamp(
+      ethers.utils.parseUnits(amount.toString(), "ether"),
+      offRamper,
+      transactionSenderEmail,
+      transactionReceiverEmail,
+      ethers.utils.parseUnits(transactionAmount.toString(), "ether")
+    );
+  } catch (error) {
+    console.error("Error performing onRamp", error);
+  }
+};
+/*
+export const onRamp = async (
+  amount,
+  offRamper,
+  transactionSenderEmail,
+  transactionReceiverEmail,
+  transactionAmount
+) => {
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  const orchestratorContract = new ethers.Contract(
+    orchestratorAddress,
+    OrchestratorABI.abi,
+    signer
+  );
 
   return new Promise((resolve, reject) => {
     // Listen for success event
@@ -132,3 +159,4 @@ export const onRamp = async (
       });
   });
 };
+*/
