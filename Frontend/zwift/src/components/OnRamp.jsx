@@ -22,6 +22,7 @@ import {
   getPeerForOnRamp,
   onRamp,
 } from "../services/OrchestratorOnRampService";
+import { handlePayment } from "./PaymentButton";
 
 const OnRamp = () => {
   const [email, setEmail] = useState("");
@@ -33,6 +34,8 @@ const OnRamp = () => {
   const [searchForPeerState, setSearchForPeer] = useState("off"); //off; searching; found
   const isSearchDisabled = openOffRampsInQueue === 0;
   const [sliderValue, setSliderValue] = useState(100);
+  const [resetWait, setResetWait] = useState(false);
+
   // State to manage the visibility of the payment success message
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
 
@@ -40,8 +43,8 @@ const OnRamp = () => {
     const paymentVerified = sessionStorage.getItem("paymentVerified");
     if (paymentVerified === "success") {
       setShowPaymentSuccess(true);
-      // Optionally clear the status if you don't need it anymore
       sessionStorage.removeItem("paymentVerified");
+      continueAfterPaymentSuccess();
     }
   }, []);
 
@@ -71,6 +74,14 @@ const OnRamp = () => {
       setEmail(peerEmail);
       //setOffRamperAddress(peerAddress);
       setSearchForPeer("found");
+
+      // paypal integration to perform checkout initialization
+      try {
+        // Initiate payment process
+        handlePayment();
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
     } catch (error) {
       console.error("Error searching for Peer:", error);
       // Handle the error state appropriately
@@ -78,6 +89,12 @@ const OnRamp = () => {
       // Optionally, set some error message state here to display to the user
     }
   };
+
+  // after receiving payment verification, code continues here
+  const continueAfterPaymentSuccess = () => {
+    console.log("Executing further steps after payment success.");
+  };
+
   const handleOnRamp = async () => {
     try {
       // Assuming `amount` and `transactionAmount` should be passed as strings representing ether (to be parsed in the onRamp function)
