@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   TextField,
   Typography,
@@ -25,11 +25,11 @@ import {
 import { handlePayment } from "./PaymentButton";
 
 const OnRamp = () => {
-  const [email, setEmail] = useState("");
+  const offRamperEmailRef = useRef("");
+  const offRamperAddressRef = useRef("");
   const [successfullResponse, setResponse] = useState(false);
   const [resetCounter, setResetCounter] = useState(0);
   const [paymentDetails, setPaymentDetails] = useState(null);
-  const [offRamperAddress, setOffRamperAddress] = useState(null);
   const { openOffRampsInQueue, registeredEmail } = useAccount();
   const [searchForPeerState, setSearchForPeer] = useState("off"); //off; searching; found
   const isSearchDisabled = openOffRampsInQueue === 0;
@@ -70,11 +70,13 @@ const OnRamp = () => {
       // Await the async call to getPeerForOnRamp and then destructure the result
       const { peerAddress, peerEmail } = await getPeerForOnRamp();
       // Assuming you want to do something with peerAddress as well
-      //console.log("Peer Address:", peerAddress); // You can remove this line; it's just for demonstration
-      setEmail(peerEmail);
+      console.log("Peer Address:", peerAddress);
+      console.log("peerEmail:", peerEmail);
+      console.log("");
+      sessionStorage.setItem("offRamperAddress", peerAddress);
+      sessionStorage.setItem("offRamperEmail", peerEmail);
       //setOffRamperAddress(peerAddress);
       setSearchForPeer("found");
-
       // paypal integration to perform checkout initialization
       try {
         // Initiate payment process
@@ -91,27 +93,19 @@ const OnRamp = () => {
   };
 
   // after receiving payment verification, code continues here
-  const continueAfterPaymentSuccess = () => {
+  const continueAfterPaymentSuccess = async () => {
     console.log("Executing further steps after payment success.");
-  };
-
-  const handleOnRamp = async () => {
+    const offRamperAddress = sessionStorage.getItem("offRamperAddress");
+    const offRamperEmail = sessionStorage.getItem("offRamperEmail");
     try {
       // Assuming `amount` and `transactionAmount` should be passed as strings representing ether (to be parsed in the onRamp function)
       // And offRamperAddress, registeredEmail, peerEmail are already defined with appropriate values.
-      console.log(
-        "offRamper address: ",
-        offRamperAddress,
-        " registeredEmail: ",
-        registeredEmail,
-        " PeerEmail: ",
-        email
-      );
+      console.log("Off ramper address", offRamperAddressRef);
       const result = await onRamp(
         "1",
         offRamperAddress,
         registeredEmail,
-        email,
+        offRamperEmail,
         "1"
       ); // Amounts passed as strings, for example
 
@@ -126,6 +120,7 @@ const OnRamp = () => {
       // Optionally, set some error message state here to display to the user, such as an error notification
     }
   };
+
   const theme = useTheme();
 
   return (
@@ -287,7 +282,7 @@ const OnRamp = () => {
                     ? "Sorry, there are no offramp intents yet."
                     : searchForPeerState === "off"
                     ? "Please press 'Search for Peer'"
-                    : email}
+                    : "emailplaceholder"}
                 </Typography>
               </Box>
             </Stack>

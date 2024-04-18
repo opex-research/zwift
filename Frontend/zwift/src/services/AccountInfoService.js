@@ -144,6 +144,7 @@ export const getAccountInfo = async (wallet) => {
   const returnedUsersPendingOffRampIntents = await getUsersPendingOffRampIntents(
     wallet
   );
+  console.log("open off ramps in queue", returnedOpenOffRampsInQueue)
   return {
     returnedBalance, // shorthand for balance: balance
     returnedRegisteredEmail,

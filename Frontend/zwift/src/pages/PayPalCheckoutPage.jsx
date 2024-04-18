@@ -69,9 +69,6 @@ const PayPalCheckoutPage = () => {
         ? "success"
         : "failed";
       sessionStorage.setItem("paymentVerified", verificationStatus);
-      if (verificationStatus == "success") {
-        setPaypalPaymentSuccessfull(true);
-      }
       navigateBasedOnVerification(verificationStatus);
     } catch (error) {
       console.error("Payment verification error:", error);

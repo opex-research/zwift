@@ -37,15 +37,16 @@ export const getPeerForOnRamp = async () => {
       await getOfframpAddressesInUse();
     const validatedWalletAddressesAlreadyUsedForOnramp =
       validateAndConvertAddresses(walletAddressesAlreadyUsedForOnramp);
-
     const [offRampAddress, offRampEmail] =
       await orchestratorContract.getLongestQueuingOffRampIntentAddress(
         validatedWalletAddressesAlreadyUsedForOnramp
       );
+    console.log(offRampAddress, offRampEmail)
 
     //const peerEmail = await orchestratorContract.getLongestQueuingOffRampIntentAddress(peerAddress);
     //console.log({ peerAddress, peerEmail }); // Do something with peerAddress and peerEmail
-    return { offRampAddress, offRampEmail };
+    return { peerAddress: offRampAddress, peerEmail: offRampEmail };
+
   } catch (error) {
     console.error("Error finding Email", error);
   }
