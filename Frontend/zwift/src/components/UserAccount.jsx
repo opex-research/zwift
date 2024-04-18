@@ -70,11 +70,9 @@ const UserAccount = () => {
           setOpenOffRampsInQueue(returnedOpenOffRampsInQueue);
         if (returnedUsersOffRampIntent)
           setUsersOffRampIntent(returnedUsersOffRampIntent);
-        console.log("test", returnedUsersPendingOffRampIntents);
         if (returnedUsersPendingOffRampIntents)
           setUsersPendingOffRampIntents(returnedUsersPendingOffRampIntents);
         setRefreshLoading(false);
-        console.log(usersPendingOffRampIntents);
       } catch (error) {
         console.error("Error fetching account info:", error);
         // Optionally handle the error (e.g., show an error message)
@@ -148,7 +146,6 @@ const UserAccount = () => {
         setOpenOffRampsInQueue(returnedOpenOffRampsInQueue);
       if (returnedUsersOffRampIntent)
         setUsersOffRampIntent(returnedUsersOffRampIntent);
-      console.log("test", returnedUsersPendingOffRampIntents);
       if (returnedUsersPendingOffRampIntents)
         setUsersPendingOffRampIntents(returnedUsersPendingOffRampIntents);
       setRefreshLoading(false);

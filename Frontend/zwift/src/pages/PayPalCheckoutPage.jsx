@@ -3,11 +3,9 @@ import { useNavigate } from "react-router-dom";
 import paypalCheckoutService from "../services/PayPalService";
 import LoadingMessage from "../components/LoadingMessage";
 import { Paper } from "@mui/material";
-
 const PayPalCheckoutPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-
   // Function to handle URL query parameters and session states
   const getUrlParamsAndSessionStates = () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -71,6 +69,9 @@ const PayPalCheckoutPage = () => {
         ? "success"
         : "failed";
       sessionStorage.setItem("paymentVerified", verificationStatus);
+      if (verificationStatus == "success") {
+        setPaypalPaymentSuccessfull(true);
+      }
       navigateBasedOnVerification(verificationStatus);
     } catch (error) {
       console.error("Payment verification error:", error);

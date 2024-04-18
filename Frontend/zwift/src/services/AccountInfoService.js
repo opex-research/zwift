@@ -15,7 +15,6 @@ export const getUsersOpenOffRampIntents = async (wallet) => {
   try {
     const amountWei = await orchestratorContract.queryEscrowBalance(wallet);
     const amountEth = ethers.utils.formatEther(amountWei);
-    console.log("Amount open offramps on blockchain for this user", amountEth);
     return amountEth; // Returns the amount of the open OffRamp Intent
   } catch (error) {
     console.error("Error retrieving open OffRamp Intent", error);

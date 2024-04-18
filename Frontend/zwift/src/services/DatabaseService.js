@@ -83,9 +83,7 @@ export const getUsersPendingOffRampIntentsFromDatabase = async (
     }
 
     const data = await response.json();
-    console.log("Pending Offramp transactions:", data);
     const count = data["pending_transactions"].length;
-    console.log("amount pending offramps", count);
     return count;
   } catch (error) {
     console.error("Error fetching pending transactions:", error);

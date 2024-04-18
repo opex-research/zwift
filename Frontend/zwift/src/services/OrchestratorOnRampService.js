@@ -35,20 +35,14 @@ export const getPeerForOnRamp = async () => {
   try {
     const walletAddressesAlreadyUsedForOnramp =
       await getOfframpAddressesInUse();
-    console.log("Address return", walletAddressesAlreadyUsedForOnramp);
     const validatedWalletAddressesAlreadyUsedForOnramp =
       validateAndConvertAddresses(walletAddressesAlreadyUsedForOnramp);
-    console.log(validatedWalletAddressesAlreadyUsedForOnramp);
 
     const [offRampAddress, offRampEmail] =
       await orchestratorContract.getLongestQueuingOffRampIntentAddress(
         validatedWalletAddressesAlreadyUsedForOnramp
       );
-    console.log(
-      "The addresses from the smart contract",
-      offRampAddress,
-      offRampEmail
-    );
+
     //const peerEmail = await orchestratorContract.getLongestQueuingOffRampIntentAddress(peerAddress);
     //console.log({ peerAddress, peerEmail }); // Do something with peerAddress and peerEmail
     return { offRampAddress, offRampEmail };

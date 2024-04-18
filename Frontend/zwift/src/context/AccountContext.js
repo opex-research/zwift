@@ -27,6 +27,7 @@ export const AccountProvider = ({ children }) => {
     useState(0);
   const [openOffRampsInQueue, setOpenOffRampsInQueue] = useState(0);
   const [paypalEmail, setPaypalEmail] = useState("");
+  
 
   const fetchUserData = async (account) => {
     try {
@@ -103,6 +104,7 @@ export const AccountProvider = ({ children }) => {
         usersPendingOffRampIntents,
         setUsersPendingOffRampIntents,
         checkSessionAndFetchUserData,
+    
       }}
     >
       {children}
