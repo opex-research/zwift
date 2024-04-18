@@ -65,7 +65,7 @@ const OnRamp = () => {
     setResetCounter((prev) => prev + 1);
   };
 
-  const handleSearchForPeer = async () => {
+  const startOnRampProcess = async () => {
     try {
       // Await the async call to getPeerForOnRamp and then destructure the result
       const { peerAddress, peerEmail } = await getPeerForOnRamp();
@@ -294,7 +294,7 @@ const OnRamp = () => {
             {!successfullResponse && searchForPeerState === "off" && (
               <Button
                 variant="outlined"
-                onClick={handleSearchForPeer}
+                onClick={startOnRampProcess}
                 disabled={isSearchDisabled}
               >
                 Search for Peer

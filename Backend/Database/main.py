@@ -1,10 +1,13 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 import database
-from schemas import TransactionBase
+from schemas import TransactionBase, OnrampBase
 from fastapi.middleware.cors import CORSMiddleware
+import logging
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
+logging.basicConfig(level=logging.INFO)
 
 # For development, you might allow all origins. Be more restrictive for production.
 origins = [
@@ -216,21 +219,34 @@ def create_transaction(transaction: TransactionBase):
         conn.close()
     pass
 
+
 @app.post("/wallets/", status_code=status.HTTP_201_CREATED)
-def add_wallet_address(wallet_address: str):
+def add_wallet_address(wallet_data: OnrampBase):
+    wallet_address = wallet_data.wallet_address.lower()  # Normalize to lowercase
+    logging.info(f"Received wallet address to add: {wallet_address}")
+
     conn = database.get_db_connection()
     cur = conn.cursor()
     try:
-        cur.execute("INSERT INTO openonramps (wallet_address) VALUES (%s) RETURNING id;", (wallet_address,))
-        wallet_id = cur.fetchone()[0]
-        conn.commit()
-        return {"message": "Wallet address added successfully to onramps database", "id": wallet_id}
+        sql = "INSERT INTO openonramps (wallet_address) VALUES (%s);"
+        params = (wallet_address,)
+
+        cur.execute(sql, params)
+        conn.commit()  # Only commit if no exceptions occurred
+
+        logging.info("Wallet address added successfully.")
+        return {"message": "Wallet address added successfully to onramps database"}
+
     except Exception as e:
-        conn.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        conn.rollback()  # Rollback in case of any error
+        logging.error(f"Error adding wallet address: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )
     finally:
         cur.close()
         conn.close()
+
 
 @app.get("/wallets/")
 def get_wallet_addresses():
@@ -239,9 +255,15 @@ def get_wallet_addresses():
     try:
         cur.execute("SELECT wallet_address FROM openonramps;")
         wallet_addresses = cur.fetchall()
-        return {"wallet_addresses": [address[0] for address in wallet_addresses] if wallet_addresses else []}
+        return {
+            "wallet_addresses": (
+                [address[0] for address in wallet_addresses] if wallet_addresses else []
+            )
+        }
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )
     finally:
         cur.close()
         conn.close()
@@ -252,16 +274,23 @@ def delete_wallet_address(wallet_address: str):
     conn = database.get_db_connection()
     cur = conn.cursor()
     try:
-        cur.execute("DELETE FROM openramps WHERE wallet_address = %s RETURNING id;", (wallet_address,))
+        cur.execute(
+            "DELETE FROM openonramps WHERE wallet_address = %s RETURNING id;",
+            (wallet_address,),
+        )
         deleted = cur.fetchone()
         if deleted is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Wallet address not found.")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Wallet address not found.",
+            )
         conn.commit()
         return {"message": "Wallet address removed successfully"}
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )
     finally:
         cur.close()
         conn.close()
-    

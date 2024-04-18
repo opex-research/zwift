@@ -1,6 +1,9 @@
 import OrchestratorABI from "../contracts/Orchestrator.json";
 import { ethers } from "ethers";
-import { getOfframpAddressesInUse } from "./DatabaseService";
+import {
+  addInUseOfframpWalletAddressToDatabase,
+  getOfframpAddressesInUse,
+} from "./DatabaseService";
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 
 // Function to validate and convert addresses
@@ -41,12 +44,19 @@ export const getPeerForOnRamp = async () => {
       await orchestratorContract.getLongestQueuingOffRampIntentAddress(
         validatedWalletAddressesAlreadyUsedForOnramp
       );
-    console.log(offRampAddress, offRampEmail)
+    console.log(offRampAddress, offRampEmail);
+    if (offRampAddress != null) {
+      try {
+        await addInUseOfframpWalletAddressToDatabase(offRampAddress);
+        console.log("Added ", offRampAddress, " to databse for open onramps");
+      } catch (err) {
+        console.log("Error adding offramp address to pendingOnRampQueue", err);
+      }
+    }
 
     //const peerEmail = await orchestratorContract.getLongestQueuingOffRampIntentAddress(peerAddress);
     //console.log({ peerAddress, peerEmail }); // Do something with peerAddress and peerEmail
     return { peerAddress: offRampAddress, peerEmail: offRampEmail };
-
   } catch (error) {
     console.error("Error finding Email", error);
   }

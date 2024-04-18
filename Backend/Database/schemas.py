@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 ## base model for transaction databse
 class TransactionBase(BaseModel):
     wallet_address: str
@@ -7,7 +8,7 @@ class TransactionBase(BaseModel):
     transaction_type: str
     transaction_status: str
 
+
 ## base model for an incoming onramp request
 class OnrampBase(BaseModel):
     wallet_address: str
-    amount: str

@@ -50,12 +50,9 @@ export const getPendingTransactionsFromDatabase = async (walletAddress) => {
   }
 };
 
-
 export const getOfframpAddressesInUse = async () => {
   try {
-    const response = await fetch(
-      `http://localhost:8000/wallets/`
-    );
+    const response = await fetch(`http://localhost:8000/wallets/`);
 
     if (!response.ok) {
       throw new Error("Network response was not ok");
@@ -68,7 +65,6 @@ export const getOfframpAddressesInUse = async () => {
     console.error("Error fetching pending transactions:", error);
   }
 };
-
 
 export const getUsersPendingOffRampIntentsFromDatabase = async (
   walletAddress
@@ -158,11 +154,16 @@ export const simulateAllPendingTransactionsToSuccess = async (
   }
 };
 
-export const deleteInUseOfframpWalletAddressFromDatabase = async (walletAddress) => {
+export const deleteInUseOfframpWalletAddressFromDatabase = async (
+  walletAddress
+) => {
   try {
-    const response = await fetch(`http://localhost:8000/wallets/${walletAddress}`, {
-      method: "DELETE",
-    });
+    const response = await fetch(
+      `http://localhost:8000/wallets/${walletAddress}`,
+      {
+        method: "DELETE",
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Network response was not ok");
@@ -176,7 +177,6 @@ export const deleteInUseOfframpWalletAddressFromDatabase = async (walletAddress)
   }
 };
 
-
 export const addInUseOfframpWalletAddressToDatabase = async (walletAddress) => {
   try {
     const response = await fetch("http://localhost:8000/wallets/", {
@@ -184,7 +184,7 @@ export const addInUseOfframpWalletAddressToDatabase = async (walletAddress) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ wallet_address: walletAddress })
+      body: JSON.stringify({ wallet_address: walletAddress }),
     });
 
     if (!response.ok) {
