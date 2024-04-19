@@ -266,7 +266,7 @@ const OnRamp = () => {
                   <Button
                     variant="contained"
                     color="primary"
-                    onClick={handleSearchForPeer}
+                    onClick={startOnRampProcess}
                     disabled={isSearchDisabled}
                     sx={{
                       background: `${
@@ -317,6 +317,13 @@ const OnRamp = () => {
           {searchForPeerState === "searching" && <CircularProgress />}
 
           {/* Perform another OnRamp transaction button */}
+          {showPaymentSuccess && (
+            <Box sx={{ p: 2, backgroundColor: "#d4edda", textAlign: "center" }}>
+              <Typography variant="h6" color="green">
+                PAYMENT SUCCESSFUL
+              </Typography>
+            </Box>
+          )}
           {successfullResponse && (
             <Button
               variant="outlined"

@@ -1,12 +1,28 @@
 import React, { useState } from "react";
-import { Button, Box, Typography, Tab, Tabs } from "@mui/material";
+import {
+  Button,
+  Box,
+  Typography,
+  Tab,
+  Tabs,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import OnRamp from "../components/OnRamp";
 import OffRamp from "../components/OffRamp";
 import UserAccount from "../components/UserAccount";
+import { ErrorBoundary } from "react-error-boundary";
+import FallbackComponent from "../components/ErrorBoundary";
+import { getOpenOffRampIntentsFromQueue } from "../services/AccountInfoService";
+import { AccountProvider, useAccount } from "../context/AccountContext";
+import { simulateAllPendingTransactionsToSuccess } from "../services/DatabaseService";
 
 const HomePage = () => {
   const [showAccountInfo, setShowAccountInfo] = useState(false);
   const [activeTab, setActiveTab] = useState("onramp");
+  const theme = useTheme(); // Access MUI theme for consistent styling
+  const matchesMDUp = useMediaQuery(theme.breakpoints.up("md")); // Breakpoint check for responsive design
+  const { setOpenOffRampsInQueue, account } = useAccount(); // Account context for managing state
 
   const toggleAccountInfo = () => {
     setShowAccountInfo(!showAccountInfo);
@@ -14,6 +30,21 @@ const HomePage = () => {
 
   const handleChange = (event, newValue) => {
     setActiveTab(newValue);
+  };
+  const fetchOpenOffRampsInQueue = async () => {
+    const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
+    if (openOffRampsInQueue) {
+      setOpenOffRampsInQueue(openOffRampsInQueue);
+    }
+  };
+  // Simulate transaction success function
+  const simulateTransactionSuccess = async () => {
+    try {
+      await simulateAllPendingTransactionsToSuccess(account);
+    } catch (error) {
+      console.log("Error updating transactions to success", error);
+    }
+    // Implement any further logic needed for simulation
   };
 
   return (
@@ -26,6 +57,14 @@ const HomePage = () => {
         backgroundColor: "#212121",
       }}
     >
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={simulateTransactionSuccess}
+        sx={{ mx: theme.spacing(50), my: theme.spacing(2) }}
+      >
+        Simulate Transaction Success
+      </Button>
       <Box
         sx={{
           width: "100%",
