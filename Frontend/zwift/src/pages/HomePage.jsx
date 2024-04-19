@@ -1,204 +1,128 @@
-import React, { useEffect, useState } from "react";
-import {
-  useMediaQuery,
-  Tabs,
-  Tab,
-  Grid,
-  Typography,
-  useTheme,
-  Paper,
-  Box,
-  Button,
-  Stack,
-} from "@mui/material";
+import React, { useState } from "react";
+import { Button, Box, Typography, Tab, Tabs } from "@mui/material";
 import OnRamp from "../components/OnRamp";
 import OffRamp from "../components/OffRamp";
-import { ErrorBoundary } from "react-error-boundary";
-import FallbackComponent from "../components/ErrorBoundary";
 import UserAccount from "../components/UserAccount";
-import { getOpenOffRampIntentsFromQueue } from "../services/AccountInfoService";
-import { AccountProvider, useAccount } from "../context/AccountContext";
-import { simulateAllPendingTransactionsToSuccess } from "../services/DatabaseService";
 
-/**
- * HomePage component serves as the landing page for the application.
- * It provides users with options to navigate between OnRamp and OffRamp functionalities,
- * and displays the user's account information.
- */
 const HomePage = () => {
-  const [value, setValue] = useState("onramp"); // State to manage tab selection
-  const theme = useTheme(); // Access MUI theme for consistent styling
-  const matchesMDUp = useMediaQuery(theme.breakpoints.up("md")); // Breakpoint check for responsive design
-  const { setOpenOffRampsInQueue, account } = useAccount(); // Account context for managing state
+  const [showAccountInfo, setShowAccountInfo] = useState(false);
+  const [activeTab, setActiveTab] = useState("onramp");
 
-  // Effect to fetch the total amount of open offramps when component mounts or value changes to 'onramp'
-  useEffect(() => {
-    if (value === "onramp") {
-      fetchOpenOffRampsInQueue();
-    }
-  }, [value]);
-
-  /**
-   * Fetches the total amount of open offramps and updates context.
-   */
-  const fetchOpenOffRampsInQueue = async () => {
-    const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
-    if (openOffRampsInQueue) {
-      setOpenOffRampsInQueue(openOffRampsInQueue);
-    }
+  const toggleAccountInfo = () => {
+    setShowAccountInfo(!showAccountInfo);
   };
 
-  /**
-   * Handles tab selection changes.
-   * @param {Object} event - The triggering event.
-   * @param {string} newValue - The new tab value.
-   */
   const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-
-  // Simulate transaction success function
-  const simulateTransactionSuccess = async () => {
-    try {
-      await simulateAllPendingTransactionsToSuccess(account);
-    } catch (error) {
-      console.log("Error updating transactions to success", error);
-    }
-    // Implement any further logic needed for simulation
+    setActiveTab(newValue);
   };
 
   return (
-    <div>
-      <Stack direction={"column"}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={simulateTransactionSuccess}
-          sx={{ mx: theme.spacing(50), my: theme.spacing(2) }}
-        >
-          Simulate Transaction Success
-        </Button>
-        <div
-          style={{
-            minHeight: "100vh",
-            width: "100vw",
-            background: "linear-gradient(to right, #bbdefb, #e1f5fe)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        backgroundColor: "#212121",
+      }}
+    >
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          p: 2,
+        }}
+      >
+        <Typography
+          variant="h4"
+          color="white"
+          sx={{
+            ml: 3,
+            fontWeight: "bold",
+            fontFamily: "Monospace",
+            letterSpacing: 2,
+            textTransform: "uppercase",
           }}
         >
-          <Grid
-            container
-            spacing={2}
-            justifyContent="center"
-            alignItems="center"
-            style={{ maxWidth: "1200px" }}
-          >
-            {/* Account Section */}
-            <AccountSection theme={theme} />
-
-            {/* Transfer Section */}
-            <TransferSection
-              theme={theme}
-              value={value}
-              handleChange={handleChange}
-            />
-          </Grid>
-        </div>
-      </Stack>
-    </div>
-  );
-};
-
-/**
- * AccountSection component to encapsulate the UserAccount related UI.
- * @param {Object} theme - The MUI theme object for styling.
- */
-const AccountSection = ({ theme }) => (
-  <Grid item xs={12} md={6}>
-    <StyledPaper theme={theme}>
-      <ErrorBoundary FallbackComponent={FallbackComponent}>
-        <UserAccount />
-      </ErrorBoundary>
-    </StyledPaper>
-  </Grid>
-);
-
-/**
- * TransferSection component to encapsulate the transfer (OnRamp/OffRamp) related UI.
- * @param {Object} theme - The MUI theme object for styling.
- * @param {string} value - Current tab value.
- * @param {Function} handleChange - Handler for tab change.
- */
-const TransferSection = ({ theme, value, handleChange }) => (
-  <Grid item xs={12} md={6}>
-    <StyledPaper theme={theme}>
-      <Box sx={{ alignSelf: "flex-start", mb: 8 }}>
-        <Typography variant="h4" component="h1" sx={{ mb: 1 }}>
-          TRANSFER
+          ZWIFT
         </Typography>
-        <Typography variant="subtitle1" color="textSecondary">
-          Overview of transfer options
-        </Typography>
+        <Button
+          variant="contained"
+          onClick={toggleAccountInfo}
+          sx={{
+            bgcolor: "#424242",
+            "&:hover": {
+              bgcolor: "#616161",
+            },
+            color: "white",
+          }}
+        >
+          ACCOUNT
+        </Button>
       </Box>
-      <ErrorBoundary FallbackComponent={FallbackComponent}>
+
+      {showAccountInfo && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "10%",
+            right: "5%",
+            p: 2,
+            width: 300,
+            bgcolor: "black",
+            color: "white",
+            borderRadius: "8px",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+          }}
+        >
+          <UserAccount />
+        </Box>
+      )}
+
+      <Box
+        sx={{
+          marginTop: 4,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "100%",
+        }}
+      >
         <Tabs
-          value={value}
+          value={activeTab}
           onChange={handleChange}
-          variant="fullWidth"
-          centered
+          textColor="inherit"
+          indicatorColor="secondary"
+          sx={{
+            ".MuiTabs-indicator": {
+              backgroundColor: "darkred",
+            },
+            ".MuiTab-textColorInherit": {
+              color: "white",
+            },
+            marginBottom: 2,
+          }}
         >
           <Tab value="onramp" label="OnRamp" />
           <Tab value="offramp" label="OffRamp" />
         </Tabs>
-      </ErrorBoundary>
-      <TransferContent value={value} />
-    </StyledPaper>
-  </Grid>
-);
 
-/**
- * StyledPaper component for consistent styling of Paper elements in the HomePage.
- * @param {Object} theme - The MUI theme object for consistent styling.
- * @param {React.ReactNode} children - The child components to be rendered inside the Paper.
- */
-const StyledPaper = ({ theme, children }) => (
-  <Paper
-    elevation={1}
-    sx={{
-      width: "100%",
-      maxWidth: "700px",
-      minHeight: "700px",
-      p: theme.spacing(4),
-      borderRadius: 4,
-      flexDirection: "column",
-      alignItems: "center",
-      m: 2,
-    }}
-  >
-    {children}
-  </Paper>
-);
-
-/**
- * TransferContent component to conditionally render OnRamp or OffRamp based on the selected tab.
- * @param {string} value - The current selected tab value.
- */
-const TransferContent = ({ value }) => (
-  <Box
-    sx={{
-      paddingTop: "20px",
-      flexGrow: 1,
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      width: "100%",
-    }}
-  >
-    {value === "onramp" && <OnRamp />}
-    {value === "offramp" && <OffRamp />}
-  </Box>
-);
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          {/* Apply minWidth directly to the components for consistency */}
+          {activeTab === "onramp" ? <OnRamp /> : <OffRamp />}
+        </Box>
+      </Box>
+    </Box>
+  );
+};
 
 export default HomePage;

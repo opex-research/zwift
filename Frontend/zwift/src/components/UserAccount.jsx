@@ -1,41 +1,24 @@
 import React, { useState, useEffect } from "react";
-
-// Importing UI components from MUI
 import {
   Button,
   Typography,
-  Grid,
   Paper,
-  Divider,
-  useTheme,
   Box,
   Stack,
   CircularProgress,
 } from "@mui/material";
-
-// Importing Error Handlers and Navigators
 import { useNavigate } from "react-router-dom";
 import { useAccount } from "../context/AccountContext";
 import useErrorHandler from "../hooks/useErrorHandler";
-import ErrorSnackbar from "../components/ErrorSnackbar"; // Import components
+import ErrorSnackbar from "../components/ErrorSnackbar";
 import RefreshIcon from "@mui/icons-material/Refresh";
-// Importing icons and logo
-import WalletIcon from "../icons/icons8-brieftasche-48.png";
-import MailIcon from "../icons/icons8-neuer-beitrag-48.png";
-import CashIcon from "../icons/icons8-münzen-48.png";
-import PendingIcon from "../icons/icons8-gegenwart-48.png";
-
 import { getAccountInfo } from "../services/AccountInfoService";
-/**
- * UserAccount Component
- * Displays user's account information including wallet address, email, balance, and offramp intent.
- */
+
 const UserAccount = () => {
   const [loading, setLoading] = useState(false);
   const [refreshLoading, setRefreshLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const theme = useTheme();
   const { error, showError } = useErrorHandler();
 
   const {
@@ -62,7 +45,7 @@ const UserAccount = () => {
           returnedOpenOffRampsInQueue,
           returnedUsersOffRampIntent,
           returnedUsersPendingOffRampIntents,
-        } = await getAccountInfo(account); // Assuming getAccountInfo is adjusted to return an object
+        } = await getAccountInfo(account);
         if (returnedBalance) setBalance(returnedBalance);
         if (returnedRegisteredEmail)
           setRegisteredEmail(returnedRegisteredEmail);
@@ -70,38 +53,21 @@ const UserAccount = () => {
           setOpenOffRampsInQueue(returnedOpenOffRampsInQueue);
         if (returnedUsersOffRampIntent)
           setUsersOffRampIntent(returnedUsersOffRampIntent);
-        console.log("test", returnedUsersPendingOffRampIntents);
         if (returnedUsersPendingOffRampIntents)
           setUsersPendingOffRampIntents(returnedUsersPendingOffRampIntents);
         setRefreshLoading(false);
-        console.log(usersPendingOffRampIntents);
       } catch (error) {
         console.error("Error fetching account info:", error);
-        // Optionally handle the error (e.g., show an error message)
       }
     };
 
     if (account) {
       fetchData();
     }
-  }, [account]); // Dependency array ensures this effect runs when 'account' changes
+  }, [account]);
 
-  // Simulates network delay
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  // Account info display styles
-  const infoItemStyle = {
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    height: 25,
-    borderRadius: "10px",
-    backgroundColor: "#F7FAFD",
-    color: "#1B6AC8",
-    padding: theme.spacing(0, 1),
-  };
-
-  // Handles closing of the error snackbar
   const handleErrorClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -109,12 +75,10 @@ const UserAccount = () => {
     setOpen(false);
   };
 
-  // Handles the logout process
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await delay(2000); // Simulate a logout delay
-      // Reset user state and navigate to the home page
+      await delay(2000);
       setLogged(false);
       setAccount(null);
       setBalance();
@@ -130,7 +94,6 @@ const UserAccount = () => {
     }
   };
 
-  // Handles the logout process
   const handleRefresh = async () => {
     setRefreshLoading(true);
     await delay(1000);
@@ -141,21 +104,18 @@ const UserAccount = () => {
         returnedOpenOffRampsInQueue,
         returnedUsersOffRampIntent,
         returnedUsersPendingOffRampIntents,
-      } = await getAccountInfo(account); // Assuming getAccountInfo is adjusted to return an object
+      } = await getAccountInfo(account);
       if (returnedBalance) setBalance(returnedBalance);
       if (returnedRegisteredEmail) setRegisteredEmail(returnedRegisteredEmail);
       if (returnedOpenOffRampsInQueue)
         setOpenOffRampsInQueue(returnedOpenOffRampsInQueue);
       if (returnedUsersOffRampIntent)
         setUsersOffRampIntent(returnedUsersOffRampIntent);
-      console.log("test", returnedUsersPendingOffRampIntents);
       if (returnedUsersPendingOffRampIntents)
         setUsersPendingOffRampIntents(returnedUsersPendingOffRampIntents);
       setRefreshLoading(false);
-      console.log(usersPendingOffRampIntents);
     } catch (error) {
       console.error("Error fetching account info:", error);
-      // Optionally handle the error (e.g., show an error message)
       showError(error.message || "An unexpected error occurred.");
       setLoading(false);
       setOpen(true);
@@ -163,91 +123,70 @@ const UserAccount = () => {
   };
 
   return (
-    <div>
-      {/* Account heading and logout button */}
-      <Grid
-        container
+    <Paper
+      elevation={4}
+      sx={{
+        p: 2,
+        background: "#000",
+        color: "#FFF",
+        borderRadius: "12px",
+        margin: "auto",
+        maxWidth: "calc(100vw - 32px)",
+        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
+        overflow: "hidden",
+      }}
+    >
+      <Stack
+        direction="row"
         justifyContent="space-between"
-        alignItems="flex-start"
-        sx={{ marginBottom: 8 }}
+        alignItems="center"
+        mb={2}
       >
-        <TypographyHeader />
-        <RefreshButton loading={refreshLoading} handleRefresh={handleRefresh} />
-        <LogoutButton loading={loading} handleLogout={handleLogout} />
-      </Grid>
+        <Typography variant="h6">ACCOUNT</Typography>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <RefreshButton
+            loading={refreshLoading}
+            handleRefresh={handleRefresh}
+          />
+          <LogoutButton loading={loading} handleLogout={handleLogout} />
+        </Box>
+      </Stack>
 
-      {/* Account Details: Wallet Address, Registered Email, Wallet Balance, Open Offramp Intent */}
-      <AccountDetails
-        icon={WalletIcon}
-        label="WALLET ADDRESS"
-        value={formatAddress(account)}
-        infoItemStyle={infoItemStyle}
-      />
-      <Divider sx={{ marginY: theme.spacing(4) }} />
-      <AccountDetails
-        icon={MailIcon}
-        label="REGISTERED EMAIL"
-        value={registeredEmail || "No email registered"}
-        infoItemStyle={infoItemStyle}
-      />
-      <Divider sx={{ marginY: theme.spacing(4) }} />
-      <AccountDetails
-        icon={CashIcon}
-        label="WALLET BALANCE"
-        value={formatBalance(balance)}
-        infoItemStyle={infoItemStyle}
-      />
-      <Divider sx={{ marginY: theme.spacing(4) }} />
-      <AccountDetails
-        icon={PendingIcon}
-        label="OPEN OFFRAMP INTENTS"
-        value={formatOffRampIntent(usersOffRampIntent)}
-        infoItemStyle={infoItemStyle}
-      />
-      <Divider sx={{ marginY: theme.spacing(4) }} />
-      <AccountDetails
-        icon={PendingIcon}
-        label="PENDING OFFRAMP INTENTS"
-        value={formatOffRampIntent(usersPendingOffRampIntents)}
-        infoItemStyle={infoItemStyle}
-      />
+      <Stack spacing={1}>
+        <AccountDetail label="wallet address" value={formatAddress(account)} />
+        <AccountDetail
+          label="email address"
+          value={registeredEmail || "No email registered"}
+        />
+        <AccountDetail label="wallet balance" value={formatBalance(balance)} />
+        <AccountDetail
+          label="open offramp intents"
+          value={usersOffRampIntent}
+        />
+      </Stack>
 
-      {/* Error handling Snackbar */}
       <ErrorSnackbar
         open={open}
         handleClose={handleErrorClose}
         errorMessage={error}
       />
-    </div>
+    </Paper>
   );
 };
 
-// Header component with account title
-const TypographyHeader = () => (
-  <Box>
-    <Typography variant="h4" component="h1" sx={{ mb: 1 }}>
-      ACCOUNT
-    </Typography>
-    <Typography variant="subtitle1" color="textSecondary">
-      Overview of account details
-    </Typography>
-  </Box>
-);
-
-// Logout button component
 const LogoutButton = ({ loading, handleLogout }) => (
-  <Box sx={{ display: "flex", alignItems: "center" }}>
+  <Box sx={{ display: "flex", alignItems: "center", ml: 1 }}>
     {loading ? (
       <CircularProgress size={24} />
     ) : (
       <Button
-        color="primary"
+        color="error"
         onClick={handleLogout}
         sx={{
-          color: "#1B6AC8",
-          fontSize: "20px",
+          color: "#8B0000", // Dark red color
+          fontSize: "16px",
           textTransform: "none",
-          "&:hover": { backgroundColor: "white" },
+          "&:hover": { backgroundColor: "#FFA07A" }, // Light red hover color
         }}
       >
         LOGOUT
@@ -256,70 +195,50 @@ const LogoutButton = ({ loading, handleLogout }) => (
   </Box>
 );
 
-// Logout button component
 const RefreshButton = ({ loading, handleRefresh }) => (
   <Box sx={{ display: "flex", alignItems: "center" }}>
     {loading ? (
       <CircularProgress size={24} />
     ) : (
       <RefreshIcon
-        color="primary"
+        color="error"
         onClick={handleRefresh}
         sx={{
-          color: "#1B6AC8",
-          fontSize: "40px",
-          textTransform: "none",
-          "&:hover": { backgroundColor: "#bbdef8" },
+          color: "#8B0000", // Dark red color
+          fontSize: "24px",
+          "&:hover": { backgroundColor: "#FFA07A" }, // Light red hover color
         }}
-      ></RefreshIcon>
+      />
     )}
   </Box>
 );
 
-// Formats the wallet address for display
 const formatAddress = (address) =>
   address
     ? `0x...${address.substring(address.length - 4)}`
     : "No wallet address";
 
-// Formats the wallet balance for display
 const formatBalance = (balance) =>
   Number.isNaN(parseFloat(balance))
     ? "Error loading balance"
     : `ETH ${balance}`;
 
-// Formats the offramp intent for display
-const formatOffRampIntent = (intent) =>
-  isNaN(parseFloat(intent)) ? "Error loading offramp intent" : `ETH ${intent}`;
-
-// Component to display account details with an icon
-const AccountDetails = ({ icon, label, value, infoItemStyle }) => (
-  <Grid container alignItems="center" spacing={2} sx={{ marginBottom: 1 }}>
-    <Grid item>
-      <img
-        src={icon}
-        alt={`${label} Icon`}
-        style={{ width: "50%", height: "50%" }}
-      />
-    </Grid>
-    <Grid item xs>
-      <Typography variant="caption" display="block" sx={{ marginBottom: 1 }}>
-        {label}
-      </Typography>
-      <Stack direction="row" sx={{ width: "100%", alignItems: "center" }}>
-        <Box sx={infoItemStyle}>
-          <Typography
-            variant="body2"
-            component="span"
-            sx={{ color: "inherit" }}
-            padding="10px"
-          >
-            {value}
-          </Typography>
-        </Box>
-      </Stack>
-    </Grid>
-  </Grid>
+const AccountDetail = ({ label, value }) => (
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "flex-start",
+      flexDirection: "column",
+      color: "#FFF",
+      padding: "8px 0",
+      margin: "4px 0",
+    }}
+  >
+    <Typography variant="body2">{label}</Typography>
+    <Box sx={{ backgroundColor: "grey", p: 1, borderRadius: 1 }}>
+      <Typography variant="body2">{value}</Typography>
+    </Box>
+  </Box>
 );
 
 export default UserAccount;
