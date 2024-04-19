@@ -2,22 +2,17 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   TextField,
   Typography,
-  Divider,
-  useTheme,
   Button,
   Box,
+  MenuItem,
   Paper,
-  Grid,
   CircularProgress,
   Stack,
-  Slider,
 } from "@mui/material";
-import PayPalPaymentButton from "./PaymentButton";
-import CashIcon from "../icons/icons8-cashflow-48.png"; // Import the PNG file
-import ExchangeIcon from "../icons/icons8-transfer-zwischen-benutzern-48.png"; // Import the PNG file
 import { useAccount } from "../context/AccountContext";
-import CancelIcon from "../icons/icons8-x-48.png"; // Import the PNG file
-import CheckIcon from "../icons/icons8-häkchen-48.png"; // Import the PNG file
+import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import PayPalPaymentButton from "./PaymentButton";
 import {
   getPeerForOnRamp,
   onRamp,
@@ -28,17 +23,21 @@ const OnRamp = () => {
   const offRamperEmailRef = useRef("");
   const offRamperAddressRef = useRef("");
   const [successfullResponse, setResponse] = useState(false);
-  const [resetCounter, setResetCounter] = useState(0);
-  const [paymentDetails, setPaymentDetails] = useState(null);
   const { openOffRampsInQueue, registeredEmail } = useAccount();
-  const [searchForPeerState, setSearchForPeer] = useState("off"); //off; searching; found
+  const [searchForPeerState, setSearchForPeer] = useState("off");
   const isSearchDisabled = openOffRampsInQueue === 0;
   const [sliderValue, setSliderValue] = useState(100);
   const [resetWait, setResetWait] = useState(false);
 
   // State to manage the visibility of the payment success message
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState("");
+  const [amount, setAmount] = useState("");
+  const [showAmountInput, setShowAmountInput] = useState(false);
+  const [showSearchButton, setShowSearchButton] = useState(false);
+  const currencies = ["USD", "EUR", "JPY"];
 
+  // Check if payment is verified on component mount
   useEffect(() => {
     const paymentVerified = sessionStorage.getItem("paymentVerified");
     if (paymentVerified === "success") {
@@ -48,26 +47,17 @@ const OnRamp = () => {
     }
   }, []);
 
-  // Utility function to simulate network delay
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
+  // Event handlers
   const handleResponseChange = (newValue) => {
     setResponse(newValue);
   };
 
-  const handleSliderChange = (event, newValue) => {
-    setSliderValue(newValue);
-  };
-
   const handleBackButton = () => {
-    setPaymentDetails(null);
     setResponse(false);
-    setResetCounter((prev) => prev + 1);
   };
 
   const startOnRampProcess = async () => {
     try {
-      // Await the async call to getPeerForOnRamp and then destructure the result
       const { peerAddress, peerEmail } = await getPeerForOnRamp();
       // Assuming you want to do something with peerAddress as well
       console.log("Peer Address:", peerAddress);
@@ -86,13 +76,12 @@ const OnRamp = () => {
       }
     } catch (error) {
       console.error("Error searching for Peer:", error);
-      // Handle the error state appropriately
       setSearchForPeer("off");
-      // Optionally, set some error message state here to display to the user
     }
   };
 
   // after receiving payment verification, code continues here
+
   const continueAfterPaymentSuccess = async () => {
     console.log("Executing further steps after payment success.");
     const offRamperAddress = sessionStorage.getItem("offRamperAddress");
@@ -107,218 +96,245 @@ const OnRamp = () => {
         registeredEmail,
         offRamperEmail,
         "1"
-      ); // Amounts passed as strings, for example
-
+      );
       console.log("OnRamp Success:", result);
-      // Do something with the result if needed
-      // Update UI state to reflect success
-      setSearchForPeer("found"); // Or another appropriate state/action
+      setSearchForPeer("found");
     } catch (error) {
       console.error("Error performing OnRamp:", error);
-      // Handle the error state appropriately
       setSearchForPeer("off");
-      // Optionally, set some error message state here to display to the user, such as an error notification
     }
   };
 
-  const theme = useTheme();
+  const handleCurrencyChange = (event) => {
+    setSelectedCurrency(event.target.value);
+    setShowAmountInput(true);
+    setAmount("");
+    setShowSearchButton(false);
+  };
+
+  const handleAmountChange = (event) => {
+    setAmount(event.target.value);
+    setShowSearchButton(event.target.value.trim() !== "");
+  };
 
   return (
-    <div
-      style={{
-        paddingTop: "20px",
-      }}
-    >
-      <Grid container spacing={2} direction="column">
-        <Grid item container alignItems="center">
-          <Grid item>
-            <img
-              src={openOffRampsInQueue > 0 ? CheckIcon : CancelIcon}
-              alt={openOffRampsInQueue > 0 ? "Check Icon" : "Cancel Icon"}
-              style={{ width: "50%", height: "50%", color: "red" }}
-            />
-          </Grid>
-
-          <Grid item>
-            <Typography variant="caption" display="block" color="textSecondary">
-              OPEN OFFRAMP INTENTS BY PEERS:
-            </Typography>
-          </Grid>
-          <Grid item xs>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: 50, // Adjust the width of the rectangle as needed
-                height: 25, // Adjust the height of the rectangle as needed
-                borderRadius: "10px", // This creates the rounded corners
-                backgroundColor: "#F7FAFD",
-                color: "#1B6AC8",
-                marginLeft: 2,
-              }}
-            >
-              <Typography
-                variant="h7"
-                component="span"
-                sx={{ color: "inherit" }}
-              >
-                {openOffRampsInQueue}
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
-
-        <Grid item>
-          <Divider sx={{ marginY: theme.spacing(2) }} />
-        </Grid>
-
-        <Grid item container alignItems="center">
-          <Grid item>
-            <img
-              src={CashIcon}
-              alt="Cash Icon"
-              style={{ width: "50%", height: "50%" }}
-            />
-          </Grid>
-          <Grid item>
-            <Typography variant="caption" display="block" color="textSecondary">
-              SET AMOUNT TO ONRAMP:
-            </Typography>
-          </Grid>
-          <Grid item xs>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: 50, // Adjust the width of the rectangle as needed
-                height: 25, // Adjust the height of the rectangle as needed
-                borderRadius: "10px", // This creates the rounded corners
-                backgroundColor: "#F7FAFD",
-                color: "#1B6AC8",
-                marginLeft: 2,
-              }}
-            >
-              <Typography
-                variant="h7"
-                component="span"
-                sx={{ color: "inherit" }}
-              >
-                ${sliderValue}
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
-        <Grid item>
-          <Grid item xs>
-            <Stack
-              spacing={2}
-              direction="row"
-              sx={{ mb: 1, width: 300, pl: 1.7 }} // Adds padding to the left and sets a max width
-              alignItems="center"
-            >
-              <Slider
-                aria-label="Amount"
-                value={sliderValue}
-                onChange={null}
-                step={null} // Null step disables the default stepping behavior
-                marks={[
-                  { value: 25, label: "$25" },
-                  { value: 50, label: "$50" },
-                  { value: 75, label: "$75" },
-                  { value: 100, label: "$100" },
-                ]}
-                valueLabelDisplay="auto" // Automatically show the value label
-                min={25} // Minimum value
-                max={100} // Maximum value
+    <div style={{ paddingTop: "20px" }}>
+      <Paper
+        sx={{
+          padding: 4,
+          background: "black",
+          color: "white",
+          borderRadius: "12px",
+          margin: "auto",
+          minWidth: 550,
+          boxShadow:
+            "0px 4px 8px rgba(0, 0, 0, 0.1), 0px 6px 20px rgba(0, 0, 0, 0.19)",
+        }}
+        elevation={4}
+      >
+        <Stack spacing={3}>
+          {/* Currency selection */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box sx={{ display: "flex", alignItems: "center", width: "60%" }}>
+              <CurrencyExchangeIcon
+                sx={{ mr: 2, color: "gray", fontSize: 24 }}
               />
-            </Stack>
-          </Grid>
-        </Grid>
-        <Grid item>
-          <Divider sx={{ marginY: theme.spacing(2) }} />
-        </Grid>
-        <Grid item container alignItems="center">
-          <Grid item>
-            <img
-              src={ExchangeIcon}
-              alt="Exchange Icon"
-              style={{ width: "50%", height: "50%" }}
-            />
-          </Grid>
-          <Grid item>
-            <Typography variant="caption" display="block" color="textSecondary">
-              PEER TO EXCHANGE WITH:
-            </Typography>
-          </Grid>
-          <Grid item xs>
-            <Stack direction="row" sx={{ width: "100%", alignItems: "center" }}>
+              <Typography sx={{ width: "100%", fontSize: 18 }}>
+                select currency
+              </Typography>
+            </Box>
+            <TextField
+              select
+              value={selectedCurrency}
+              onChange={handleCurrencyChange}
+              variant="outlined"
+              sx={{
+                width: "40%",
+                ".MuiSelect-select": {
+                  pr: 1,
+                  color: "white",
+                  backgroundColor: "#333",
+                  borderRadius: "12px",
+                  fontSize: 16,
+                },
+                ".MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                  "& fieldset": {
+                    borderColor: "transparent",
+                    borderRadius: "12px",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "white",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "white",
+                  },
+                },
+              }}
+              SelectProps={{
+                IconComponent: "div",
+              }}
+            >
+              {currencies.map((currency) => (
+                <MenuItem
+                  key={currency}
+                  value={currency}
+                  sx={{ color: "black", fontSize: 16 }}
+                >
+                  {currency}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+
+          {/* Amount input */}
+          {showAmountInput && (
+            <>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", width: "60%" }}
+                >
+                  <AttachMoneyIcon
+                    sx={{ mr: 2, color: "gray", fontSize: 24 }}
+                  />
+                  <Typography sx={{ width: "100%", fontSize: 18 }}>
+                    enter amount
+                  </Typography>
+                </Box>
+                <TextField
+                  value={amount}
+                  onChange={handleAmountChange}
+                  variant="outlined"
+                  inputProps={{
+                    style: {
+                      color: "white",
+                    },
+                  }}
+                  sx={{
+                    width: "40%",
+                    backgroundColor: "#333",
+                    borderRadius: "12px",
+                    ".MuiOutlinedInput-root": {
+                      borderRadius: "12px",
+                      "& fieldset": {
+                        borderColor: "transparent",
+                        borderRadius: "12px",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "white",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "white",
+                      },
+                      "& .MuiInputBase-input": {
+                        fontSize: 16,
+                      },
+                    },
+                  }}
+                />
+              </Box>
+              {/* Container for the amount and button */}
               <Box
                 sx={{
                   display: "flex",
-                  justifyContent: "flex-start",
                   alignItems: "center",
-                  height: 25,
-                  borderRadius: "10px",
-                  backgroundColor: isSearchDisabled
-                    ? "#FFCDD2"
-                    : searchForPeerState === "found"
-                    ? "#C8E6C9"
-                    : "#F7FAFD",
-                  color: isSearchDisabled
-                    ? "#ff8383"
-                    : searchForPeerState === "off"
-                    ? "#ff8383"
-                    : searchForPeerState === "found"
-                    ? "#7eb55c"
-                    : "#f2f5f0",
-                  padding: theme.spacing(0, 1),
-                  marginLeft: "10px",
+                  justifyContent: "space-between",
+                  width: "100%",
                 }}
               >
-                <Typography variant="body2" sx={{ color: "inherit" }}>
-                  {isSearchDisabled
-                    ? "Sorry, there are no offramp intents yet."
-                    : searchForPeerState === "off"
-                    ? "Please press 'Search for Peer'"
-                    : "emailplaceholder"}
+                {/* Text "You will receive..." */}
+                <Typography
+                  sx={{
+                    fontSize: 16,
+                    color: "white",
+                  }}
+                >
+                  you will receive{" "}
+                  <Box
+                    component="span"
+                    sx={{
+                      color: "darkred",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    1 ETH,
+                  </Box>
                 </Typography>
-              </Box>
-            </Stack>
-          </Grid>
-        </Grid>
 
-        <Box sx={{ maxWidth: 500, mx: "auto", mt: 5 }}>
-          <Grid container direction="column">
-            {!successfullResponse && searchForPeerState === "off" && (
-              <Button
-                variant="outlined"
-                onClick={startOnRampProcess}
-                disabled={isSearchDisabled}
-              >
-                Search for Peer
-              </Button>
-            )}
-            {searchForPeerState === "found" && <PayPalPaymentButton />}
-            {showPaymentSuccess && (
-              <Box
-                sx={{ p: 2, backgroundColor: "#d4edda", textAlign: "center" }}
-              >
-                <Typography variant="h6" color="green">
-                  PAYMENT SUCCESSFUL
-                </Typography>
+                {/* Search for Peer button */}
+                {showSearchButton && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSearchForPeer}
+                    disabled={isSearchDisabled}
+                    sx={{
+                      background: `${
+                        isSearchDisabled ? "grey" : "black"
+                      } !important`,
+                      color: `${
+                        isSearchDisabled ? "lightgrey" : "white"
+                      } !important`,
+                      borderRadius: "12px",
+                      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+                      "&:hover": {
+                        backgroundColor: `${
+                          isSearchDisabled ? "grey" : "darkred"
+                        } !important`,
+                      },
+                      "&:active": {
+                        backgroundColor: `${
+                          isSearchDisabled ? "grey" : "#cc0000"
+                        } !important`,
+                      },
+                      "& .MuiButton-startIcon": {
+                        color: `${
+                          isSearchDisabled ? "lightgrey" : "darkred"
+                        } !important`,
+                      },
+                      "& .MuiButton-endIcon": {
+                        color: `${
+                          isSearchDisabled ? "lightgrey" : "darkred"
+                        } !important`,
+                      },
+                      fontSize: 14,
+                      padding: "6px 12px",
+                      textTransform: "none",
+                      width: "fit-content",
+                    }}
+                  >
+                    search for peer
+                  </Button>
+                )}
               </Box>
-            )}
-            {searchForPeerState === "searching" && <CircularProgress />}
-            {successfullResponse && (
-              <Button variant="outlined" onClick={handleBackButton}>
-                Perform another OnRamp Transaction
-              </Button>
-            )}
-          </Grid>
-        </Box>
-      </Grid>
+            </>
+          )}
+
+          {/* OnRamp button */}
+          {searchForPeerState === "found" && PayPalPaymentButton}
+
+          {/* Loading spinner */}
+          {searchForPeerState === "searching" && <CircularProgress />}
+
+          {/* Perform another OnRamp transaction button */}
+          {successfullResponse && (
+            <Button
+              variant="outlined"
+              onClick={handleBackButton}
+              sx={{
+                color: "white",
+                borderColor: "white",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  borderColor: "white",
+                },
+              }}
+            >
+              Perform another OnRamp Transaction
+            </Button>
+          )}
+        </Stack>
+      </Paper>
     </div>
   );
 };
