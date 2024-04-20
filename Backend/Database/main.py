@@ -4,6 +4,7 @@ from schemas import TransactionBase, OnrampBase
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 from fastapi.responses import JSONResponse
+from sync_transaction_statuses import fetch_newest_zksync_transaction_status
 
 app = FastAPI()
 
@@ -24,8 +25,71 @@ app.add_middleware(
 )
 
 
+async def update_transaction_statuses():
+    """Fetch all pending transactions from the database, fetch their transaction status from the zkSync layer, 
+    update the status in the database depending on the newly fetched zksync transaction status
+
+    Raises:
+        HTTPException: _description_
+
+    Returns:
+        dict: key=message; value=amount of updated transactions
+    """ """Update statuses of all pending transactions by checking the latest status from the blockchain."""
+    conn = database.get_db_connection()
+    cur = conn.cursor()
+    try:
+        # Fetch all pending transactions
+        cur.execute(
+            "SELECT id, transaction_hash FROM transactions WHERE transaction_status = 'pending'"
+        )
+        pending_transactions = cur.fetchall()
+
+        # If there are no pending transactions, return an informative message
+        if not pending_transactions:
+            return {"message": "No pending transactions to update."}
+
+        # Fetch new statuses for each transaction
+        transaction_ids = [tx["transaction_hash"] for tx in pending_transactions]
+        new_statuses = fetch_newest_zksync_transaction_status(transaction_ids)
+
+        # Update transactions in the database with new statuses
+        updated_count = 0
+        for tx in pending_transactions:
+            new_status = new_statuses.get(tx["transaction_hash"])
+            if (
+                new_status and new_status != "pending"
+            ):  # Check if the status has changed and is not pending
+                cur.execute(
+                    "UPDATE transactions SET transaction_status = %s WHERE id = %s",
+                    (new_status, tx["id"]),
+                )
+                updated_count += 1
+
+        conn.commit()  # Commit all changes at once
+        return {"message": f"Updated {updated_count} transactions."}
+
+    except Exception as e:
+        conn.rollback()  # Roll back in case of any error
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
+
+
 @app.get("/transactions/{wallet_address}/registration_status")
 def get_register_status(wallet_address: str):
+    """Retrieves registration status from database for a given wallet address and returns it
+
+    Args:
+        wallet_address (str): Wallet address for which the registration status should be checked
+
+    Raises:
+        HTTPException: _description_
+        HTTPException: _description_
+
+    Returns:
+        dict: key="registration_status"; value="pending";"registered";"not_registered"
+    """
     conn = database.get_db_connection()
     cur = conn.cursor()
     try:
@@ -64,6 +128,18 @@ def get_register_status(wallet_address: str):
 # Helper function to simulate an update from the blcokcchain
 @app.put("/transactions/{wallet_address}/update_registration_status")
 def update_register_status(wallet_address: str):
+    """Helper function that will is only needed for local deployment
+
+    Args:
+        wallet_address (str): _description_
+
+    Raises:
+        HTTPException: _description_
+        HTTPException: _description_
+
+    Returns:
+        _type_: _description_
+    """
     conn = database.get_db_connection()
     cur = conn.cursor()
     try:
@@ -99,6 +175,18 @@ def update_register_status(wallet_address: str):
 # Helper function to simulate an update from the blcokcchain on all registrations
 @app.put("/transactions/{wallet_address}/update_all_transactions")
 def update_register_status(wallet_address: str):
+    """Helper function that will is only needed for local deployment
+
+    Args:
+        wallet_address (str): _description_
+
+    Raises:
+        HTTPException: _description_
+        HTTPException: _description_
+
+    Returns:
+        _type_: _description_
+    """
     conn = database.get_db_connection()
     cur = conn.cursor()
     try:
@@ -133,6 +221,18 @@ def update_register_status(wallet_address: str):
 
 @app.get("/transactions/{wallet_address}/pending")
 def get_pending_transactions(wallet_address: str):
+    """Returns all pending transactions for a given wallet address
+
+    Args:
+        wallet_address (str): wallet address to search transactions for
+
+    Raises:
+        HTTPException: _description_
+        HTTPException: _description_
+
+    Returns:
+        dict: key="pending_transactions"; value=transactions (id, wallet_address, hash, status, timestamp)
+    """
     conn = database.get_db_connection()
     cur = conn.cursor()
     try:
