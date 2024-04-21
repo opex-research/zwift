@@ -10,7 +10,7 @@ WORKDIR /code
 
 # Install dependencies
 # Install dependencies
-COPY ../requirements.txt /code/
+COPY requirements.txt /code/
 RUN pip install --no-cache-dir -r requirements.txt
 
 

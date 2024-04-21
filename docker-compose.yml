@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   go-backend:
     build:
@@ -9,8 +9,8 @@ services:
 
   python-backend:
     build:
-      context: ./Backend/Database
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Backend/Database/Dockerfile
     ports:
       - "8000:8000"
     depends_on:
