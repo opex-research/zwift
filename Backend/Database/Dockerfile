@@ -9,7 +9,8 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /code
 
 # Install dependencies
-COPY ../../requirements.txt /code/
+# Install dependencies
+COPY requirements.txt /code/
 RUN pip install --no-cache-dir -r requirements.txt
 
 
