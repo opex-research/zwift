@@ -12,7 +12,8 @@ def fetch_newest_zksync_transaction_status(transaction_ids):
     Returns:
         dict: Key=transaction_id; value=transaction_status
     """
-    url = "https://mainnet.era.zksync.io"
+    # url mainnet: https://mainnet.era.zksync.io
+    url = "https://sepolia.era.zksync.dev"
     headers = {"Content-Type": "application/json"}
     statuses = {}
 
@@ -41,6 +42,6 @@ def fetch_newest_zksync_transaction_status(transaction_ids):
 
 
 # Example usage:
-transaction_ids = ["0x964f219e3263c55814ad8dc0080d067527fdbdb71c082c9ad7eb8150336b4450"]
+transaction_ids = ["0xbfeedbbdf86f396ecfec65b61465749997626f8dcced491b9ad09b4909d31966"]
 status_dict = fetch_newest_zksync_transaction_status(transaction_ids)
 print(status_dict)
