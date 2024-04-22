@@ -76,6 +76,58 @@ async def update_transaction_statuses():
         conn.close()
 
 
+async def update_transaction_statuses_for_account(wallet_address: str):
+    """Fetch all pending transactions from the database, fetch their transaction status from the zkSync layer, 
+    update the status in the database depending on the newly fetched zksync transaction status
+
+    Raises:
+        HTTPException: _description_
+
+    Returns:
+        dict: key=message; value=amount of updated transactions
+    """ """Update statuses of all pending transactions by checking the latest status from the blockchain."""
+    conn = database.get_db_connection()
+    cur = conn.cursor()
+    try:
+        # Fetch all pending transactions
+        cur.execute(
+            "SELECT id, transaction_hash FROM transactions WHERE transaction_status = 'pending' AND wallet_address = %s",
+            (wallet_address,),
+        )
+        pending_transactions = cur.fetchall()
+
+        # If there are no pending transactions, return an informative message
+        if not pending_transactions:
+            return {"message": "No pending transactions to update."}
+
+        # Fetch new statuses for each transaction
+        transaction_ids = [tx["transaction_hash"] for tx in pending_transactions]
+        new_statuses = fetch_newest_zksync_transaction_status(transaction_ids)
+
+        # Update transactions in the database with new statuses
+        updated_count = 0
+        for tx in pending_transactions:
+            new_status = new_statuses.get(tx["transaction_hash"])
+            if (
+                new_status and new_status != "pending"
+            ):  # Check if the status has changed and is not pending
+                cur.execute(
+                    "UPDATE transactions SET transaction_status = %s WHERE id = %s",
+                    (new_status, tx["id"]),
+                )
+                updated_count += 1
+
+        conn.commit()  # Commit all changes at once
+        return {"message": f"Updated {updated_count} transactions."}
+
+    except Exception as e:
+        conn.rollback()  # Roll back in case of any error
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
+
+
 @app.get("/transactions/{wallet_address}/registration_status")
 def get_register_status(wallet_address: str):
     """Retrieves registration status from database for a given wallet address and returns it
