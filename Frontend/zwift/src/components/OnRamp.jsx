@@ -91,11 +91,11 @@ const OnRamp = () => {
       // And offRamperAddress, registeredEmail, peerEmail are already defined with appropriate values.
       console.log("Off ramper address", offRamperAddressRef);
       const result = await onRamp(
-        "1",
+        "0.00035",
         offRamperAddress,
         registeredEmail,
         offRamperEmail,
-        "1"
+        "0.00035"
       );
       console.log("OnRamp Success:", result);
       setSearchForPeer("found");

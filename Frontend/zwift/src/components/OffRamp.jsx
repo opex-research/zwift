@@ -25,7 +25,7 @@ const OffRamp = () => {
   const { account, setUsersPendingOffRampIntents, usersPendingOffRampIntents } =
     useAccount();
   const [offRampIntentCreated, setOffRampIntentCreated] = useState(false);
-  const [amount, setAmount] = useState("1"); // Keep amount as string for TextField compatibility
+  const [amount, setAmount] = useState("0.00035"); // Keep amount as string for TextField compatibility
   const { error, showError } = useErrorHandler();
   const [open, setOpen] = useState(false);
   const theme = useTheme();
@@ -67,7 +67,7 @@ const OffRamp = () => {
 
   const handleCreateAnother = () => {
     setOffRampIntentCreated(false);
-    setAmount("1");
+    setAmount("0.00035");
   };
 
   if (offRampIntentCreated) {

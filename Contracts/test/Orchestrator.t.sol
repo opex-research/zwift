@@ -34,9 +34,9 @@ contract OrchestratorTest is Test {
         address user = makeAddr("testUser");
         string memory email = "test@email.com";
         vm.deal(user, 10 ether);
-        uint256 amount = 1 ether;
-        uint256 beforeBalance = address(offRamperContract).balance;
-
+        uint256 amount = 0.00035 ether;
+        uint256 beforeBalanceContract = address(offRamperContract).balance;
+        uint256 beforeBalanceUser = user.balance;
         vm.prank(user);
         orchestratorContract.registerUserAccount(user, email);
 
@@ -46,15 +46,16 @@ contract OrchestratorTest is Test {
             amount
         );
 
-        uint256 afterBalance = address(offRamperContract).balance;
+        uint256 afterBalanceContract = address(offRamperContract).balance;
+        uint256 afterBalanceUser = user.balance;
         assertEq(
-            9 ether,
-            user.balance,
-            "User shoul have decreased its balance by 1"
+            beforeBalanceUser - amount,
+            afterBalanceUser,
+            "User shoul have decreased its balance by 0.00035"
         );
         assertEq(
-            afterBalance,
-            beforeBalance + amount,
+            beforeBalanceContract + amount,
+            afterBalanceContract,
             "OffRamperContract did not receive the correct amount of ETH"
         );
     }
@@ -64,7 +65,7 @@ contract OrchestratorTest is Test {
         address offRamperUser = makeAddr("offRamperUser");
         string memory onRampersEmail = "onramper@paypal.com";
         string memory offRampersEmail = "offramper@paypal.com";
-
+        uint256 amount = 0.00035 ether;
         vm.deal(onRamperUser, 10 ether);
         vm.deal(offRamperUser, 10 ether);
 
@@ -77,16 +78,16 @@ contract OrchestratorTest is Test {
         );
 
         vm.prank(offRamperUser);
-        orchestratorContract.createOffRampIntentAndSendETH{value: 1 ether}(
+        orchestratorContract.createOffRampIntentAndSendETH{value: amount}(
             offRamperUser,
-            1 ether
+            amount
         );
 
         uint256 beforeOnRamperBalance = onRamperUser.balance;
         uint256 beforeOffRamperContractBalance = address(offRamperContract)
             .balance;
 
-        uint256 transactionAmount = 1 ether;
+        
         address[] memory noExclusions = new address[](0);
 
         vm.prank(onRamperUser);
@@ -95,11 +96,11 @@ contract OrchestratorTest is Test {
 
         vm.prank(onRamperUser);
         orchestratorContract.onRamp(
-            transactionAmount,
+            amount,
             targetUser,
             onRampersEmail,
             targetEmail,
-            transactionAmount
+            amount
         );
 
         uint256 afterOnRamperBalance = onRamperUser.balance;
@@ -108,12 +109,12 @@ contract OrchestratorTest is Test {
 
         assertEq(
             afterOnRamperBalance,
-            beforeOnRamperBalance + 1 ether,
+            beforeOnRamperBalance + amount,
             "onRamperUser balance should increase by 1 ether"
         );
         assertEq(
             afterOffRamperContractBalance,
-            beforeOffRamperContractBalance - 1 ether,
+            beforeOffRamperContractBalance - amount,
             "offRamperContract balance should decrease by 1 ether"
         );
     }
@@ -135,15 +136,15 @@ contract OrchestratorTest is Test {
             offRampersEmail
         );
 
-        uint256 transactionAmount = 0.5 ether;
-
+        uint256 transactionAmount = 0.00035 ether;
+        uint256 falseAmount = 1 ether;
         vm.prank(onRamperUser);
         orchestratorContract.onRamp(
             transactionAmount,
             offRamperUser,
             onRampersEmail,
             offRampersEmail,
-            transactionAmount
+            falseAmount
         );
 
         uint256 finalQueueSize = orchestratorContract
@@ -164,11 +165,11 @@ contract OrchestratorTest is Test {
         string memory offRampersEmail = "offramper@paypal.com";
         string
             memory additionalOffRampersEmail = "additionalOfframper@paypal.com";
-
+        uint256 amount = 0.00035 ether;
         vm.deal(onRamperUser, 10 ether);
         vm.deal(offRamperUser, 10 ether);
         vm.deal(additionalOffRamperUser, 10 ether);
-
+        uint256 beforeOnRamperBalance = onRamperUser.balance;
         vm.prank(offRamperUser);
         orchestratorContract.registerUserAccount(
             offRamperUser,
@@ -183,14 +184,14 @@ contract OrchestratorTest is Test {
         orchestratorContract.registerUserAccount(onRamperUser, onRampersEmail);
 
         vm.prank(offRamperUser);
-        orchestratorContract.createOffRampIntentAndSendETH{value: 1 ether}(
+        orchestratorContract.createOffRampIntentAndSendETH{value: amount}(
             offRamperUser,
-            1 ether
+            amount
         );
         vm.prank(additionalOffRamperUser);
-        orchestratorContract.createOffRampIntentAndSendETH{value: 1 ether}(
+        orchestratorContract.createOffRampIntentAndSendETH{value: amount}(
             additionalOffRamperUser,
-            1 ether
+            amount
         );
 
         uint256 beforeOffRamperContractBalance = address(offRamperContract)
@@ -199,7 +200,7 @@ contract OrchestratorTest is Test {
         address[] memory exclusions = new address[](1);
         exclusions[0] = offRamperUser;
 
-        uint256 transactionAmount = 1 ether;
+        
 
         vm.prank(onRamperUser);
         (address targetUser, string memory targetEmail) = orchestratorContract
@@ -209,11 +210,11 @@ contract OrchestratorTest is Test {
 
         vm.prank(onRamperUser);
         orchestratorContract.onRamp(
-            transactionAmount,
+            amount,
             targetUser,
             onRampersEmail,
             targetEmail,
-            transactionAmount
+            amount
         );
 
         uint256 afterQueueSize = orchestratorContract.numberOfOpenOffRampIntents();
@@ -223,12 +224,12 @@ contract OrchestratorTest is Test {
 
         assertEq(
             afterOnRamperBalance,
-            11 ether,
-            "onRamperUser balance should increase by 1 ether"
+            beforeOnRamperBalance + amount,
+            "onRamperUser balance should increase by 0.00035 ether"
         );
         assertEq(
             afterOffRamperContractBalance,
-            beforeOffRamperContractBalance - 1 ether,
+            beforeOffRamperContractBalance - amount,
             "offRamperContract balance should decrease by 1 ether"
         );
         assertEq(
