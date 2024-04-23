@@ -38,7 +38,7 @@ const OffRamp = () => {
   };
 
   const handleOffRampClick = async () => {
-    const amountNum = parseInt(amount, 10);
+    const amountNum = parseFloat(amount);
 
     try {
       const createdOffRamp = await newOffRampIntent(account, amountNum);
@@ -188,7 +188,7 @@ const OffRamp = () => {
                     sx={{ color: "inherit" }}
                     padding="10px"
                   >
-                    1 ETH
+                    {amount} ETH
                   </Typography>
                 </Box>
                 <Box sx={{ flexGrow: 1 }} />

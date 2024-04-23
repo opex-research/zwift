@@ -32,7 +32,7 @@ const OnRamp = () => {
   // State to manage the visibility of the payment success message
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(""); 
   const [showAmountInput, setShowAmountInput] = useState(false);
   const [showSearchButton, setShowSearchButton] = useState(false);
   const currencies = ["USD", "EUR", "JPY"];
@@ -91,11 +91,11 @@ const OnRamp = () => {
       // And offRamperAddress, registeredEmail, peerEmail are already defined with appropriate values.
       console.log("Off ramper address", offRamperAddressRef);
       const result = await onRamp(
-        "0.00035",
+        "0.00035", //this is the amount that we expect for an onRamp
         offRamperAddress,
         registeredEmail,
         offRamperEmail,
-        "0.00035"
+        "0.00035" //this is the fiat amount converted to eth that we sent via the paypal transaction
       );
       console.log("OnRamp Success:", result);
       setSearchForPeer("found");
@@ -257,7 +257,7 @@ const OnRamp = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    1 ETH,
+                    0.00035 ETH,
                   </Box>
                 </Typography>
 
