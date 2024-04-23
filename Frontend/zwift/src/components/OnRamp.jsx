@@ -20,6 +20,7 @@ import {
 import { handlePayment } from "./PaymentButton";
 import CustomButton from "./EssentialComponents/CustomButton";
 import CustomTextField from "./EssentialComponents/CustomTextField";
+import CustomTypographyLabel from "./EssentialComponents/CustomTypographyLabel";
 
 const OnRamp = () => {
   const offRamperEmailRef = useRef("");
@@ -33,10 +34,10 @@ const OnRamp = () => {
 
   // State to manage the visibility of the payment success message
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState("");
-  const [amount, setAmount] = useState("");
-  const [showAmountInput, setShowAmountInput] = useState(false);
-  const [showSearchButton, setShowSearchButton] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState("EUR");
+  const [amount, setAmount] = useState("0.00035");
+  const [showAmountInput, setShowAmountInput] = useState(true);
+  const [showSearchButton, setShowSearchButton] = useState(true);
   const currencies = ["USD", "EUR", "JPY"];
 
   // Check if payment is verified on component mount
@@ -141,15 +142,16 @@ const OnRamp = () => {
               <CurrencyExchangeIcon
                 sx={{ mr: 2, color: "gray", fontSize: 24 }}
               />
-              <Typography sx={{ width: "100%", fontSize: 18 }}>
-                select currency
-              </Typography>
+              <CustomTypographyLabel
+                value={"select currency"}
+              ></CustomTypographyLabel>
             </Box>
             <TextField
               select
               value={selectedCurrency}
               onChange={handleCurrencyChange}
               variant="outlined"
+              disabled="true"
               sx={{
                 width: "40%",
                 ".MuiSelect-select": {

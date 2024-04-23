@@ -8,9 +8,10 @@ const CustomTextField = ({ value, onChange, label }) => {
       value={value}
       onChange={onChange}
       variant="outlined"
+      disabled={true} // Ensure the prop is passed as a boolean, not a string
       inputProps={{
         style: {
-          color: "white",
+          color: "white", // This sets the text color for the non-disabled state
         },
       }}
       sx={{
@@ -31,6 +32,11 @@ const CustomTextField = ({ value, onChange, label }) => {
           },
           "& .MuiInputBase-input": {
             fontSize: 16,
+          },
+          "&.Mui-disabled": {
+            ".MuiInputBase-input": {
+              color: "red", // Sets the text color to black when disabled
+            },
           },
         },
       }}

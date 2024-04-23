@@ -7,6 +7,7 @@ import {
   Tabs,
   useMediaQuery,
   useTheme,
+  Stack,
 } from "@mui/material";
 import OnRamp from "../components/OnRamp";
 import OffRamp from "../components/OffRamp";
@@ -16,35 +17,14 @@ import FallbackComponent from "../components/ErrorBoundary";
 import { getOpenOffRampIntentsFromQueue } from "../services/AccountInfoService";
 import { AccountProvider, useAccount } from "../context/AccountContext";
 import { simulateAllPendingTransactionsToSuccess } from "../services/DatabaseService";
+import CustomLink from "../components/EssentialComponents/CustomLink";
 
 const HomePage = () => {
-  const [showAccountInfo, setShowAccountInfo] = useState(false);
   const [activeTab, setActiveTab] = useState("onramp");
-  const theme = useTheme(); // Access MUI theme for consistent styling
-  const matchesMDUp = useMediaQuery(theme.breakpoints.up("md")); // Breakpoint check for responsive design
-  const { setOpenOffRampsInQueue, account } = useAccount(); // Account context for managing state
-
-  const toggleAccountInfo = () => {
-    setShowAccountInfo(!showAccountInfo);
-  };
+  const theme = useTheme();
 
   const handleChange = (event, newValue) => {
     setActiveTab(newValue);
-  };
-  const fetchOpenOffRampsInQueue = async () => {
-    const openOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
-    if (openOffRampsInQueue) {
-      setOpenOffRampsInQueue(openOffRampsInQueue);
-    }
-  };
-  // Simulate transaction success function
-  const simulateTransactionSuccess = async () => {
-    try {
-      await simulateAllPendingTransactionsToSuccess(account);
-    } catch (error) {
-      console.log("Error updating transactions to success", error);
-    }
-    // Implement any further logic needed for simulation
   };
 
   return (
@@ -57,14 +37,6 @@ const HomePage = () => {
         backgroundColor: "#212121",
       }}
     >
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={simulateTransactionSuccess}
-        sx={{ mx: theme.spacing(50), my: theme.spacing(2) }}
-      >
-        Simulate Transaction Success
-      </Button>
       <Box
         sx={{
           width: "100%",
@@ -87,48 +59,7 @@ const HomePage = () => {
         >
           ZWIFT
         </Typography>
-        <Button
-          variant="contained"
-          onClick={toggleAccountInfo}
-          sx={{
-            bgcolor: "#424242",
-            "&:hover": {
-              bgcolor: "#616161",
-            },
-            color: "white",
-          }}
-        >
-          ACCOUNT
-        </Button>
-      </Box>
 
-      {showAccountInfo && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "10%",
-            right: "5%",
-            p: 2,
-            width: 300,
-            bgcolor: "black",
-            color: "white",
-            borderRadius: "8px",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
-          }}
-        >
-          <UserAccount />
-        </Box>
-      )}
-
-      <Box
-        sx={{
-          marginTop: 4,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          width: "100%",
-        }}
-      >
         <Tabs
           value={activeTab}
           onChange={handleChange}
@@ -141,24 +72,62 @@ const HomePage = () => {
             ".MuiTab-textColorInherit": {
               color: "white",
             },
-            marginBottom: 2,
           }}
         >
           <Tab value="onramp" label="OnRamp" />
           <Tab value="offramp" label="OffRamp" />
+          <Tab value="account" label="Account" />
         </Tabs>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "100%",
-          }}
-        >
-          {/* Apply minWidth directly to the components for consistency */}
-          {activeTab === "onramp" ? <OnRamp /> : <OffRamp />}
-        </Box>
+        <Stack direction={"row"}>
+          <CustomLink
+            displayText={"Docs"}
+            urllink={
+              "https://app.gitbook.com/o/ljcFhZQ6qR0JA67ctDqn/s/JJ61uAFlATq2ddoxNCfA/"
+            }
+          />
+          <CustomLink
+            displayText={"Github"}
+            urllink={"https://github.com/opex-research/zwift"}
+          />
+        </Stack>
+      </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          flexDirection: "column",
+          paddingTop: "30",
+        }}
+      >
+        {activeTab === "onramp" && <OnRamp />}
+        {activeTab === "offramp" && <OffRamp />}
+        {activeTab === "account" && <UserAccount />}
+      </Box>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={simulateAllPendingTransactionsToSuccess}
+        sx={{ mx: theme.spacing(2), my: theme.spacing(2) }}
+      >
+        Simulate Transaction Success
+      </Button>
+      <Box
+        sx={{
+          position: "fixed", // Fixes position relative to the viewport
+          bottom: 40, // Anchors the box to the bottom of the viewport
+          left: 0,
+          width: "100%", // Ensures the box stretches across the width of the viewport
+          bgcolor: "background.paper", // Uses theme color for background
+          color: "text.primary", // Uses theme color for text
+          p: 2, // Padding for some inner space
+          textAlign: "center", // Centers the text inside the box
+        }}
+      >
+        <Typography variant="body1">Fixed Position Footer Text</Typography>
       </Box>
     </Box>
   );

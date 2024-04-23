@@ -13,7 +13,9 @@ import useErrorHandler from "../hooks/useErrorHandler";
 import ErrorSnackbar from "../components/ErrorSnackbar";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { getAccountInfo } from "../services/AccountInfoService";
-
+import CustomButton from "./EssentialComponents/CustomButton";
+import CustomTypographyLabel from "./EssentialComponents/CustomTypographyLabel";
+import CustomTypographyValue from "./EssentialComponents/CustomTypographyValue";
 const UserAccount = () => {
   const [loading, setLoading] = useState(false);
   const [refreshLoading, setRefreshLoading] = useState(false);
@@ -123,54 +125,51 @@ const UserAccount = () => {
   };
 
   return (
-    <Paper
-      elevation={4}
-      sx={{
-        p: 2,
-        background: "#000",
-        color: "#FFF",
-        borderRadius: "12px",
-        margin: "auto",
-        maxWidth: "calc(100vw - 32px)",
-        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
-        overflow: "hidden",
-      }}
-    >
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={2}
+    <div style={{ paddingTop: "20px" }}>
+      <Paper
+        sx={{
+          padding: 4,
+          background: "black",
+          color: "white",
+          borderRadius: "12px",
+          margin: "auto",
+          minWidth: 550,
+          boxShadow:
+            "0px 4px 8px rgba(0, 0, 0, 0.1), 0px 6px 20px rgba(0, 0, 0, 0.19)",
+        }}
+        elevation={4}
       >
-        <Typography variant="h6">ACCOUNT</Typography>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <RefreshButton
-            loading={refreshLoading}
-            handleRefresh={handleRefresh}
-          />
-          <LogoutButton loading={loading} handleLogout={handleLogout} />
-        </Box>
-      </Stack>
-
-      <Stack spacing={1}>
-        <AccountDetail label="wallet address" value={formatAddress(account)} />
-        <AccountDetail
-          label="email address"
-          value={registeredEmail || "No email registered"}
+        <Stack spacing={3}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <RefreshButton
+              loading={refreshLoading}
+              handleRefresh={handleRefresh}
+            />
+            <LogoutButton loading={loading} handleLogout={handleLogout} />
+          </Box>
+          <Stack spacing={1}>
+            <AccountDetail
+              label="wallet address"
+              value={formatAddress(account)}
+            />
+            <AccountDetail
+              label="email address"
+              value={registeredEmail || "No email registered"}
+            />
+            <AccountDetail
+              label="wallet balance"
+              value={formatBalance(balance)}
+            />
+            <AccountDetail label="open offramps" value={usersOffRampIntent} />
+          </Stack>
+        </Stack>
+        <ErrorSnackbar
+          open={open}
+          handleClose={handleErrorClose}
+          errorMessage={error}
         />
-        <AccountDetail label="wallet balance" value={formatBalance(balance)} />
-        <AccountDetail
-          label="open offramp intents"
-          value={usersOffRampIntent}
-        />
-      </Stack>
-
-      <ErrorSnackbar
-        open={open}
-        handleClose={handleErrorClose}
-        errorMessage={error}
-      />
-    </Paper>
+      </Paper>
+    </div>
   );
 };
 
@@ -224,21 +223,12 @@ const formatBalance = (balance) =>
     : `ETH ${balance}`;
 
 const AccountDetail = ({ label, value }) => (
-  <Box
-    sx={{
-      display: "flex",
-      alignItems: "flex-start",
-      flexDirection: "column",
-      color: "#FFF",
-      padding: "8px 0",
-      margin: "4px 0",
-    }}
-  >
-    <Typography variant="body2">{label}</Typography>
-    <Box sx={{ backgroundColor: "grey", p: 1, borderRadius: 1 }}>
-      <Typography variant="body2">{value}</Typography>
+  <Stack direction="row" spacing={4}>
+    <Box width={200} textAlign="right">
+      <CustomTypographyLabel value={label}></CustomTypographyLabel>
     </Box>
-  </Box>
+    <CustomTypographyValue value={value}></CustomTypographyValue>
+  </Stack>
 );
 
 export default UserAccount;
