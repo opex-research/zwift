@@ -6,6 +6,7 @@ import {
   Tab,
   Tabs,
   useMediaQuery,
+  Paper,
   useTheme,
   Stack,
 } from "@mui/material";
@@ -18,10 +19,13 @@ import { getOpenOffRampIntentsFromQueue } from "../services/AccountInfoService";
 import { AccountProvider, useAccount } from "../context/AccountContext";
 import { simulateAllPendingTransactionsToSuccess } from "../services/DatabaseService";
 import CustomLink from "../components/EssentialComponents/CustomLink";
+import CustomTypographyLabel from "../components/EssentialComponents/CustomTypographyLabel";
+import CustomTypographyValue from "../components/EssentialComponents/CustomTypographyValue";
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState("onramp");
   const theme = useTheme();
+  const { openOffRampsInQueue } = useAccount();
 
   const handleChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -115,20 +119,30 @@ const HomePage = () => {
       >
         Simulate Transaction Success
       </Button>
-      <Box
+      <Paper
         sx={{
-          position: "fixed", // Fixes position relative to the viewport
-          bottom: 40, // Anchors the box to the bottom of the viewport
-          left: 0,
-          width: "100%", // Ensures the box stretches across the width of the viewport
-          bgcolor: "background.paper", // Uses theme color for background
-          color: "text.primary", // Uses theme color for text
-          p: 2, // Padding for some inner space
-          textAlign: "center", // Centers the text inside the box
+          padding: 4,
+          position: "fixed",
+          bottom: 100,
+          background: "gray",
+          color: "white",
+          borderRadius: "12px",
+          margin: "auto",
+          minWidth: 550,
+          boxShadow:
+            "0px 4px 8px rgba(0, 0, 0, 0.1), 0px 6px 20px rgba(0, 0, 0, 0.19)",
         }}
+        elevation={4}
       >
-        <Typography variant="body1">Fixed Position Footer Text</Typography>
-      </Box>
+        <Stack direction={"row"}>
+          <CustomTypographyLabel
+            value={"Total availble OffRamps"}
+          ></CustomTypographyLabel>
+          <CustomTypographyValue
+            value={openOffRampsInQueue}
+          ></CustomTypographyValue>
+        </Stack>
+      </Paper>
     </Box>
   );
 };
