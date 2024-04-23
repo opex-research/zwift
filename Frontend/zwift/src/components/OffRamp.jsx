@@ -20,7 +20,8 @@ import OffRampIcon from "../icons/icons8-münzen-48.png"; // Import the PNG file
 import OkIcon from "../icons/icons8-ok-48.png"; // Import the PNG file
 import useErrorHandler from "../hooks/useErrorHandler";
 import ErrorSnackbar from "../components/ErrorSnackbar"; // Adjust the path as necessary
-
+import CustomButton from "./EssentialComponents/CustomButton";
+import CustomTextField from "./EssentialComponents/CustomTextField";
 const OffRamp = () => {
   const { account, setUsersPendingOffRampIntents, usersPendingOffRampIntents } =
     useAccount();
@@ -72,143 +73,67 @@ const OffRamp = () => {
 
   if (offRampIntentCreated) {
     return (
-      <div
-        style={{
-          paddingTop: "20px",
-        }}
-      >
-        <Grid container spacing={2} direction="column">
-          <Grid item container alignItems="center">
-            <Grid
-              container
-              alignItems="center"
-              spacing={2}
-              sx={{ marginBottom: theme.spacing(1) }}
-            >
-              <Grid item>
-                <img
-                  src={OkIcon}
-                  alt="Ok Icon"
-                  style={{ width: "50%", height: "50%" }}
-                />
-              </Grid>
-              <Grid item xs>
-                <Typography
-                  variant="caption"
-                  display="block"
-                  color="textSecondary"
-                  sx={{ marginBottom: 1 }}
-                >
-                  YOUR OFFRAMP INTENT IS CREATED AND WILL BE MINED ON THE CHAIN
+      <div style={{ paddingTop: "20px" }}>
+        <Paper
+          sx={{
+            padding: 4,
+            background: "black",
+            color: "white",
+            borderRadius: "12px",
+            margin: "auto",
+            minWidth: 550,
+            boxShadow:
+              "0px 4px 8px rgba(0, 0, 0, 0.1), 0px 6px 20px rgba(0, 0, 0, 0.19)",
+          }}
+          elevation={4}
+        >
+          <Stack spacing={3}>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Box sx={{ display: "flex", alignItems: "center", width: "60%" }}>
+                <Typography sx={{ width: "100%", fontSize: 18 }}>
+                  Your offramp intent is created and will be mined on the chain
                 </Typography>
-                <Stack
-                  direction="row"
-                  sx={{ width: "100%", alignItems: "center" }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-start",
-                      alignItems: "center",
-                      height: 25,
-                      borderRadius: "10px",
-                      backgroundColor: "#C8E6C9",
-                      color: "#7eb55c",
-                      padding: theme.spacing(0, 1),
-                    }}
-                  >
-                    <Typography
-                      variant="h7"
-                      component="span"
-                      sx={{ color: "inherit" }}
-                      padding="10px"
-                    >
-                      INTENT CREATED
-                    </Typography>
-                  </Box>
-                  <Box sx={{ flexGrow: 1 }} />
-                </Stack>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
+              </Box>
+            </Box>
+          </Stack>
+        </Paper>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        paddingTop: "20px",
-      }}
-    >
-      <Grid container spacing={2} direction="column">
-        <Grid item container alignItems="center">
-          <Grid
-            container
-            alignItems="center"
-            spacing={2}
-            sx={{ marginBottom: theme.spacing(1) }}
-          >
-            <Grid item>
-              <img
-                src={OffRampIcon}
-                alt="OffRamp Icon"
-                style={{ width: "50%", height: "50%" }}
-              />
-            </Grid>
-            <Grid item xs>
-              <Typography
-                variant="caption"
-                display="block"
-                color="textSecondary"
-                sx={{ marginBottom: 1 }}
-              >
-                SET THE AMOUNT TO OFFRAMP
+    <div style={{ paddingTop: "20px" }}>
+      <Paper
+        sx={{
+          padding: 4,
+          background: "black",
+          color: "white",
+          borderRadius: "12px",
+          margin: "auto",
+          minWidth: 550,
+          boxShadow:
+            "0px 4px 8px rgba(0, 0, 0, 0.1), 0px 6px 20px rgba(0, 0, 0, 0.19)",
+        }}
+        elevation={4}
+      >
+        <Stack spacing={3}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box sx={{ display: "flex", alignItems: "center", width: "60%" }}>
+              <Typography sx={{ width: "100%", fontSize: 18 }}>
+                Set the amount to offramp
               </Typography>
-              <Stack
-                direction="row"
-                sx={{ width: "100%", alignItems: "center" }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "flex-start",
-                    alignItems: "center",
-                    height: 25,
-                    borderRadius: "10px",
-                    backgroundColor: "#F7FAFD",
-                    color: "#1B6AC8",
-                    padding: theme.spacing(0, 1),
-                  }}
-                >
-                  <Typography
-                    variant="h7"
-                    component="span"
-                    sx={{ color: "inherit" }}
-                    padding="10px"
-                  >
-                    {amount} ETH
-                  </Typography>
-                </Box>
-                <Box sx={{ flexGrow: 1 }} />
-              </Stack>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item>
-          <Box display="flex" justifyContent="center">
-            <Button variant="outlined" onClick={handleOffRampClick}>
-              Create OffRamp Intent
-            </Button>
+            </Box>
+            <CustomTextField value={amount} />
           </Box>
-        </Grid>
-      </Grid>
-      <ErrorSnackbar
-        open={open}
-        handleClose={handleErrorClose}
-        errorMessage={error}
-      />
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <CustomButton
+              onClick={handleOffRampClick}
+              disabled={false}
+              buttonText={"Crate OffRamp Intent"}
+            ></CustomButton>
+          </Box>
+        </Stack>
+      </Paper>
     </div>
   );
 };

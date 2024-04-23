@@ -18,6 +18,8 @@ import {
   onRamp,
 } from "../services/OrchestratorOnRampService";
 import { handlePayment } from "./PaymentButton";
+import CustomButton from "./EssentialComponents/CustomButton";
+import CustomTextField from "./EssentialComponents/CustomTextField";
 
 const OnRamp = () => {
   const offRamperEmailRef = useRef("");
@@ -32,7 +34,7 @@ const OnRamp = () => {
   // State to manage the visibility of the payment success message
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState("");
-  const [amount, setAmount] = useState(""); 
+  const [amount, setAmount] = useState("");
   const [showAmountInput, setShowAmountInput] = useState(false);
   const [showSearchButton, setShowSearchButton] = useState(false);
   const currencies = ["USD", "EUR", "JPY"];
@@ -201,37 +203,10 @@ const OnRamp = () => {
                     enter amount
                   </Typography>
                 </Box>
-                <TextField
+                <CustomTextField
                   value={amount}
                   onChange={handleAmountChange}
-                  variant="outlined"
-                  inputProps={{
-                    style: {
-                      color: "white",
-                    },
-                  }}
-                  sx={{
-                    width: "40%",
-                    backgroundColor: "#333",
-                    borderRadius: "12px",
-                    ".MuiOutlinedInput-root": {
-                      borderRadius: "12px",
-                      "& fieldset": {
-                        borderColor: "transparent",
-                        borderRadius: "12px",
-                      },
-                      "&:hover fieldset": {
-                        borderColor: "white",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "white",
-                      },
-                      "& .MuiInputBase-input": {
-                        fontSize: 16,
-                      },
-                    },
-                  }}
-                />
+                ></CustomTextField>
               </Box>
               {/* Container for the amount and button */}
               <Box
@@ -257,54 +232,17 @@ const OnRamp = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    0.00035 ETH,
+                    0.00035 ETH
                   </Box>
                 </Typography>
 
                 {/* Search for Peer button */}
                 {showSearchButton && (
-                  <Button
-                    variant="contained"
-                    color="primary"
+                  <CustomButton
                     onClick={startOnRampProcess}
                     disabled={isSearchDisabled}
-                    sx={{
-                      background: `${
-                        isSearchDisabled ? "grey" : "black"
-                      } !important`,
-                      color: `${
-                        isSearchDisabled ? "lightgrey" : "white"
-                      } !important`,
-                      borderRadius: "12px",
-                      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
-                      "&:hover": {
-                        backgroundColor: `${
-                          isSearchDisabled ? "grey" : "darkred"
-                        } !important`,
-                      },
-                      "&:active": {
-                        backgroundColor: `${
-                          isSearchDisabled ? "grey" : "#cc0000"
-                        } !important`,
-                      },
-                      "& .MuiButton-startIcon": {
-                        color: `${
-                          isSearchDisabled ? "lightgrey" : "darkred"
-                        } !important`,
-                      },
-                      "& .MuiButton-endIcon": {
-                        color: `${
-                          isSearchDisabled ? "lightgrey" : "darkred"
-                        } !important`,
-                      },
-                      fontSize: 14,
-                      padding: "6px 12px",
-                      textTransform: "none",
-                      width: "fit-content",
-                    }}
-                  >
-                    search for peer
-                  </Button>
+                    buttonText={"search for peer"}
+                  ></CustomButton>
                 )}
               </Box>
             </>
