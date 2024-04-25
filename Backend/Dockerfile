@@ -13,8 +13,8 @@ RUN go mod download
 # Copy the source code into the container
 COPY . .
 
-# Build the Go app
-RUN go build -o server .
+# Build the Go app with static link
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server .
 
 # Start a new stage from scratch
 FROM alpine:latest
