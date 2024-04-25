@@ -9,20 +9,27 @@ import {
   useTheme,
 } from "@mui/material";
 import OnRamp from "../components/OnRamp";
+import LoginCard from "../components/LoginCard";
+
 import OffRamp from "../components/OffRamp";
 import UserAccount from "../components/UserAccount";
 import { ErrorBoundary } from "react-error-boundary";
 import FallbackComponent from "../components/ErrorBoundary";
 import { getOpenOffRampIntentsFromQueue } from "../services/AccountInfoService";
 import { AccountProvider, useAccount } from "../context/AccountContext";
-import { simulateAllPendingTransactionsToSuccess } from "../services/DatabaseService";
+import {
+  simulateAllPendingTransactionsToSuccess,
+  simulateRegistrationChangeToSuccess,
+} from "../services/DatabaseService";
 
 const HomePage = () => {
+  const { logged } = useAccount();
   const [showAccountInfo, setShowAccountInfo] = useState(false);
   const [activeTab, setActiveTab] = useState("onramp");
   const theme = useTheme(); // Access MUI theme for consistent styling
   const matchesMDUp = useMediaQuery(theme.breakpoints.up("md")); // Breakpoint check for responsive design
   const { setOpenOffRampsInQueue, account } = useAccount(); // Account context for managing state
+  // in the context for everything else
 
   const toggleAccountInfo = () => {
     setShowAccountInfo(!showAccountInfo);
@@ -65,6 +72,7 @@ const HomePage = () => {
       >
         Simulate Transaction Success
       </Button>
+
       <Box
         sx={{
           width: "100%",
@@ -98,11 +106,11 @@ const HomePage = () => {
             color: "white",
           }}
         >
-          ACCOUNT
+          {logged ? "ACCOUNT" : "LOGIN"}
         </Button>
       </Box>
 
-      {showAccountInfo && (
+      {showAccountInfo && logged && (
         <Box
           sx={{
             position: "absolute",
@@ -119,6 +127,8 @@ const HomePage = () => {
           <UserAccount />
         </Box>
       )}
+
+      {!logged && <LoginCard />}
 
       <Box
         sx={{

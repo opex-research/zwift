@@ -162,20 +162,12 @@ func (h *Handler) CheckSession(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
 	}
 
-	// Check if session has an access token set
-	accessToken := sess.Get("accessToken")
-	if accessToken != nil {
-		// You could also validate the accessToken here if needed
-
-		// Optionally, you could regenerate the session ID here to prevent session fixation
-		// if err := sess.Regenerate(); err != nil {
-		//     return c.Status(fiber.StatusInternalServerError).SendString("Error regenerating session")
-		// }
-
-		// If the access token is present, the session is alive
+	// Check if the session has any data set. This could be tailored to check specific keys if needed.
+	if sess.ID() != "" && !sess.Fresh() {
+		// Session exists and is not fresh, meaning it was already stored and retrieved successfully
 		return c.SendString("Session alive")
 	}
 
-	// If no access token, the session is considered expired or invalid
-	return c.SendString("Session expired or invalid")
+	// If the session is fresh, it means no session was found in the store and a new one was created
+	return c.SendString("No active session found")
 }

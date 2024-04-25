@@ -2,14 +2,17 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 
 // Importing login service functions
+
 import {
   loginUserAccount,
   registerUserAccount,
-  getAccountBalance,
-  getUserEmail,
+  loginWithMetaMask,
 } from "../services/OrchestratorLoginService";
-
 import { getAccountInfo } from "../services/AccountInfoService";
+import {
+  getRegistrationStatusFromDatabase,
+  simulateRegistrationChangeToSuccess,
+} from "../services/DatabaseService";
 
 const AccountContext = createContext();
 
@@ -27,7 +30,6 @@ export const AccountProvider = ({ children }) => {
     useState(0);
   const [openOffRampsInQueue, setOpenOffRampsInQueue] = useState(0);
   const [paypalEmail, setPaypalEmail] = useState("");
-  
 
   const fetchUserData = async (account) => {
     try {
@@ -59,8 +61,23 @@ export const AccountProvider = ({ children }) => {
         { withCredentials: true }
       );
       if (response.data === "Session alive") {
-        setLogged(true);
-        const account = await loginUserAccount(); // Ensure this function does not require user input
+        try {
+          setLoading(true);
+          const account = await loginWithMetaMask();
+          if (account) {
+            const status = await getRegistrationStatusFromDatabase();
+            if (status === "registered") {
+              console.log("LOGGING IN");
+              setLogged(true);
+
+              loginUserAccount();
+            }
+          }
+        } catch (err) {
+          console.log(err);
+        } finally {
+          setLoading(false);
+        }
         if (account) {
           setAccount(account);
           await fetchUserData(account); // Fetch and set additional user data
@@ -77,7 +94,7 @@ export const AccountProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    checkSessionAndFetchUserData();
+    //checkSessionAndFetchUserData();
   }, []);
 
   return (
@@ -104,7 +121,6 @@ export const AccountProvider = ({ children }) => {
         usersPendingOffRampIntents,
         setUsersPendingOffRampIntents,
         checkSessionAndFetchUserData,
-    
       }}
     >
       {children}

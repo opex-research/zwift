@@ -80,7 +80,7 @@ const PayPalCheckoutPage = () => {
   const navigateBasedOnVerification = (status) => {
     switch (status) {
       case "success":
-        navigate("/dashboard");
+        navigate("/");
         break;
       case "failed":
         navigate("/error");
