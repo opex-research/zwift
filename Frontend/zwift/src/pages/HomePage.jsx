@@ -11,21 +11,33 @@ import {
   Stack,
 } from "@mui/material";
 import OnRamp from "../components/OnRamp";
+import LoginCard from "../components/LoginCard";
+
 import OffRamp from "../components/OffRamp";
 import UserAccount from "../components/UserAccount";
 import { ErrorBoundary } from "react-error-boundary";
 import FallbackComponent from "../components/ErrorBoundary";
 import { getOpenOffRampIntentsFromQueue } from "../services/AccountInfoService";
 import { AccountProvider, useAccount } from "../context/AccountContext";
-import { simulateAllPendingTransactionsToSuccess } from "../services/DatabaseService";
+import {
+  simulateAllPendingTransactionsToSuccess,
+  simulateRegistrationChangeToSuccess,
+} from "../services/DatabaseService";
 import CustomLink from "../components/EssentialComponents/CustomLink";
 import CustomTypographyLabel from "../components/EssentialComponents/CustomTypographyLabel";
 import CustomTypographyValue from "../components/EssentialComponents/CustomTypographyValue";
 
 const HomePage = () => {
+  const { logged } = useAccount();
   const [activeTab, setActiveTab] = useState("onramp");
-  const theme = useTheme();
-  const { openOffRampsInQueue } = useAccount();
+  const theme = useTheme(); // Access MUI theme for consistent styling
+  const matchesMDUp = useMediaQuery(theme.breakpoints.up("md")); // Breakpoint check for responsive design
+  const { setOpenOffRampsInQueue, account } = useAccount(); // Account context for managing state
+  // in the context for everything else
+
+  const toggleAccountInfo = () => {
+    setShowAccountInfo(!showAccountInfo);
+  };
 
   const handleChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -41,6 +53,15 @@ const HomePage = () => {
         backgroundColor: "#212121",
       }}
     >
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={simulateTransactionSuccess}
+        sx={{ mx: theme.spacing(50), my: theme.spacing(2) }}
+      >
+        Simulate Transaction Success
+      </Button>
+
       <Box
         sx={{
           width: "100%",
@@ -63,7 +84,50 @@ const HomePage = () => {
         >
           ZWIFT
         </Typography>
+        <Button
+          variant="contained"
+          onClick={toggleAccountInfo}
+          sx={{
+            bgcolor: "#424242",
+            "&:hover": {
+              bgcolor: "#616161",
+            },
+            color: "white",
+          }}
+        >
+          {logged ? "ACCOUNT" : "LOGIN"}
+        </Button>
+      </Box>
 
+      {showAccountInfo && logged && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "10%",
+            right: "5%",
+            p: 2,
+            width: 300,
+            bgcolor: "black",
+            color: "white",
+            borderRadius: "8px",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+          }}
+        >
+          <UserAccount />
+        </Box>
+      )}
+
+      {!logged && <LoginCard />}
+
+      <Box
+        sx={{
+          marginTop: 4,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "100%",
+        }}
+      >
         <Tabs
           value={activeTab}
           onChange={handleChange}

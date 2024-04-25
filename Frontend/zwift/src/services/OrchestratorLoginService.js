@@ -27,8 +27,6 @@ export const loginWithMetaMask = async () => {
   }
 };
 
-
-
 export const registerUserAccount = async (email) => {
   const wallet = await loginWithMetaMask();
   if (!wallet) {
@@ -115,6 +113,3 @@ export const loginUserAccount = async () => {
     throw new Error(error.reason || "An error occurred during login.");
   }
 };
-
-
-
