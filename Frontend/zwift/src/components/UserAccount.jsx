@@ -12,18 +12,21 @@ import { useAccount } from "../context/AccountContext";
 import useErrorHandler from "../hooks/useErrorHandler";
 import ErrorSnackbar from "../components/ErrorSnackbar";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import LoginCard from "../components/LoginCard";
+
 import { getAccountInfo } from "../services/AccountInfoService";
 import CustomButton from "./EssentialComponents/CustomButton";
 import CustomTypographyLabel from "./EssentialComponents/CustomTypographyLabel";
 import CustomTypographyValue from "./EssentialComponents/CustomTypographyValue";
+
 const UserAccount = () => {
   const [loading, setLoading] = useState(false);
   const [refreshLoading, setRefreshLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { error, showError } = useErrorHandler();
-
   const {
+    logged,
     account,
     balance,
     registeredEmail,
@@ -39,91 +42,48 @@ const UserAccount = () => {
   } = useAccount();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const {
-          returnedBalance,
-          returnedRegisteredEmail,
-          returnedOpenOffRampsInQueue,
-          returnedUsersOffRampIntent,
-          returnedUsersPendingOffRampIntents,
-        } = await getAccountInfo(account);
-        if (returnedBalance) setBalance(returnedBalance);
-        if (returnedRegisteredEmail)
-          setRegisteredEmail(returnedRegisteredEmail);
-        if (returnedOpenOffRampsInQueue)
-          setOpenOffRampsInQueue(returnedOpenOffRampsInQueue);
-        if (returnedUsersOffRampIntent)
-          setUsersOffRampIntent(returnedUsersOffRampIntent);
-        if (returnedUsersPendingOffRampIntents)
-          setUsersPendingOffRampIntents(returnedUsersPendingOffRampIntents);
-        setRefreshLoading(false);
-      } catch (error) {
-        console.error("Error fetching account info:", error);
-      }
-    };
-
-    if (account) {
+    if (account && logged) {
       fetchData();
     }
-  }, [account]);
+  }, [account, logged]);
 
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-  const handleErrorClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
+  const fetchData = async () => {
+    try {
+      const accountInfo = await getAccountInfo(account);
+      setBalance(accountInfo.returnedBalance);
+      setRegisteredEmail(accountInfo.returnedRegisteredEmail);
+      setOpenOffRampsInQueue(accountInfo.returnedOpenOffRampsInQueue);
+      setUsersOffRampIntent(accountInfo.returnedUsersOffRampIntent);
+      setUsersPendingOffRampIntents(
+        accountInfo.returnedUsersPendingOffRampIntents
+      );
+      setRefreshLoading(false);
+    } catch (error) {
+      showError(error.message);
+      setRefreshLoading(false);
     }
-    setOpen(false);
   };
 
   const handleLogout = async () => {
     setLoading(true);
-    try {
-      await delay(2000);
-      setLogged(false);
-      setAccount(null);
-      setBalance();
-      setRegisteredEmail("");
-      setUsersOffRampIntent(0);
-      setOpenOffRampsInQueue(0);
-      setUsersPendingOffRampIntents(0);
-      navigate("/");
-    } catch (err) {
-      showError(err.message || "An unexpected error occurred.");
-      setLoading(false);
-      setOpen(true);
-    }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setLogged(false);
+    setAccount(null);
+    setBalance(null);
+    setRegisteredEmail(null);
+    setUsersOffRampIntent(0);
+    setOpenOffRampsInQueue(0);
+    setUsersPendingOffRampIntents(0);
+    navigate("/");
+    setLoading(false);
   };
 
-  const handleRefresh = async () => {
-    setRefreshLoading(true);
-    await delay(1000);
-    try {
-      const {
-        returnedBalance,
-        returnedRegisteredEmail,
-        returnedOpenOffRampsInQueue,
-        returnedUsersOffRampIntent,
-        returnedUsersPendingOffRampIntents,
-      } = await getAccountInfo(account);
-      if (returnedBalance) setBalance(returnedBalance);
-      if (returnedRegisteredEmail) setRegisteredEmail(returnedRegisteredEmail);
-      if (returnedOpenOffRampsInQueue)
-        setOpenOffRampsInQueue(returnedOpenOffRampsInQueue);
-      if (returnedUsersOffRampIntent)
-        setUsersOffRampIntent(returnedUsersOffRampIntent);
-      if (returnedUsersPendingOffRampIntents)
-        setUsersPendingOffRampIntents(returnedUsersPendingOffRampIntents);
-      setRefreshLoading(false);
-    } catch (error) {
-      console.error("Error fetching account info:", error);
-      showError(error.message || "An unexpected error occurred.");
-      setLoading(false);
-      setOpen(true);
-    }
-  };
+  if (!logged) {
+    // Show login card if not logged in
+    return <LoginCard />;
+  }
 
+  // Show account details if logged in
   return (
     <div style={{ paddingTop: "20px" }}>
       <Paper
@@ -141,31 +101,28 @@ const UserAccount = () => {
       >
         <Stack spacing={3}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <RefreshButton
-              loading={refreshLoading}
-              handleRefresh={handleRefresh}
-            />
+            <RefreshButton loading={refreshLoading} handleRefresh={fetchData} />
             <LogoutButton loading={loading} handleLogout={handleLogout} />
           </Box>
           <Stack spacing={1}>
             <AccountDetail
-              label="wallet address"
+              label="Wallet Address"
               value={formatAddress(account)}
             />
             <AccountDetail
-              label="email address"
+              label="Email Address"
               value={registeredEmail || "No email registered"}
             />
             <AccountDetail
-              label="wallet balance"
+              label="Wallet Balance"
               value={formatBalance(balance)}
             />
-            <AccountDetail label="open offramps" value={usersOffRampIntent} />
+            <AccountDetail label="Open Offramps" value={usersOffRampIntent} />
           </Stack>
         </Stack>
         <ErrorSnackbar
           open={open}
-          handleClose={handleErrorClose}
+          handleClose={() => setOpen(false)}
           errorMessage={error}
         />
       </Paper>
