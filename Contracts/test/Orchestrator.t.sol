@@ -93,8 +93,9 @@ contract OrchestratorTest is Test {
         vm.prank(onRamperUser);
         (address targetUser, string memory targetEmail) = orchestratorContract
             .getLongestQueuingOffRampIntentAddress(noExclusions);
-
+        
         vm.prank(onRamperUser);
+        console.log("before onramp");
         orchestratorContract.onRamp(
             amount,
             targetUser,

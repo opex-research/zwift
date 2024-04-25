@@ -123,7 +123,10 @@ contract Orchestrator {
         address[] memory excludedAddresses
     ) external view returns (address, string memory) {
         address retrievedAddress = peerFinderContract.peek(excludedAddresses);
-        return (retrievedAddress, registratorContract.getEmail(retrievedAddress));
+        return (
+            retrievedAddress,
+            registratorContract.getEmail(retrievedAddress)
+        );
     }
 
     function isOffRamperQueueEmpty() external view returns (bool) {

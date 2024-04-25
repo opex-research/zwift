@@ -4,11 +4,13 @@ pragma solidity ^0.8.0;
 contract OffRamper {
     mapping(address => uint256) private escrowBalances; // Direct representation of the funds that users have committed to the contract, awaiting onramps.
 
-
-
     event EscrowRefunded(address indexed user, uint256 amount);
     event OffRampIntentCreated(address indexed user, uint256 amount);
-    event FundsReleased(address indexed offRamperAddress,address indexed onRamperAddress, uint256 releaseAmount);
+    event FundsReleased(
+        address indexed offRamperAddress,
+        address indexed onRamperAddress,
+        uint256 releaseAmount
+    );
 
     // Function to create a new off-ramp intent and add funds to a user's escrow
     function newOffRampIntent(
@@ -35,7 +37,10 @@ contract OffRamper {
         );
 
         escrowBalances[offRamperAddress] -= releaseAmount;
-        payable(onRamperAddress).transfer(releaseAmount);
+        //payable(onRamperAddress).transfer(releaseAmount);
+        (bool success, ) = payable(onRamperAddress).call{value: releaseAmount}(
+            ""
+        );
         emit FundsReleased(offRamperAddress, onRamperAddress, releaseAmount);
     }
 
