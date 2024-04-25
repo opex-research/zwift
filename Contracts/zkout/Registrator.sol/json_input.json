@@ -1,0 +1,39 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "src/Registrator.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ncontract Registrator {\n    // Mapping from wallet address to PayPal email\n    mapping(address => string) private walletToEmail;\n\n\n\n    // Function to register a wallet address with an email\n    function registerAccount(address wallet, string calldata email) external returns (bool) {\n        // Check if the wallet address is already in the mapping\n        require(bytes(walletToEmail[wallet]).length == 0, \"Already registered\");\n\n        // Write new wallet/email pair into the mapping\n        walletToEmail[wallet] = email;  \n        return true;\n    }\n\n    // Function for user login\n    function login(address wallet) external view returns (bool) {\n        // Check if wallet address is already in the mapping with an email\n        require(bytes(walletToEmail[wallet]).length > 0, \"You need to register first\");\n\n        // If yes, return success\n        return true;\n    }\n\n\n    // Function to retrieve the email associated with a wallet address (optional helper function)\n    function getEmail(address wallet) external view returns (string memory) {\n        require(bytes(walletToEmail[wallet]).length > 0, \"Wallet not registered.\");\n        return walletToEmail[wallet];\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "remappings": [
+      "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+      "ds-test/=lib/forge-std/lib/ds-test/src/",
+      "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+      "forge-std/=lib/forge-std/src/",
+      "openzeppelin-contracts/=lib/openzeppelin-contracts/"
+    ],
+    "optimizer": {
+      "enabled": true,
+      "mode": "3",
+      "details": null,
+      "fallbackToOptimizingForSize": false,
+      "disableSystemRequestMemoization": true
+    },
+    "outputSelection": {
+      "*": {
+        "": [
+          "metadata"
+        ],
+        "*": [
+          "abi",
+          "evm.methodIdentifiers"
+        ]
+      }
+    },
+    "libraries": {},
+    "isSystem": false,
+    "forceEvmla": false,
+    "areLibrariesMissing": false
+  }
+}
