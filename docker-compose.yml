@@ -9,8 +9,8 @@ services:
 
   python-backend:
     build:
-      context: .
-      dockerfile: Backend/Database/Dockerfile
+      context: ./Backend/Database
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     depends_on:
