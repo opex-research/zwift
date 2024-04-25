@@ -16,6 +16,9 @@ COPY . .
 # Build the Go app with static link
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server .
 
+# Optional: Uncomment to show the binary's file type and linked libraries
+# RUN file server
+
 # Start a new stage from scratch
 FROM alpine:latest
 
