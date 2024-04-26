@@ -1,6 +1,7 @@
 import axios from "axios";
-
-const API_BASE_URL = "http://127.0.0.1:3001/api/paypal";
+const goBackendUrl = process.env.REACT_APP_GO_BACKEND_URL;
+const pythonBackendUrl = process.env.REACT_APP_PYTHON_BACKEND_URL;
+const API_BASE_URL = `${goBackendUrl}/api/paypal`;
 
 const createOrderData = (value = "100", currency = "USD") => ({
   intent: "CAPTURE",

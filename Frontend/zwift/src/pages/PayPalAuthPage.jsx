@@ -9,6 +9,8 @@ const PayPalAuthPage = () => {
   const navigate = useNavigate();
   const { setPaypalEmail } = useAccount();
   const [loading, setLoading] = useState(true);
+  const goBackendUrl = process.env.REACT_APP_GO_BACKEND_URL;
+  const pythonBackendUrl = process.env.REACT_APP_PYTHON_BACKEND_URL;
 
   useEffect(() => {
     // Extract the code from the URL
@@ -21,7 +23,7 @@ const PayPalAuthPage = () => {
 
       // Make the Axios POST request with formData
       axios
-        .post(`http://127.0.0.1:3001/api/auth/login`, formData, {
+        .post(`${goBackendUrl}/api/auth/login`, formData, {
           withCredentials: true, // Important for sessions/cookies to be included
           headers: { "Content-Type": "multipart/form-data" }, // Set the Content-Type for form data
         })

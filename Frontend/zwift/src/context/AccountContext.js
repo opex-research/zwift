@@ -30,6 +30,8 @@ export const AccountProvider = ({ children }) => {
     useState(0);
   const [openOffRampsInQueue, setOpenOffRampsInQueue] = useState(0);
   const [paypalEmail, setPaypalEmail] = useState("");
+  const goBackendUrl = process.env.REACT_APP_GO_BACKEND_URL;
+  const pythonBackendUrl = process.env.REACT_APP_PYTHON_BACKEND_URL;
 
   const fetchUserData = async (account) => {
     try {
@@ -57,7 +59,7 @@ export const AccountProvider = ({ children }) => {
     setLoading(true); // Ensure loading is true at the start
     try {
       const response = await axios.get(
-        `http://127.0.0.1:3001/api/auth/checksession`,
+        `${goBackendUrl}/api/auth/checksession`,
         { withCredentials: true }
       );
       if (response.data === "Session alive") {
