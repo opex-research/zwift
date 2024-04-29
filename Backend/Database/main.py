@@ -77,6 +77,68 @@ async def update_transaction_statuses():
         conn.close()
 
 
+@app.post("/transactions/{wallet_address}/update_transaction_status")
+async def update_transaction_statuses_for_account(wallet_address: str):
+    """
+    Endpoint to update transaction statuses for a specific wallet address by checking the latest status from the blockchain.
+
+    Args:
+        wallet_address (str): Wallet address for which transactions need to be updated
+
+    Returns:
+        JSONResponse: Returns a message with the count of transactions that were updated
+    """
+    conn = database.get_db_connection()
+    cur = conn.cursor()
+    try:
+        # Fetch all pending transactions for the specified wallet address
+        cur.execute(
+            "SELECT id, transaction_hash FROM transactions WHERE transaction_status = 'pending' AND wallet_address = %s",
+            (wallet_address,),
+        )
+        pending_transactions = cur.fetchall()
+
+        # If there are no pending transactions, return an informative message
+        if not pending_transactions:
+            return JSONResponse(
+                status_code=200,
+                content={"message": "No pending transactions to update."},
+            )
+
+        # Fetch new statuses for each transaction
+        transaction_ids = [tx["transaction_hash"] for tx in pending_transactions]
+        new_statuses = fetch_newest_zksync_transaction_status(transaction_ids)
+
+        # Update transactions in the database with new statuses
+        updated_count = 0
+        for tx in pending_transactions:
+            new_status = new_statuses.get(tx["transaction_hash"])
+            if (
+                new_status and new_status != "pending"
+            ):  # Check if the status has changed and is not pending
+                cur.execute(
+                    "UPDATE transactions SET transaction_status = %s WHERE id = %s",
+                    (new_status, tx["id"]),
+                )
+                updated_count += 1
+
+        conn.commit()  # Commit all changes at once
+        return JSONResponse(
+            status_code=200,
+            content={"message": f"Updated {updated_count} transactions."},
+        )
+
+    except Exception as e:
+        conn.rollback()  # Roll back in case of any error
+        return JSONResponse(
+            status_code=500, content={"message": f"An error occurred: {str(e)}"}
+        )
+    finally:
+        cur.close()
+        conn.close()
+
+
+'''
 async def update_transaction_statuses_for_account(wallet_address: str):
     """Fetch all pending transactions from the database, fetch their transaction status from the zkSync layer, 
     update the status in the database depending on the newly fetched zksync transaction status
@@ -127,6 +189,7 @@ async def update_transaction_statuses_for_account(wallet_address: str):
     finally:
         cur.close()
         conn.close()
+'''
 
 
 @app.get("/transactions/{wallet_address}/registration_status")
@@ -178,6 +241,7 @@ def get_register_status(wallet_address: str):
         conn.close()
 
 
+'''
 # Helper function to simulate an update from the blcokcchain
 @app.put("/transactions/{wallet_address}/update_registration_status")
 def update_register_status(wallet_address: str):
@@ -223,8 +287,8 @@ def update_register_status(wallet_address: str):
     finally:
         cur.close()
         conn.close()
-
-
+'''
+'''
 # Helper function to simulate an update from the blcokcchain on all registrations
 @app.put("/transactions/{wallet_address}/update_all_transactions")
 def update_register_status(wallet_address: str):
@@ -270,6 +334,7 @@ def update_register_status(wallet_address: str):
     finally:
         cur.close()
         conn.close()
+'''
 
 
 @app.get("/transactions/{wallet_address}/pending")

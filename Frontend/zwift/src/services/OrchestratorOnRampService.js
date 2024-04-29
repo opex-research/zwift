@@ -3,8 +3,11 @@ import { ethers } from "ethers";
 import {
   addInUseOfframpWalletAddressToDatabase,
   getOfframpAddressesInUse,
+  postTransactionToDatabase,
 } from "./DatabaseService";
+import { useAccount } from "../context/AccountContext";
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
+import { useAccount } from "../context/AccountContext";
 
 // Function to validate and convert addresses
 function validateAndConvertAddresses(addresses) {
@@ -69,6 +72,7 @@ export const onRamp = async (
   transactionReceiverEmail,
   transactionAmount
 ) => {
+  const { account } = useAccount();
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
   const orchestratorContract = new ethers.Contract(
@@ -77,13 +81,24 @@ export const onRamp = async (
     signer
   );
   try {
-    await orchestratorContract.onRamp(
+    const txResponse = await orchestratorContract.onRamp(
       ethers.utils.parseUnits(amount.toString(), "ether"),
       offRamper,
       transactionSenderEmail,
       transactionReceiverEmail,
       ethers.utils.parseUnits(transactionAmount.toString(), "ether")
     );
+    const transactionHash = txResponse.hash;
+    try {
+      await postTransactionToDatabase(
+        account,
+        transactionHash,
+        "onramp",
+        "pending"
+      );
+    } catch (error) {
+      console.error("Error performing onRamp", error);
+    }
   } catch (error) {
     console.error("Error performing onRamp", error);
   }

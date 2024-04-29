@@ -198,3 +198,24 @@ export const addInUseOfframpWalletAddressToDatabase = async (walletAddress) => {
     console.error("Error adding wallet address:", error);
   }
 };
+
+export const updateTransactionStatusForAccount = async (walletAddress) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8000/transactions/${walletAddress}/update_transaction_status`,
+      {
+        method: "POST",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log("Transaction status updated:", data);
+    return data;
+  } catch (error) {
+    console.error("Error updating transaction status:", error);
+  }
+};

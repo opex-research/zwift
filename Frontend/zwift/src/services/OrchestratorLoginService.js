@@ -1,7 +1,10 @@
 import OrchestratorABI from "../contracts/Orchestrator.json"; // Correct the path as needed
 import MetaMaskOnboarding from "@metamask/onboarding";
 import { ethers } from "ethers";
-import { postTransactionToDatabase } from "../services/DatabaseService";
+import {
+  postTransactionToDatabase,
+  updateTransactionStatusForAccount,
+} from "../services/DatabaseService";
 import { useAccount } from "../context/AccountContext";
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 const forwarderOrigin = "http://localhost:3000";
@@ -107,6 +110,13 @@ export const loginUserAccount = async () => {
   );
   try {
     const isSuccess = await orchestratorContract.loginUserAccount(wallet);
+    if (isSuccess) {
+      try {
+        updateTransactionStatusForAccount(wallet);
+      } catch (error) {
+        console.log("Error with updating the transaction statuses", error);
+      }
+    }
     return isSuccess ? wallet : null;
   } catch (error) {
     console.log("Error with login:", error);
