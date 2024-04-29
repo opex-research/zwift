@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -19,6 +20,14 @@ func init() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	// Initialize a session store with specific cookie settings
+	store = session.New(session.Config{
+		Expiration:     24 * time.Hour, // Set session expiration duration
+		CookieHTTPOnly: true,           // JavaScript cannot access cookies
+		CookieSecure:   true,           // Only transfer cookies over HTTPS
+		CookieSameSite: "None",         // Necessary for cross-origin requests
+	})
 }
 
 func main() {
