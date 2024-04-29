@@ -26,7 +26,7 @@ const OnRamp = () => {
   const offRamperEmailRef = useRef("");
   const offRamperAddressRef = useRef("");
   const [successfullResponse, setResponse] = useState(false);
-  const { openOffRampsInQueue, registeredEmail } = useAccount();
+  const { openOffRampsInQueue, registeredEmail, account } = useAccount();
   const [searchForPeerState, setSearchForPeer] = useState("off");
   const isSearchDisabled = openOffRampsInQueue === 0;
   const [sliderValue, setSliderValue] = useState(100);
@@ -98,7 +98,8 @@ const OnRamp = () => {
         offRamperAddress,
         registeredEmail,
         offRamperEmail,
-        "0.00035" //this is the fiat amount converted to eth that we sent via the paypal transaction
+        "0.00035", //this is the fiat amount converted to eth that we sent via the paypal transaction
+        account
       );
       console.log("OnRamp Success:", result);
       setSearchForPeer("found");

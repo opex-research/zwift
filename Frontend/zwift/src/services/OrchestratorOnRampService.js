@@ -5,9 +5,7 @@ import {
   getOfframpAddressesInUse,
   postTransactionToDatabase,
 } from "./DatabaseService";
-import { useAccount } from "../context/AccountContext";
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
-import { useAccount } from "../context/AccountContext";
 
 // Function to validate and convert addresses
 function validateAndConvertAddresses(addresses) {
@@ -70,9 +68,9 @@ export const onRamp = async (
   offRamper,
   transactionSenderEmail,
   transactionReceiverEmail,
-  transactionAmount
+  transactionAmount,
+  onRamperAccount
 ) => {
-  const { account } = useAccount();
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
   const orchestratorContract = new ethers.Contract(
@@ -91,7 +89,7 @@ export const onRamp = async (
     const transactionHash = txResponse.hash;
     try {
       await postTransactionToDatabase(
-        account,
+        onRamperAccount,
         transactionHash,
         "onramp",
         "pending"

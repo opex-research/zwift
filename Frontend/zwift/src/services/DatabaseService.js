@@ -1,3 +1,5 @@
+const pythonBackendUrl = process.env.REACT_APP_PYTHON_BACKEND_URL;
+
 export const postTransactionToDatabase = async (
   walletAddress,
   transactionHash,
@@ -12,7 +14,7 @@ export const postTransactionToDatabase = async (
   };
 
   try {
-    const response = await fetch("http://localhost:8000/transactions/", {
+    const response = await fetch(`${pythonBackendUrl}/transactions/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -35,7 +37,7 @@ export const postTransactionToDatabase = async (
 export const getPendingTransactionsFromDatabase = async (walletAddress) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/transactions/${walletAddress}/pending`
+      `${pythonBackendUrl}/transactions/${walletAddress}/pending`
     );
 
     if (!response.ok) {
@@ -52,7 +54,7 @@ export const getPendingTransactionsFromDatabase = async (walletAddress) => {
 
 export const getOfframpAddressesInUse = async () => {
   try {
-    const response = await fetch(`http://localhost:8000/wallets/`);
+    const response = await fetch(`${pythonBackendUrl}/wallets/`);
 
     if (!response.ok) {
       throw new Error("Network response was not ok");
@@ -71,7 +73,7 @@ export const getUsersPendingOffRampIntentsFromDatabase = async (
 ) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/transactions/${walletAddress}/pending_offramps`
+      `${pythonBackendUrl}/transactions/${walletAddress}/pending_offramps`
     );
 
     if (!response.ok) {
@@ -89,7 +91,7 @@ export const getUsersPendingOffRampIntentsFromDatabase = async (
 export const getRegistrationStatusFromDatabase = async (walletAddress) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/transactions/${walletAddress}/registration_status`
+      `${pythonBackendUrl}/transactions/${walletAddress}/registration_status`
     );
 
     if (!response.ok) {
@@ -108,7 +110,7 @@ export const getRegistrationStatusFromDatabase = async (walletAddress) => {
 export const simulateRegistrationChangeToSuccess = async (walletAddress) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/transactions/${walletAddress}/update_registration_status`,
+      `${pythonBackendUrl}/transactions/${walletAddress}/update_registration_status`,
       {
         method: "PUT",
         headers: {
@@ -134,7 +136,7 @@ export const simulateAllPendingTransactionsToSuccess = async (
 ) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/transactions/${walletAddress}/update_all_transactions`,
+      `${pythonBackendUrl}/transactions/${walletAddress}/update_all_transactions`,
       {
         method: "PUT",
         headers: {
@@ -159,7 +161,7 @@ export const deleteInUseOfframpWalletAddressFromDatabase = async (
 ) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/wallets/${walletAddress}`,
+      `${pythonBackendUrl}/wallets/${walletAddress}`,
       {
         method: "DELETE",
       }
@@ -179,7 +181,7 @@ export const deleteInUseOfframpWalletAddressFromDatabase = async (
 
 export const addInUseOfframpWalletAddressToDatabase = async (walletAddress) => {
   try {
-    const response = await fetch("http://localhost:8000/wallets/", {
+    const response = await fetch(`${pythonBackendUrl}/wallets/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -202,7 +204,7 @@ export const addInUseOfframpWalletAddressToDatabase = async (walletAddress) => {
 export const updateTransactionStatusForAccount = async (walletAddress) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/transactions/${walletAddress}/update_transaction_status`,
+      `${pythonBackendUrl}/transactions/${walletAddress}/update_transaction_status`,
       {
         method: "POST",
       }

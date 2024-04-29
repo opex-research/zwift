@@ -241,7 +241,7 @@ def get_register_status(wallet_address: str):
         conn.close()
 
 
-'''
+
 # Helper function to simulate an update from the blcokcchain
 @app.put("/transactions/{wallet_address}/update_registration_status")
 def update_register_status(wallet_address: str):
@@ -287,8 +287,8 @@ def update_register_status(wallet_address: str):
     finally:
         cur.close()
         conn.close()
-'''
-'''
+
+
 # Helper function to simulate an update from the blcokcchain on all registrations
 @app.put("/transactions/{wallet_address}/update_all_transactions")
 def update_register_status(wallet_address: str):
@@ -334,7 +334,7 @@ def update_register_status(wallet_address: str):
     finally:
         cur.close()
         conn.close()
-'''
+
 
 
 @app.get("/transactions/{wallet_address}/pending")
