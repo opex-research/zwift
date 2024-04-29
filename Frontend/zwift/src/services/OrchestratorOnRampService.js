@@ -4,6 +4,7 @@ import {
   addInUseOfframpWalletAddressToDatabase,
   getOfframpAddressesInUse,
   postTransactionToDatabase,
+  updateTransactionHashForInUseOnRampWalletAddress,
 } from "./DatabaseService";
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 
@@ -95,6 +96,16 @@ export const onRamp = async (
         "pending"
       );
       console.log(transaction_post);
+      try {
+        const update_response =
+          await updateTransactionHashForInUseOnRampWalletAddress(
+            offRamper,
+            transactionHash
+          );
+        console.log(update_response);
+      } catch (error) {
+        console.log("Error updating transaction hash for in OnRampUse", error);
+      }
     } catch (error) {
       console.error("Error performing onRamp", error);
     }

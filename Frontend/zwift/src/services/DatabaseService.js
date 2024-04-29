@@ -186,7 +186,10 @@ export const addInUseOfframpWalletAddressToDatabase = async (walletAddress) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ wallet_address: walletAddress }),
+      body: JSON.stringify({
+        wallet_address: walletAddress,
+        transaction_hash: "0",
+      }),
     });
 
     if (!response.ok) {
@@ -198,6 +201,37 @@ export const addInUseOfframpWalletAddressToDatabase = async (walletAddress) => {
     return data;
   } catch (error) {
     console.error("Error adding wallet address:", error);
+  }
+};
+
+export const updateTransactionHashForInUseOnRampWalletAddress = async (
+  walletAddress,
+  transactionHash
+) => {
+  try {
+    const response = await fetch(
+      `${pythonBackendUrl}/wallets/${walletAddress}/transaction-hash`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          wallet_address: walletAddress,
+          transaction_hash: transactionHash,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log("Transaction hash updated for wallet address:", data);
+    return data;
+  } catch (error) {
+    console.error("Error updating transaction hash:", error);
   }
 };
 

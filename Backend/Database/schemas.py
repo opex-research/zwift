@@ -12,3 +12,4 @@ class TransactionBase(BaseModel):
 ## base model for an incoming onramp request
 class OnrampBase(BaseModel):
     wallet_address: str
+    transaction_hash: str

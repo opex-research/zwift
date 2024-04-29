@@ -241,7 +241,6 @@ def get_register_status(wallet_address: str):
         conn.close()
 
 
-
 # Helper function to simulate an update from the blcokcchain
 @app.put("/transactions/{wallet_address}/update_registration_status")
 def update_register_status(wallet_address: str):
@@ -334,7 +333,6 @@ def update_register_status(wallet_address: str):
     finally:
         cur.close()
         conn.close()
-
 
 
 @app.get("/transactions/{wallet_address}/pending")
@@ -439,15 +437,16 @@ def create_transaction(transaction: TransactionBase):
 
 
 @app.post("/wallets/", status_code=status.HTTP_201_CREATED)
-def add_wallet_address(wallet_data: OnrampBase):
-    wallet_address = wallet_data.wallet_address.lower()  # Normalize to lowercase
-    logging.info(f"Received wallet address to add: {wallet_address}")
+def add_wallet_address(onramp_data: OnrampBase):
+    off_ramp_wallet_address = (
+        onramp_data.wallet_address.lower()
+    )  # Normalize to lowercase
 
     conn = database.get_db_connection()
     cur = conn.cursor()
     try:
-        sql = "INSERT INTO openonramps (wallet_address) VALUES (%s);"
-        params = (wallet_address,)
+        sql = "INSERT INTO openonramps (wallet_address, transaction_hash) VALUES (%s, %s);"
+        params = (off_ramp_wallet_address, "0")  # Initialize transaction_hash with 0
 
         cur.execute(sql, params)
         conn.commit()  # Only commit if no exceptions occurred
@@ -458,6 +457,33 @@ def add_wallet_address(wallet_data: OnrampBase):
     except Exception as e:
         conn.rollback()  # Rollback in case of any error
         logging.error(f"Error adding wallet address: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.put("/wallets/{wallet_address}/transaction-hash")
+def update_transaction_hash(onramp_data: OnrampBase):
+    conn = database.get_db_connection()
+    cur = conn.cursor()
+    off_ramp_wallet_address = onramp_data.wallet_address.lower()
+    transaction_hash = onramp_data.transaction_hash
+    try:
+        sql = "UPDATE openonramps SET transaction_hash = %s WHERE wallet_address = %s;"
+        params = (transaction_hash, off_ramp_wallet_address)
+
+        cur.execute(sql, params)
+        conn.commit()  # Only commit if no exceptions occurred
+
+        logging.info("Transaction hash updated successfully.")
+        return {"message": "Transaction hash updated successfully"}
+
+    except Exception as e:
+        conn.rollback()  # Rollback in case of any error
+        logging.error(f"Error updating transaction hash: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
