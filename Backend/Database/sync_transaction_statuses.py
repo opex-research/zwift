@@ -36,7 +36,7 @@ def fetch_newest_zksync_transaction_status(transaction_ids):
                 status = "failed"
             statuses[tx_id] = status
         else:
-            statuses[tx_id] = "Error in API call"
+            continue
 
     return statuses
 

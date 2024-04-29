@@ -27,22 +27,12 @@ app.add_middleware(
 
 
 async def update_transaction_statuses():
-    """Fetch all pending transactions from the database, fetch their transaction status from the zkSync layer, 
-    update the status in the database depending on the newly fetched zksync transaction status
-
-    Raises:
-        HTTPException: _description_
-
-    Returns:
-        dict: key=message; value=amount of updated transactions
-    """ """Update statuses of all pending transactions by checking the latest status from the blockchain."""
+    """Update statuses of all pending transactions by checking the latest status from the zkSync blockchain and delete corresponding onramp entries for transactions that change to 'success'."""
     conn = database.get_db_connection()
     cur = conn.cursor()
     try:
         # Fetch all pending transactions
-        cur.execute(
-            "SELECT id, transaction_hash FROM transactions WHERE transaction_status = 'pending'"
-        )
+        cur.execute("SELECT id, transaction_hash, transaction_type FROM transactions WHERE transaction_status = 'pending'")
         pending_transactions = cur.fetchall()
 
         # If there are no pending transactions, return an informative message
@@ -50,24 +40,30 @@ async def update_transaction_statuses():
             return {"message": "No pending transactions to update."}
 
         # Fetch new statuses for each transaction
-        transaction_ids = [tx["transaction_hash"] for tx in pending_transactions]
-        new_statuses = fetch_newest_zksync_transaction_status(transaction_ids)
+        transaction_hashs = [tx[1] for tx in pending_transactions]  # Index 1 is transaction_hash
+        new_statuses = fetch_newest_zksync_transaction_status(transaction_hashs)
 
-        # Update transactions in the database with new statuses
+        # Update transactions in the database with new statuses and delete onramp entries if successful
         updated_count = 0
-        for tx in pending_transactions:
-            new_status = new_statuses.get(tx["transaction_hash"])
-            if (
-                new_status and new_status != "pending"
-            ):  # Check if the status has changed and is not pending
+        deleted_onramps_count = 0
+        for tx_id, tx_hash, tx_type in pending_transactions:
+            new_status = new_statuses.get(tx_hash)
+            if new_status and new_status != "pending":  # Check if the status has changed
                 cur.execute(
                     "UPDATE transactions SET transaction_status = %s WHERE id = %s",
-                    (new_status, tx["id"]),
+                    (new_status, tx_id),
                 )
                 updated_count += 1
 
+                # If the transaction is successful, delete from onramps
+                if new_status == "success" and tx_type == "onramp":
+                    cur.execute("DELETE FROM openonramps WHERE transaction_hash = %s", (tx_hash,))
+                    deleted_onramps_count += 1
+
         conn.commit()  # Commit all changes at once
-        return {"message": f"Updated {updated_count} transactions."}
+        return {
+            "message": f"Updated {updated_count} transactions, deleted {deleted_onramps_count} onramp entries."
+        }
 
     except Exception as e:
         conn.rollback()  # Roll back in case of any error
@@ -75,6 +71,7 @@ async def update_transaction_statuses():
     finally:
         cur.close()
         conn.close()
+
 
 
 @app.post("/transactions/{wallet_address}/update_transaction_status")
