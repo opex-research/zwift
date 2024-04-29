@@ -62,7 +62,10 @@ const LoginCard = () => {
 
   useEffect(() => {
     if (registrationStatus === "pending") {
-      intervalRef.current = setInterval(checkAndUpdateRegistrationStatus, 1000);
+      intervalRef.current = setInterval(
+        checkAndUpdateRegistrationStatus,
+        100000
+      );
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }

@@ -25,12 +25,15 @@ import CustomTypographyValue from "../components/EssentialComponents/CustomTypog
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState("onramp");
   const theme = useTheme();
-  const { openOffRampsInQueue } = useAccount();
+  const { openOffRampsInQueue, account } = useAccount();
 
   const handleChange = (event, newValue) => {
     setActiveTab(newValue);
   };
 
+  const handleSimulateTransactionClick = () => {
+    simulateAllPendingTransactionsToSuccess(account);
+  };
   return (
     <Box
       sx={{
@@ -114,7 +117,7 @@ const HomePage = () => {
       <Button
         variant="contained"
         color="primary"
-        onClick={simulateAllPendingTransactionsToSuccess}
+        onClick={handleSimulateTransactionClick}
         sx={{ mx: theme.spacing(2), my: theme.spacing(2) }}
       >
         Simulate Transaction Success

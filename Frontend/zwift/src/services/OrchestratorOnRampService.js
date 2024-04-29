@@ -88,12 +88,13 @@ export const onRamp = async (
     );
     const transactionHash = txResponse.hash;
     try {
-      await postTransactionToDatabase(
+      const transaction_post = await postTransactionToDatabase(
         onRamperAccount,
         transactionHash,
         "onramp",
         "pending"
       );
+      console.log(transaction_post);
     } catch (error) {
       console.error("Error performing onRamp", error);
     }

@@ -9,6 +9,7 @@ import { useAccount } from "../context/AccountContext";
 const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 const forwarderOrigin = "http://localhost:3000";
 const onboarding = new MetaMaskOnboarding({ forwarderOrigin });
+const isLocal = process.env.IS_LOCAL;
 
 export const loginWithMetaMask = async () => {
   if (!window.ethereum || !window.ethereum.isMetaMask) {
@@ -110,6 +111,7 @@ export const loginUserAccount = async () => {
   );
   try {
     const isSuccess = await orchestratorContract.loginUserAccount(wallet);
+    if (isLocal != "TRUE"){
     if (isSuccess) {
       try {
         updateTransactionStatusForAccount(wallet);
@@ -117,6 +119,7 @@ export const loginUserAccount = async () => {
         console.log("Error with updating the transaction statuses", error);
       }
     }
+  }
     return isSuccess ? wallet : null;
   } catch (error) {
     console.log("Error with login:", error);
