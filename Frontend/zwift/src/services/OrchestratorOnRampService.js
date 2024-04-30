@@ -1,4 +1,4 @@
-import OrchestratorABI from "../contracts/Orchestrator.json";
+import { orchestratorABI, orchestratorAddress } from "../contracts/config";
 import { ethers } from "ethers";
 import {
   addInUseOfframpWalletAddressToDatabase,
@@ -6,7 +6,6 @@ import {
   postTransactionToDatabase,
   updateTransactionHashForInUseOnRampWalletAddress,
 } from "./DatabaseService";
-const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 
 // Function to validate and convert addresses
 function validateAndConvertAddresses(addresses) {
@@ -30,11 +29,10 @@ function validateAndConvertAddresses(addresses) {
 }
 
 export const getPeerForOnRamp = async () => {
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
-    OrchestratorABI.abi,
+    orchestratorABI.abi,
     signer
   );
   try {
@@ -72,11 +70,10 @@ export const onRamp = async (
   transactionAmount,
   onRamperAccount
 ) => {
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
-    OrchestratorABI.abi,
+    orchestratorABI.abi,
     signer
   );
   try {

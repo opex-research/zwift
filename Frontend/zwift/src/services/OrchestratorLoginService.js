@@ -1,4 +1,4 @@
-import OrchestratorABI from "../contracts/Orchestrator.json"; // Correct the path as needed
+import { orchestratorABI, orchestratorAddress, provider } from '../contracts/config';
 import MetaMaskOnboarding from "@metamask/onboarding";
 import { ethers } from "ethers";
 import {
@@ -6,7 +6,7 @@ import {
   updateTransactionStatusForAccount,
 } from "../services/DatabaseService";
 import { useAccount } from "../context/AccountContext";
-const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
+
 const forwarderOrigin = "http://localhost:3000";
 const onboarding = new MetaMaskOnboarding({ forwarderOrigin });
 const isLocal = process.env.IS_LOCAL;
@@ -39,11 +39,10 @@ export const registerUserAccount = async (email) => {
       "Error during registration" || "An error occurred during login."
     );
   }
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
-    OrchestratorABI.abi,
+    orchestratorABI.abi,
     signer
   );
   try {
@@ -102,11 +101,10 @@ export const loginUserAccount = async () => {
   const wallet = await loginWithMetaMask();
   if (!wallet) return null;
   console.log(wallet);
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
-    OrchestratorABI.abi,
+    orchestratorABI.abi,
     signer
   );
   try {

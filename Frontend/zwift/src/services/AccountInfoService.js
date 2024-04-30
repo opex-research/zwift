@@ -1,14 +1,16 @@
-import OrchestratorABI from "../contracts/Orchestrator.json"; // Correct the path as needed
+import {
+  orchestratorABI,
+  orchestratorAddress,
+  provider,
+} from "../contracts/config";
 import { ethers } from "ethers";
 import { getUsersPendingOffRampIntentsFromDatabase } from "./DatabaseService";
-const orchestratorAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 
 // function to retrieve the current open OffRamp Intent for a wallet
 export const getUsersOpenOffRampIntents = async (wallet) => {
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
-    OrchestratorABI.abi,
+    orchestratorABI.abi,
     provider
   );
 
@@ -49,10 +51,9 @@ export const getUsersOpenOffRampIntents = async (wallet) => {
 };
 
 export const getOpenOffRampIntentsFromQueue = async () => {
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
-    OrchestratorABI.abi,
+    orchestratorABI.abi,
     provider
   );
 
@@ -97,7 +98,6 @@ export const getOpenOffRampIntentsFromQueue = async () => {
 
 export const getAccountBalance = async (account) => {
   if (!account) return null;
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
   try {
     const balance = await provider.getBalance(account);
     return ethers.utils.formatEther(balance);
@@ -108,10 +108,9 @@ export const getAccountBalance = async (account) => {
 };
 
 export const getUserEmail = async (wallet) => {
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
-    OrchestratorABI.abi,
+    orchestratorABI.abi,
     provider
   );
   try {
@@ -141,10 +140,9 @@ export const getAccountInfo = async (wallet) => {
   const returnedRegisteredEmail = await getUserEmail(wallet);
   const returnedOpenOffRampsInQueue = await getOpenOffRampIntentsFromQueue();
   const returnedUsersOffRampIntent = await getUsersOpenOffRampIntents(wallet);
-  const returnedUsersPendingOffRampIntents = await getUsersPendingOffRampIntents(
-    wallet
-  );
-  console.log("open off ramps in queue", returnedOpenOffRampsInQueue)
+  const returnedUsersPendingOffRampIntents =
+    await getUsersPendingOffRampIntents(wallet);
+  console.log("open off ramps in queue", returnedOpenOffRampsInQueue);
   return {
     returnedBalance, // shorthand for balance: balance
     returnedRegisteredEmail,
