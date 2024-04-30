@@ -1,8 +1,9 @@
 // Import the ABI definitions from JSON files
 import OrchestratorABI from "../contracts/Orchestrator.json"; // Correct the path as needed
 import OrchestratorABIZksync from "../contracts/Orchestrator_zksync.json";
-import { Provider } from "zksync-ethers/lib/provider";
-import { providers } from "ethers/providers";
+import { Provider } from "zksync-ethers";
+import { providers } from "ethers";
+
 // Define the contract addresses
 const orchestratorAddressAnvil = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 const orchestratorAddressZksync = "0x6f74F759715DFA0f323af0e2326E787D599FD42a";
