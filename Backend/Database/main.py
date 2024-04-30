@@ -17,7 +17,8 @@ origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://python-backend:3000",
-    "http://34.32.62.23:8000",
+    "http://34.32.62.23:8000",  # Allow frontend domain
+    "http://34.32.62.23",  # Assuming the frontend is served here
 ]
 
 app.add_middleware(
