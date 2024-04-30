@@ -9,7 +9,7 @@ services:
 
   cockroachdb:
     image: cockroachdb/cockroach:v21.1.7
-    command: start-single-node --insecure
+    command: start-single-node --insecure --listen-addr=0.0.0.0:26257
     ports:
       - "26257:26257"
       - "8081:8080"
