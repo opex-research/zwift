@@ -25,6 +25,7 @@ services:
     environment:
       - REACT_APP_GO_BACKEND_URL=http://go-backend:3001
       - REACT_APP_PYTHON_BACKEND_URL=http://python-backend:8000
+      - IS_LOCAL=FALSE
 
   cockroachdb:
     image: cockroachdb/cockroach:v21.1.7
