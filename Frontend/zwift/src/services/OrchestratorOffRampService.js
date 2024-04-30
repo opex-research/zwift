@@ -11,7 +11,7 @@ export const newOffRampIntent = async (wallet, amountInEther) => {
     signer
   );
 
-  const amountInWei = ethers.utils.parseEther(amountInEther.toString());
+  const amountInWei = ethers.parseEther(amountInEther.toString());
 
   try {
     // Send the transaction without waiting for it to be mined

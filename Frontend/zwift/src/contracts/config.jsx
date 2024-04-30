@@ -1,7 +1,7 @@
 // Import the ABI definitions from JSON files
 import OrchestratorABI from "../contracts/Orchestrator.json"; // Correct the path as needed
 import OrchestratorABIZksync from "../contracts/Orchestrator_zksync.json";
-import { Provider, utils, types } from "zksync-ethers";
+import { Provider, types } from "zksync-ethers";
 import { ethers } from "ethers";
 
 // Define the contract addresses
@@ -20,7 +20,7 @@ const orchestratorAddress = isLocal
   : orchestratorAddressZksync;
 const provider = isLocal
   ? new ethers.BrowserProvider(window.ethereum)
-  : new Provider.getDefaultProvider(types.Network.Sepolia);
+  : new Provider("https://sepolia.era.zksync.dev");
 
 // Export the determined settings
 export { orchestratorABI, orchestratorAddress, provider };
