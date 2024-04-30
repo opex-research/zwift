@@ -17,6 +17,11 @@ services:
       - type: volume
         source: cockroachdb_data
         target: /cockroach/cockroach-data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   python-backend:
     build:
