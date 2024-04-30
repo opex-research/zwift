@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 from fastapi.responses import JSONResponse
 from sync_transaction_statuses import fetch_newest_zksync_transaction_status
-
+import asyncio
 app = FastAPI()
 
 logging.basicConfig(level=logging.INFO)
@@ -41,7 +41,7 @@ async def update_transaction_statuses():
 
         # Fetch new statuses for each transaction
         transaction_hashs = [tx[1] for tx in pending_transactions]  # Index 1 is transaction_hash
-        new_statuses = fetch_newest_zksync_transaction_status(transaction_hashs)
+        new_statuses = await fetch_newest_zksync_transaction_status(transaction_hashs)
 
         # Update transactions in the database with new statuses and delete onramp entries if successful
         updated_count = 0
@@ -104,7 +104,7 @@ async def update_transaction_statuses_for_account(wallet_address: str):
 
         # Fetch new statuses for each transaction
         transaction_ids = [tx["transaction_hash"] for tx in pending_transactions]
-        new_statuses = fetch_newest_zksync_transaction_status(transaction_ids)
+        new_statuses = asyncio.run(fetch_newest_zksync_transaction_status(transaction_ids))
 
         # Update transactions in the database with new statuses
         updated_count = 0
