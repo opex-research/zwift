@@ -19,7 +19,7 @@ const orchestratorAddress = isLocal
   ? orchestratorAddressAnvil
   : orchestratorAddressZksync;
 const provider = isLocal
-  ? new ethers.providers.Web3Provider(web3.currentProvider)
+  ? new ethers.BrowserProvider(window.ethereum)
   : new Provider.getDefaultProvider(types.Network.Sepolia);
 
 // Export the determined settings
