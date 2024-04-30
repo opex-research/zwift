@@ -9,16 +9,18 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /code
 
 # Install dependencies
-# Install dependencies
 COPY requirements.txt /code/
 RUN pip install --no-cache-dir -r requirements.txt
 
-
 # Copy project
 COPY . /code/
+
+# Copy and grant executable permissions to the entrypoint script
+COPY entrypoint.sh /code/
+RUN chmod +x /code/entrypoint.sh
 
 # Expose the port the app runs on
 EXPOSE 8000
 
 # Command to run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/code/entrypoint.sh"]

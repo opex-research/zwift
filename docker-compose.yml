@@ -5,14 +5,14 @@ services:
       context: ./Backend
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8080:8080"  # Expose Go backend on port 8080
 
   python-backend:
     build:
       context: ./Backend/Database
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8000:8000"  # Expose Python backend on port 8000
     depends_on:
       - cockroachdb
 
@@ -21,11 +21,10 @@ services:
       context: ./Frontend/zwift
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "80:80"  # Expose React frontend on port 80
     environment:
-      - REACT_APP_GO_BACKEND_URL=http://go-backend:3001
-      - REACT_APP_PYTHON_BACKEND_URL=http://python-backend:8000
-      - IS_LOCAL=FALSE
+      - REACT_APP_GO_BACKEND_URL=http://34.32.62.23:8080
+      - REACT_APP_PYTHON_BACKEND_URL=http://34.32.62.23:8000
 
   cockroachdb:
     image: cockroachdb/cockroach:v21.1.7
