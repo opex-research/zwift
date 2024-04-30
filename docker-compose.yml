@@ -7,6 +7,17 @@ services:
     ports:
       - "8080:8080"  # Expose Go backend on port 8080
 
+  cockroachdb:
+    image: cockroachdb/cockroach:v21.1.7
+    command: start-single-node --insecure
+    ports:
+      - "26257:26257"
+      - "8081:8080"
+    volumes:
+      - type: volume
+        source: cockroachdb_data
+        target: /cockroach/cockroach-data
+
   python-backend:
     build:
       context: ./Backend/Database
@@ -25,17 +36,6 @@ services:
         REACT_APP_PYTHON_BACKEND_URL: http://34.32.62.23:8000
     ports:
       - "80:80"  # Expose React frontend on port 80
-
-  cockroachdb:
-    image: cockroachdb/cockroach:v21.1.7
-    command: start-single-node --insecure
-    ports:
-      - "26257:26257"
-      - "8081:8080"
-    volumes:
-      - type: volume
-        source: cockroachdb_data
-        target: /cockroach/cockroach-data
 
 volumes:
   cockroachdb_data:
