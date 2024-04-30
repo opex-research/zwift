@@ -6,24 +6,12 @@ import logging
 from fastapi.responses import JSONResponse
 from sync_transaction_statuses import fetch_newest_zksync_transaction_status
 import asyncio
+
 app = FastAPI()
 
 logging.basicConfig(level=logging.INFO)
 
-# For development, you might allow all origins. Be more restrictive for production.
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://python-backend:3000",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,  # Allows specified origins
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
-)
+# For development, you might allow all origins. Be more restrictive for productio
 
 
 async def update_transaction_statuses():
@@ -32,7 +20,9 @@ async def update_transaction_statuses():
     cur = conn.cursor()
     try:
         # Fetch all pending transactions
-        cur.execute("SELECT id, transaction_hash, transaction_type FROM transactions WHERE transaction_status = 'pending'")
+        cur.execute(
+            "SELECT id, transaction_hash, transaction_type FROM transactions WHERE transaction_status = 'pending'"
+        )
         pending_transactions = cur.fetchall()
 
         # If there are no pending transactions, return an informative message
@@ -40,7 +30,9 @@ async def update_transaction_statuses():
             return {"message": "No pending transactions to update."}
 
         # Fetch new statuses for each transaction
-        transaction_hashs = [tx[1] for tx in pending_transactions]  # Index 1 is transaction_hash
+        transaction_hashs = [
+            tx[1] for tx in pending_transactions
+        ]  # Index 1 is transaction_hash
         new_statuses = await fetch_newest_zksync_transaction_status(transaction_hashs)
 
         # Update transactions in the database with new statuses and delete onramp entries if successful
@@ -48,7 +40,9 @@ async def update_transaction_statuses():
         deleted_onramps_count = 0
         for tx_id, tx_hash, tx_type in pending_transactions:
             new_status = new_statuses.get(tx_hash)
-            if new_status and new_status != "pending":  # Check if the status has changed
+            if (
+                new_status and new_status != "pending"
+            ):  # Check if the status has changed
                 cur.execute(
                     "UPDATE transactions SET transaction_status = %s WHERE id = %s",
                     (new_status, tx_id),
@@ -57,7 +51,10 @@ async def update_transaction_statuses():
 
                 # If the transaction is successful, delete from onramps
                 if new_status == "success" and tx_type == "onramp":
-                    cur.execute("DELETE FROM openonramps WHERE transaction_hash = %s", (tx_hash,))
+                    cur.execute(
+                        "DELETE FROM openonramps WHERE transaction_hash = %s",
+                        (tx_hash,),
+                    )
                     deleted_onramps_count += 1
 
         conn.commit()  # Commit all changes at once
@@ -71,7 +68,6 @@ async def update_transaction_statuses():
     finally:
         cur.close()
         conn.close()
-
 
 
 @app.post("/transactions/{wallet_address}/update_transaction_status")
