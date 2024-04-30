@@ -20,11 +20,11 @@ services:
     build:
       context: ./Frontend/zwift
       dockerfile: Dockerfile
+      args:
+        REACT_APP_GO_BACKEND_URL: http://34.32.62.23:8080
+        REACT_APP_PYTHON_BACKEND_URL: http://34.32.62.23:8000
     ports:
       - "80:80"  # Expose React frontend on port 80
-    environment:
-      - REACT_APP_GO_BACKEND_URL=http://34.32.62.23:8080
-      - REACT_APP_PYTHON_BACKEND_URL=http://34.32.62.23:8000
 
   cockroachdb:
     image: cockroachdb/cockroach:v21.1.7
