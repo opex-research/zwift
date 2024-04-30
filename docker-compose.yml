@@ -22,6 +22,8 @@ services:
     build:
       context: ./Backend/Database
       dockerfile: Dockerfile
+    environment:
+      - DB_HOST=cockroachdb  # Use the service name as the database host
     ports:
       - "8000:8000"  # Expose Python backend on port 8000
     depends_on:
