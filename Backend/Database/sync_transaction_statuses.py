@@ -3,6 +3,7 @@
 import requests
 import asyncio
 
+
 async def fetch_newest_zksync_transaction_status(transaction_ids):
     """Retrieves all current transaction statuses from blockchain for the given array of transaction_ids
 
@@ -41,7 +42,11 @@ async def fetch_newest_zksync_transaction_status(transaction_ids):
     return statuses
 
 
-# Example usage:
-transaction_ids = ["0xbfeedbbdf86f396ecfec65b61465749997626f8dcced491b9ad09b4909d31966", "0x39ad286efbfba427dccf6c1fe29aaf8f28b7784c754e7bcd543190ab6d6b9821"]
-status_dict = asyncio.run(fetch_newest_zksync_transaction_status(transaction_ids))
-print(status_dict)
+if __name__ == "__main__":
+    # Example usage:
+    transaction_ids = [
+        "0xbfeedbbdf86f396ecfec65b61465749997626f8dcced491b9ad09b4909d31966",
+        "0x39ad286efbfba427dccf6c1fe29aaf8f28b7784c754e7bcd543190ab6d6b9821",
+    ]
+    status_dict = asyncio.run(fetch_newest_zksync_transaction_status(transaction_ids))
+    print(status_dict)
