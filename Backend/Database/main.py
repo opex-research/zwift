@@ -12,6 +12,21 @@ app = FastAPI()
 logging.basicConfig(level=logging.INFO)
 
 # For development, you might allow all origins. Be more restrictive for productio
+# For development, you might allow all origins. Be more restrictive for production.
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://python-backend:3000",
+    "http://34.32.62.23:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Allows specified origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 
 async def update_transaction_statuses():
