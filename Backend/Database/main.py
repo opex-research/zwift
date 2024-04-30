@@ -104,7 +104,7 @@ async def update_transaction_statuses_for_account(wallet_address: str):
 
         # Fetch new statuses for each transaction
         transaction_ids = [tx["transaction_hash"] for tx in pending_transactions]
-        new_statuses = asyncio.run(fetch_newest_zksync_transaction_status(transaction_ids))
+        new_statuses = await fetch_newest_zksync_transaction_status(transaction_ids)
 
         # Update transactions in the database with new statuses
         updated_count = 0
