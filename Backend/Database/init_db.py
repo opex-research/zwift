@@ -1,15 +1,20 @@
-# init_db.py
+import os
 import psycopg2
 from psycopg2 import sql
 
 
+# Function to setup the database
 def setup_database():
+    db_host = os.getenv(
+        "DB_HOST", "localhost"
+    )  # Default to localhost for local development
+
     conn = psycopg2.connect(
         dbname="state_database",  # Connect to the default database
         user="root",  # Default user for CockroachDB
-        host="127.0.0.1",
-        port="26257",
-        sslmode="disable",
+        host=db_host,  # Use environment variable
+        port="26257",  # Default CockroachDB port
+        sslmode="disable",  # Disable SSL for local connection, adjust as needed for production
     )
     conn.autocommit = True
     cur = conn.cursor()
@@ -17,36 +22,36 @@ def setup_database():
     # Create the 'state_database' database
     cur.execute("CREATE DATABASE IF NOT EXISTS state_database;")
 
-    # Create 'main_user' and grant privileges
-    # cur.execute("CREATE USER IF NOT EXISTS main_user WITH PASSWORD 'test_password';")
-    # cur.execute("GRANT ALL ON DATABASE state_database TO main_user;")
-
     cur.close()
     conn.close()
 
 
+# Function to create tables
 def create_tables():
-    # Connection parameters
+    db_host = os.getenv(
+        "DB_HOST", "localhost"
+    )  # Default to localhost for local development
+
+    # Connection parameters using environment variables
     params = {
         "database": "state_database",
         "user": "root",
-        # "password": "test_password",
-        "host": "127.0.0.1",
-        "port": "26257",  # default CockroachDB port
-        "sslmode": "disable",  # if SSL is required
+        "host": db_host,  # Use environment variable
+        "port": "26257",
+        "sslmode": "disable",
     }
 
     transactions_table = """
     CREATE TABLE IF NOT EXISTS transactions (
-    id SERIAL PRIMARY KEY,
-    wallet_address TEXT,
-    transaction_hash TEXT,
-    transaction_type TEXT NOT NULL CHECK (transaction_type IN ('register', 'onramp', 'offramp')),
-    transaction_status TEXT NOT NULL CHECK (transaction_status IN ('pending', 'success', 'failed')),
-    created_at TIMESTAMPTZ DEFAULT now()
-);
-
+        id SERIAL PRIMARY KEY,
+        wallet_address TEXT,
+        transaction_hash TEXT,
+        transaction_type TEXT NOT NULL CHECK (transaction_type IN ('register', 'onramp', 'offramp')),
+        transaction_status TEXT NOT NULL CHECK (transaction_status IN ('pending', 'success', 'failed')),
+        created_at TIMESTAMPTZ DEFAULT now()
+    );
     """
+
     openonramps_table = """
     CREATE TABLE IF NOT EXISTS openonramps (
         id SERIAL PRIMARY KEY,
@@ -54,6 +59,7 @@ def create_tables():
         added_at TIMESTAMPTZ DEFAULT now()
     );
     """
+
     # Connect to CockroachDB
     conn = psycopg2.connect(**params)
     cur = conn.cursor()
@@ -73,6 +79,7 @@ def create_tables():
         conn.close()
 
 
+# Main execution
 if __name__ == "__main__":
     setup_database()
     create_tables()
