@@ -27,7 +27,9 @@ services:
     ports:
       - "8000:8000"  # Expose Python backend on port 8000
     depends_on:
-      - cockroachdb
+      cockroachdb:
+        condition: service_healthy
+    command: sh -c "sleep 10 && /code/entrypoint.sh"
 
   react-frontend:
     build:
