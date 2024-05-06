@@ -56,6 +56,7 @@ def create_tables():
     CREATE TABLE IF NOT EXISTS openonramps (
         id SERIAL PRIMARY KEY,
         wallet_address TEXT UNIQUE NOT NULL,
+        transaction_hash TEXT UNIQUE NOT NULL,
         added_at TIMESTAMPTZ DEFAULT now()
     );
     """
