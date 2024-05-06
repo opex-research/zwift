@@ -5,10 +5,12 @@ WORKDIR /app
 # Accept environment variables from build arguments
 ARG REACT_APP_GO_BACKEND_URL
 ARG REACT_APP_PYTHON_BACKEND_URL
+ARG REACT_APP_FRONTEND_URL
 
 # Set environment variables so npm run build can use them
 ENV REACT_APP_GO_BACKEND_URL=$REACT_APP_GO_BACKEND_URL
 ENV REACT_APP_PYTHON_BACKEND_URL=$REACT_APP_PYTHON_BACKEND_URL
+ENV REACT_APP_FRONTEND_URL=$REACT_APP_FRONTEND_URL
 
 COPY package.json package-lock.json ./
 RUN npm install -g npm@latest

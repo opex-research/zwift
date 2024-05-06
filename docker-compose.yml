@@ -43,6 +43,7 @@ services:
       args:
         REACT_APP_GO_BACKEND_URL: http://34.32.62.23:8080
         REACT_APP_PYTHON_BACKEND_URL: http://34.32.62.23:8000
+        REACT_APP_FRONTEND_URL: http://34.32.62.23
     ports:
       - "80:80"  # Expose React frontend on port 80
 

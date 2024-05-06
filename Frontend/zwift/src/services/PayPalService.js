@@ -1,5 +1,6 @@
 import axios from "axios";
 const goBackendUrl = process.env.REACT_APP_GO_BACKEND_URL;
+const frontendUrl = process.env.REACT_APP_FRONTEND_URL;
 const pythonBackendUrl = process.env.REACT_APP_PYTHON_BACKEND_URL;
 const API_BASE_URL = `${goBackendUrl}/api/paypal`;
 
@@ -15,8 +16,8 @@ const createOrderData = (value = "100", currency = "USD") => ({
     },
   ],
   application_context: {
-    return_url: "http://127.0.0.1:3000/checkout-handler",
-    cancel_url: "http://localhost/cancel",
+    return_url: `${frontendUrl}/checkout-handler`,
+    cancel_url: `${frontendUrl}/cancel`,
   },
 });
 
