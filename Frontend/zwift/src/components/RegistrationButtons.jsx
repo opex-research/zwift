@@ -1,6 +1,8 @@
 import React from "react";
 // Importing UI components from MUI
 import { Button } from "@mui/material";
+const frontendUrl = process.env.REACT_APP_FRONTEND_URL;
+
 const PayPalLoginButton = () => {
   const handleLogin = () => {
     sessionStorage.removeItem("checkoutInitiated");
@@ -10,9 +12,7 @@ const PayPalLoginButton = () => {
 
     const clientID =
       "ATWNj8MbBvdUupI3VbC-isIb-fxnQ7j8Op6ch7rds51niwt1xGU0yreyPaFweWF_PZE5Yi71EXILTY7-";
-    const redirectURI = encodeURIComponent(
-      `http://127.0.0.1:3000/auth-handler`
-    );
+    const redirectURI = encodeURIComponent(`${frontendUrl}/auth-handler`);
 
     const paypalLoginURL = `https://sandbox.paypal.com/signin/authorize?client_id=${clientID}&response_type=code&redirect_uri=${redirectURI}`;
 
