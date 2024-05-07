@@ -110,6 +110,7 @@ export const loginUserAccount = async () => {
   if (!wallet) return null;
   console.log(wallet);
   const signer = await getSigner();
+  console.log("Signer: ", signer);
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
     orchestratorABI.abi,
@@ -117,6 +118,7 @@ export const loginUserAccount = async () => {
   );
   try {
     const isSuccess = await orchestratorContract.loginUserAccount(wallet);
+    console.log("Success:", isSuccess);
     if (isLocal != "TRUE") {
       if (isSuccess) {
         try {

@@ -49,12 +49,12 @@ const LoginCard = () => {
   }, [paypalEmail]);
 
   useEffect(() => {
-    if (metaMaskLogged) {
+    if (metaMaskLogged && metaMaskAccountHelperAddress) {
       fetchRegistrationStatus();
     } else {
       setRegistrationStatus("not_connected");
     }
-  }, [metaMaskLogged, paypalEmail]);
+  }, [metaMaskLogged, paypalEmail, metaMaskAccountHelperAddress]);
 
   useEffect(() => {
     if (registrationStatus === "pending") {
@@ -72,12 +72,14 @@ const LoginCard = () => {
 
   const fetchRegistrationStatus = async () => {
     try {
-      const status = await getRegistrationStatusFromDatabase(
-        metaMaskAccountHelperAddress
-      );
-      setRegistrationStatus(status);
-      if (status === "registered") {
-        handleLogin();
+      if (metaMaskAccountHelperAddress) {
+        const status = await getRegistrationStatusFromDatabase(
+          metaMaskAccountHelperAddress
+        );
+        setRegistrationStatus(status);
+        if (status === "registered") {
+          handleLogin();
+        }
       }
     } catch (error) {
       showError(error.message);
@@ -86,19 +88,20 @@ const LoginCard = () => {
 
   const checkAndUpdateRegistrationStatus = async () => {
     try {
-      const newStatus = await getRegistrationStatusFromDatabase(
-        metaMaskAccountHelperAddress
-      );
-      setRegistrationStatus(newStatus);
-      if (newStatus === "registered") {
-        clearInterval(intervalRef.current);
-        handleLogin();
+      if (metaMaskAccountHelperAddress) {
+        const newStatus = await getRegistrationStatusFromDatabase(
+          metaMaskAccountHelperAddress
+        );
+        setRegistrationStatus(newStatus);
+        if (newStatus === "registered") {
+          clearInterval(intervalRef.current);
+          handleLogin();
+        }
       }
     } catch (error) {
       showError(error.message);
     }
   };
-
   const handleMetaMaskConnection = async () => {
     setLoading(true);
     try {
@@ -115,7 +118,6 @@ const LoginCard = () => {
       setLoading(false);
     }
   };
-
   const handleLogin = async () => {
     try {
       const userAccount = await loginUserAccount();
