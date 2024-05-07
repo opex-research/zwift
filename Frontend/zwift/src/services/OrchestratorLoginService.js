@@ -44,7 +44,10 @@ export const registerUserAccount = async (email) => {
       "Error during registration" || "An error occurred during login."
     );
   }
+  console.log("before signer");
   const signer = await getSigner(); // Use the imported getSigner function
+  console.log("after signer", signer);
+
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
     orchestratorABI.abi,

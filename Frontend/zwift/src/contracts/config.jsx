@@ -24,7 +24,7 @@ const provider = isLocal
   : new Provider("https://sepolia.era.zksync.dev");
 
 export const getSigner = async () => {
-  const provider = new ethers.BrowserProvider(window.ethereum)(window.ethereum);
+  const provider = new ethers.BrowserProvider(window.ethereum);
   await provider.send("eth_requestAccounts", []); // Ensures the user has connected their wallet
   return provider.getSigner();
 };
