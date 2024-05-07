@@ -5,6 +5,8 @@ const frontendUrl = process.env.REACT_APP_FRONTEND_URL;
 
 const PayPalLoginButton = () => {
   const handleLogin = () => {
+    sessionStorage.setItem("preAuthTab", "account"); // You specifically want 'account' tab
+
     sessionStorage.removeItem("checkoutInitiated");
     sessionStorage.removeItem("paymentVerified");
     const goBackendUrl = process.env.REACT_APP_GO_BACKEND_URL;

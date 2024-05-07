@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Box,
@@ -23,13 +23,24 @@ import CustomTypographyLabel from "../components/EssentialComponents/CustomTypog
 import CustomTypographyValue from "../components/EssentialComponents/CustomTypographyValue";
 
 const HomePage = () => {
-  const [activeTab, setActiveTab] = useState("onramp");
+  const [activeTab, setActiveTab] = useState(() => {
+    return sessionStorage.getItem("activeTab") || "onramp";
+  });
   const theme = useTheme();
   const { openOffRampsInQueue, account } = useAccount();
 
   const handleChange = (event, newValue) => {
     setActiveTab(newValue);
+    sessionStorage.setItem("activeTab", newValue);
   };
+
+  useEffect(() => {
+    const preAuthTab = sessionStorage.getItem("preAuthTab");
+    if (preAuthTab) {
+      setActiveTab(preAuthTab); // Assuming `setActiveTab` is a function or context method to update the tab
+      sessionStorage.removeItem("preAuthTab"); // Clean up after restoring
+    }
+  }, []);
 
   const handleSimulateTransactionClick = () => {
     simulateAllPendingTransactionsToSuccess(account);

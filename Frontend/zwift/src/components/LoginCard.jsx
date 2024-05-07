@@ -33,6 +33,7 @@ const LoginCard = () => {
   const [metaMaskAccountHelperAddress, setMetaMaskAccountHelperAddress] =
     useState(null);
   const intervalRef = useRef(null);
+  const [registrationAttempted, setRegistrationAttempted] = useState(false);
 
   // Initialize paypalEmail from sessionStorage or context
   const [paypalEmail, setLocalPaypalEmail] = useState(
@@ -47,7 +48,19 @@ const LoginCard = () => {
       sessionStorage.removeItem("paypalEmail");
     }
   }, [paypalEmail]);
+  useEffect(() => {
+    const connectMetaMask = async () => {
+      if (!metaMaskLogged) {
+        try {
+          await handleMetaMaskConnection();
+        } catch (err) {
+          console.error("Failed to connect to MetaMask:", err);
+        }
+      }
+    };
 
+    connectMetaMask();
+  }, []);
   useEffect(() => {
     if (metaMaskLogged && metaMaskAccountHelperAddress) {
       fetchRegistrationStatus();
@@ -133,20 +146,27 @@ const LoginCard = () => {
     if (paypalEmail) {
       try {
         const userAccount = await registerUserAccount(paypalEmail);
+        setRegistrationStatus("pending");
         setAccount(userAccount);
         setLocalPaypalEmail(paypalEmail);
-        setRegistrationStatus("pending");
       } catch (err) {
         showError(err.message || "Registration failed.");
       }
     }
   };
-
   useEffect(() => {
-    if (paypalEmail && registrationStatus === "not_registered") {
+    setRegistrationAttempted(false);
+  }, [paypalEmail, registrationStatus]);
+  useEffect(() => {
+    if (
+      paypalEmail &&
+      registrationStatus === "not_registered" &&
+      !registrationAttempted
+    ) {
       handleSignUp();
+      setRegistrationAttempted(true);
     }
-  }, [paypalEmail, registrationStatus, handleSignUp]);
+  }, [paypalEmail, registrationStatus, registrationAttempted, handleSignUp]);
   const handleRegistrationSuccessSimulation = async () => {
     try {
       await simulateRegistrationChangeToSuccess(metaMaskAccountHelperAddress);
