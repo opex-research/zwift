@@ -42,7 +42,7 @@ func main() {
 	router.SetupRoutes(app, store)
 
 	// Start the server
-	log.Fatal(app.Listen(":8080"))
+	log.Fatal(app.Listen(":8085"))
 }
 
 func customErrorHandler(ctx *fiber.Ctx, err error) error {

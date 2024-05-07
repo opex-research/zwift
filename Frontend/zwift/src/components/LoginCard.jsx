@@ -57,10 +57,6 @@ const LoginCard = () => {
   }, [metaMaskLogged, paypalEmail]);
 
   useEffect(() => {
-    handleMetaMaskConnection();
-  }, []);
-
-  useEffect(() => {
     if (registrationStatus === "pending") {
       intervalRef.current = setInterval(
         checkAndUpdateRegistrationStatus,
@@ -132,7 +128,7 @@ const LoginCard = () => {
   };
 
   const handleSignUp = async () => {
-    if (registrationStatus === "not_registered" && paypalEmail) {
+    if (paypalEmail) {
       try {
         const userAccount = await registerUserAccount(paypalEmail);
         setAccount(userAccount);
@@ -144,6 +140,11 @@ const LoginCard = () => {
     }
   };
 
+  useEffect(() => {
+    if (paypalEmail && registrationStatus === "not_registered") {
+      handleSignUp();
+    }
+  }, [paypalEmail, registrationStatus, handleSignUp]);
   const handleRegistrationSuccessSimulation = async () => {
     try {
       await simulateRegistrationChangeToSuccess(metaMaskAccountHelperAddress);
