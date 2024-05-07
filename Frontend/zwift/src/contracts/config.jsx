@@ -18,9 +18,17 @@ const orchestratorABI = isLocal
 const orchestratorAddress = isLocal
   ? orchestratorAddressAnvil
   : orchestratorAddressZksync;
-const provider = isLocal
+
+
+const provider = isLocal 
   ? new ethers.BrowserProvider(window.ethereum)
   : new Provider("https://sepolia.era.zksync.dev");
 
+export const getSigner = async () => {
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);  // Ensures the user has connected their wallet
+  return provider.getSigner();
+};
+
 // Export the determined settings
-export { orchestratorABI, orchestratorAddress, provider };
+export { orchestratorABI, orchestratorAddress, provider, getSigner};

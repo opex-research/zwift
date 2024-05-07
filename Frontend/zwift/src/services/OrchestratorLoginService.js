@@ -1,4 +1,9 @@
-import { orchestratorABI, orchestratorAddress, provider } from '../contracts/config';
+import {
+  orchestratorABI,
+  orchestratorAddress,
+  provider,
+  getSigner,
+} from "../contracts/config";
 import MetaMaskOnboarding from "@metamask/onboarding";
 import { ethers } from "ethers";
 import {
@@ -39,7 +44,7 @@ export const registerUserAccount = async (email) => {
       "Error during registration" || "An error occurred during login."
     );
   }
-  const signer = provider.getSigner();
+  const signer = await getSigner(); // Use the imported getSigner function
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
     orchestratorABI.abi,
@@ -101,7 +106,7 @@ export const loginUserAccount = async () => {
   const wallet = await loginWithMetaMask();
   if (!wallet) return null;
   console.log(wallet);
-  const signer = provider.getSigner();
+  const signer = await getSigner();
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
     orchestratorABI.abi,
@@ -109,15 +114,15 @@ export const loginUserAccount = async () => {
   );
   try {
     const isSuccess = await orchestratorContract.loginUserAccount(wallet);
-    if (isLocal != "TRUE"){
-    if (isSuccess) {
-      try {
-        updateTransactionStatusForAccount(wallet);
-      } catch (error) {
-        console.log("Error with updating the transaction statuses", error);
+    if (isLocal != "TRUE") {
+      if (isSuccess) {
+        try {
+          updateTransactionStatusForAccount(wallet);
+        } catch (error) {
+          console.log("Error with updating the transaction statuses", error);
+        }
       }
     }
-  }
     return isSuccess ? wallet : null;
   } catch (error) {
     console.log("Error with login:", error);
