@@ -54,6 +54,8 @@ export const registerUserAccount = async (email) => {
     signer
   );
   try {
+    console.log("Email:", email);
+    console.log("Wallet", wallet);
     const transactionResponse = await orchestratorContract.registerUserAccount(
       wallet,
       email

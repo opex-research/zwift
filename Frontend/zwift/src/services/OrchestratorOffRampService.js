@@ -1,5 +1,5 @@
 import { orchestratorABI, orchestratorAddress, provider } from '../contracts/config';
-import { ethers } from "ethers";
+import { ethers, utils } from "ethers";
 import { postTransaction, postTransactionToDatabase } from "./DatabaseService";
 
 
@@ -11,7 +11,7 @@ export const newOffRampIntent = async (wallet, amountInEther) => {
     signer
   );
 
-  const amountInWei = ethers.parseEther(amountInEther.toString());
+  const amountInWei = utils.parseEther(amountInEther.toString());
 
   try {
     // Send the transaction without waiting for it to be mined

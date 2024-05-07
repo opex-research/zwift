@@ -3,7 +3,7 @@ import {
   orchestratorAddress,
   provider,
 } from "../contracts/config";
-import { ethers } from "ethers";
+import { ethers, utils } from "ethers";
 import {
   addInUseOfframpWalletAddressToDatabase,
   getOfframpAddressesInUse,
@@ -23,7 +23,7 @@ function validateAndConvertAddresses(addresses) {
     .map((address) => {
       try {
         // This will throw an error if the address is not valid
-        return ethers.getAddress(address);
+        return utils.getAddress(address);
       } catch (error) {
         console.error(`${address} is not a valid Ethereum address:`, error);
         return null; // Return null for invalid addresses, to be filtered out
@@ -82,11 +82,11 @@ export const onRamp = async (
   );
   try {
     const txResponse = await orchestratorContract.onRamp(
-      ethers.parseUnits(amount.toString(), "ether"),
+      utils.parseUnits(amount.toString(), "ether"),
       offRamper,
       transactionSenderEmail,
       transactionReceiverEmail,
-      ethers.parseUnits(transactionAmount.toString(), "ether")
+      utils.parseUnits(transactionAmount.toString(), "ether")
     );
     const transactionHash = txResponse.hash;
     try {

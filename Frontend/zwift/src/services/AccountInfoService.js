@@ -3,7 +3,7 @@ import {
   orchestratorAddress,
   provider,
 } from "../contracts/config";
-import { ethers } from "ethers";
+import { ethers, utils } from "ethers";
 import { getUsersPendingOffRampIntentsFromDatabase } from "./DatabaseService";
 
 // function to retrieve the current open OffRamp Intent for a wallet
@@ -16,7 +16,7 @@ export const getUsersOpenOffRampIntents = async (wallet) => {
 
   try {
     const amountWei = await orchestratorContract.queryEscrowBalance(wallet);
-    const amountEth = ethers.formatEther(amountWei);
+    const amountEth = utils.formatEther(amountWei);
     return amountEth; // Returns the amount of the open OffRamp Intent
   } catch (error) {
     console.error("Error retrieving open OffRamp Intent", error);
@@ -100,7 +100,7 @@ export const getAccountBalance = async (account) => {
   if (!account) return null;
   try {
     const balance = await provider.getBalance(account);
-    return ethers.formatEther(balance);
+    return utils.formatEther(balance);
   } catch (error) {
     console.error("Could not detect the Balance", error);
     throw new Error(error.reason || "An error occurred during login.");
