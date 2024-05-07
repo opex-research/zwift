@@ -35,7 +35,9 @@ const HomePage = () => {
   };
 
   useEffect(() => {
+    console.log("in effect", sessionStorage.getItem("preAuthTab"));
     const preAuthTab = sessionStorage.getItem("preAuthTab");
+    console.log("pre tab", preAuthTab);
     if (preAuthTab) {
       setActiveTab(preAuthTab); // Assuming `setActiveTab` is a function or context method to update the tab
       sessionStorage.removeItem("preAuthTab"); // Clean up after restoring
