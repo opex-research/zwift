@@ -1,42 +1,42 @@
 import os
 import psycopg2
-from psycopg2 import sql
 
-
-# Function to setup the database
 def setup_database():
-    db_host = os.getenv(
-        "DB_HOST", "localhost"
-    )  # Default to localhost for local development
+    db_host = os.getenv("DB_HOST", "localhost")
 
+    # Connect to the default system database to check for existing databases
     conn = psycopg2.connect(
-        dbname="state_database",  # Connect to the default database
-        user="root",  # Default user for CockroachDB
-        host=db_host,  # Use environment variable
-        port="26257",  # Default CockroachDB port
-        sslmode="disable",  # Disable SSL for local connection, adjust as needed for production
+        dbname="postgres",  # Default system database for PostgreSQL, adjust if needed for CockroachDB
+        user="root", 
+        host=db_host, 
+        port="26257", 
+        sslmode="disable"
     )
     conn.autocommit = True
     cur = conn.cursor()
 
-    # Create the 'state_database' database
-    cur.execute("CREATE DATABASE IF NOT EXISTS state_database;")
+    # Check if the 'state_database' exists
+    cur.execute("SELECT 1 FROM pg_database WHERE datname='state_database';")
+    exists = cur.fetchone()
+
+    # Create the database if it doesn't exist
+    if not exists:
+        cur.execute("CREATE DATABASE state_database;")
+        print("Database 'state_database' created")
+    else:
+        print("Database 'state_database' already exists")
 
     cur.close()
     conn.close()
 
-
-# Function to create tables
 def create_tables():
-    db_host = os.getenv(
-        "DB_HOST", "localhost"
-    )  # Default to localhost for local development
+    db_host = os.getenv("DB_HOST", "localhost")
 
     # Connection parameters using environment variables
     params = {
         "database": "state_database",
         "user": "root",
-        "host": db_host,  # Use environment variable
+        "host": db_host,
         "port": "26257",
         "sslmode": "disable",
     }
@@ -79,8 +79,6 @@ def create_tables():
         cur.close()
         conn.close()
 
-
-# Main execution
 if __name__ == "__main__":
     setup_database()
     create_tables()
