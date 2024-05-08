@@ -49,7 +49,7 @@ const PayPalAuthPage = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          background: "linear-gradient(to right, #bbdefb, #e1f5fe)",
+          background: "#212121",
         }}
       >
         <LoadingMessage message="Processing PayPal login" />

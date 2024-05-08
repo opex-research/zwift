@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 
-const LoadingMessage = ({ message = "LOGGING YOU IN" }) => {
-  const [dots, setDots] = useState("");
+const LoadingAccount = () => {
+  const [ellipsis, setEllipsis] = useState("");
 
   useEffect(() => {
+    const intervals = [".", "..", "...", ""];
+    let count = 0;
     const interval = setInterval(() => {
-      setDots((prevDots) => (prevDots.length < 3 ? prevDots + "." : ""));
+      setEllipsis(intervals[count % intervals.length]);
+      count++;
     }, 500);
     return () => clearInterval(interval);
   }, []);
@@ -44,8 +47,7 @@ const LoadingMessage = ({ message = "LOGGING YOU IN" }) => {
             textTransform: "none",
           }}
         >
-          {message}
-          {dots}
+          Waiting for you to connect your wallet{ellipsis}
         </Typography>
         <Box
           sx={{
@@ -74,4 +76,4 @@ const LoadingMessage = ({ message = "LOGGING YOU IN" }) => {
   );
 };
 
-export default LoadingMessage;
+export default LoadingAccount;

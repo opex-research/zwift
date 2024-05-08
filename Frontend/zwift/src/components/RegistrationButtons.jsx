@@ -1,6 +1,6 @@
 import React from "react";
-// Importing UI components from MUI
-import { Button } from "@mui/material";
+import CustomButton from "./EssentialComponents/CustomButton";
+
 const frontendUrl = process.env.REACT_APP_FRONTEND_URL;
 
 const PayPalLoginButton = () => {
@@ -9,8 +9,6 @@ const PayPalLoginButton = () => {
     console.log("in handle WE SET", sessionStorage.getItem("preAuthTab"));
     sessionStorage.removeItem("checkoutInitiated");
     sessionStorage.removeItem("paymentVerified");
-    const goBackendUrl = process.env.REACT_APP_GO_BACKEND_URL;
-    const pythonBackendUrl = process.env.REACT_APP_PYTHON_BACKEND_URL;
 
     const clientID =
       "ATWNj8MbBvdUupI3VbC-isIb-fxnQ7j8Op6ch7rds51niwt1xGU0yreyPaFweWF_PZE5Yi71EXILTY7-";
@@ -23,22 +21,11 @@ const PayPalLoginButton = () => {
   };
 
   return (
-    <Button onClick={handleLogin} sx={buttonStyle}>
-      GET PAYPAL EMAIL
-    </Button>
+    <CustomButton
+      onClick={handleLogin}
+      buttonText="retrieve your paypal email"
+    />
   );
 };
-// Button style reused in multiple components
-const buttonStyle = {
-  color: "#1B6AC8",
-  fontSize: "20px",
-  display: "flex",
-  justifyContent: "flex-start",
-  textTransform: "none",
-  marginBottom: 1,
-  "&:hover": {
-    backgroundColor: "#47a7f5",
-    color: "white",
-  },
-};
+
 export default PayPalLoginButton;

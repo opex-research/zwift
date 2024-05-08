@@ -1,5 +1,7 @@
 import React from "react";
-import { Button } from "@mui/material";
+import { Box } from "@mui/material";
+import PayPalLoginButton from "./RegistrationButtons"; // Ensure this is imported from the correct file
+import CustomButton from "./EssentialComponents/CustomButton";
 
 const ActionButton = ({
   status,
@@ -8,42 +10,49 @@ const ActionButton = ({
   metaMaskLogged,
   email,
   retryRegistration,
-  onGetEmail,
 }) => {
-  let buttonText = "Connect to Wallet";
+  let buttonText = "connect your wallet";
   let clickHandler = onConnect;
+  let renderPayPalButton = false;
 
   if (metaMaskLogged) {
     switch (status) {
       case "registered":
-        buttonText = "Logged in";
+        buttonText = "logged in";
         clickHandler = () => {}; // No action needed
         break;
       case "pending":
-        buttonText = "Pending...";
+        buttonText =
+          "pending - we are waiting for the transaction to be confirmed";
         clickHandler = retryRegistration; // Retries registration
         break;
       case "not_registered":
-        buttonText = email
-          ? "Registering..."
-          : "Get PayPal Email to Finish Login";
-        clickHandler = email ? onRegister : onGetEmail; // If email is present, register, otherwise get email
+        if (!email) {
+          renderPayPalButton = true;
+        } else {
+          buttonText =
+            "registering you - please confirm the metamask transaction";
+          clickHandler = onRegister;
+        }
         break;
       default:
-        buttonText = "Connect to Wallet";
+        buttonText = "connect your wallet";
         break;
     }
   }
 
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      onClick={clickHandler}
-      disabled={status === "registered" || status === "pending"}
-    >
-      {buttonText}
-    </Button>
+    <Box>
+      {!renderPayPalButton ? (
+        <CustomButton
+          onClick={clickHandler}
+          disabled={status === "registered" || status === "pending"}
+          buttonText={buttonText}
+        />
+      ) : (
+        <PayPalLoginButton />
+      )}
+    </Box>
   );
 };
 

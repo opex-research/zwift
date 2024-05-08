@@ -21,6 +21,7 @@ import { simulateAllPendingTransactionsToSuccess } from "../services/DatabaseSer
 import CustomLink from "../components/EssentialComponents/CustomLink";
 import CustomTypographyLabel from "../components/EssentialComponents/CustomTypographyLabel";
 import CustomTypographyValue from "../components/EssentialComponents/CustomTypographyValue";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState(() => {
@@ -135,28 +136,54 @@ const HomePage = () => {
       >
         Simulate Transaction Success
       </Button>
+
       <Paper
         sx={{
-          padding: 4,
+          padding: 2,
           position: "fixed",
           bottom: 100,
-          background: "gray",
+          background: "linear-gradient(45deg, #424242 0%, #212121 100%)",
           color: "white",
           borderRadius: "12px",
           margin: "auto",
-          minWidth: 550,
+          minWidth: 280,
           boxShadow:
-            "0px 4px 8px rgba(0, 0, 0, 0.1), 0px 6px 20px rgba(0, 0, 0, 0.19)",
+            "0px 4px 8px rgba(0, 0, 0, 0.2), 0px 6px 20px rgba(0, 0, 0, 0.3)",
+          transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+          "&:hover": {
+            transform: "translateY(-5px)",
+            boxShadow:
+              "0px 8px 16px rgba(0, 0, 0, 0.3), 0px 12px 24px rgba(0, 0, 0, 0.4)",
+          },
         }}
         elevation={4}
       >
-        <Stack direction={"row"}>
-          <CustomTypographyLabel
-            value={"Total availble OffRamps"}
-          ></CustomTypographyLabel>
-          <CustomTypographyValue
-            value={openOffRampsInQueue}
-          ></CustomTypographyValue>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <SwapHorizIcon sx={{ color: "white", fontSize: 36 }} />
+            <CustomTypographyLabel
+              value="available off-ramps"
+              sx={{ fontSize: 24, fontWeight: "bold" }}
+            />
+          </Stack>
+          <Typography
+            sx={{
+              fontSize: 24,
+              fontWeight: "bold",
+              background: "rgba(255, 255, 255, 0.15)", // lighter background
+              borderRadius: "4px", // smaller border-radius
+              padding: "2px 6px", // reduced padding
+              textAlign: "center",
+              display: "inline-block",
+              minWidth: "auto",
+            }}
+          >
+            {openOffRampsInQueue}
+          </Typography>
         </Stack>
       </Paper>
     </Box>
