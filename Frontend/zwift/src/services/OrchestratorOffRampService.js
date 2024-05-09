@@ -1,10 +1,10 @@
-import { orchestratorABI, orchestratorAddress, provider } from '../contracts/config';
+import { orchestratorABI, orchestratorAddress, provider, getSigner } from '../contracts/config';
 import { ethers, utils } from "ethers";
 import { postTransaction, postTransactionToDatabase } from "./DatabaseService";
 
 
 export const newOffRampIntent = async (wallet, amountInEther) => {
-  const signer = provider.getSigner();
+  const signer = await getSigner();
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
     orchestratorABI.abi,

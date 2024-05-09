@@ -1,7 +1,7 @@
 import {
   orchestratorABI,
   orchestratorAddress,
-  provider,
+  provider, getSigner
 } from "../contracts/config";
 import { ethers, utils } from "ethers";
 import {
@@ -33,7 +33,7 @@ function validateAndConvertAddresses(addresses) {
 }
 
 export const getPeerForOnRamp = async () => {
-  const signer = provider.getSigner();
+  const signer = await getSigner();
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
     orchestratorABI.abi,
@@ -74,7 +74,7 @@ export const onRamp = async (
   transactionAmount,
   onRamperAccount
 ) => {
-  const signer = provider.getSigner();
+  const signer = await getSigner();
   const orchestratorContract = new ethers.Contract(
     orchestratorAddress,
     orchestratorABI.abi,
