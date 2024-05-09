@@ -29,6 +29,7 @@ const HomePage = () => {
   });
   const theme = useTheme();
   const { openOffRampsInQueue, account } = useAccount();
+  const isLocal = process.env.REACT_APP_IS_LOCAL === "true";
 
   const handleChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -128,14 +129,22 @@ const HomePage = () => {
         {activeTab === "offramp" && <OffRamp />}
         {activeTab === "account" && <UserAccount />}
       </Box>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleSimulateTransactionClick}
-        sx={{ mx: theme.spacing(2), my: theme.spacing(2) }}
-      >
-        Simulate Transaction Success
-      </Button>
+      {isLocal && (
+        <>
+          <CustomButton
+            onClick={handleRegistrationSuccessSimulation}
+            buttonText="Simulate a server check that confirms transaction"
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSimulateTransactionClick}
+            sx={{ mx: theme.spacing(2), my: theme.spacing(2) }}
+          >
+            Simulate Transaction Success
+          </Button>
+        </>
+      )}
 
       <Paper
         sx={{

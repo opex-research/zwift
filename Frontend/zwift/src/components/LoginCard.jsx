@@ -31,6 +31,7 @@ const LoginCard = () => {
     setPaypalEmail,
     paypalEmail: initialPaypalEmail,
   } = useAccount();
+  const isLocal = process.env.REACT_APP_IS_LOCAL === "true";
   const [loading, setLoading] = useState(false);
   const [registrationStatus, setRegistrationStatus] = useState("");
   const { error, showError } = useErrorHandler();
@@ -192,10 +193,12 @@ const LoginCard = () => {
       elevation={4}
     >
       <Stack spacing={3}>
-        <CustomButton
-          onClick={handleRegistrationSuccessSimulation}
-          buttonText="Simulate a server check that confirms transaction"
-        />
+        {isLocal && (
+          <CustomButton
+            onClick={handleRegistrationSuccessSimulation}
+            buttonText="Simulate a server check that confirms transaction"
+          />
+        )}
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <LoginIcon sx={{ mr: 2, color: "gray", fontSize: 24 }} />
           <CustomTypographyLabel value="authenticate yourself" />
