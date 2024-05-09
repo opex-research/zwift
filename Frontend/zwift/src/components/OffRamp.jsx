@@ -11,12 +11,13 @@ import {
   CircularProgress,
   Stack,
 } from "@mui/material";
+import OffRampIcon from "@mui/icons-material/Launch";
+import CustomTypographyLabel from "./EssentialComponents/CustomTypographyLabel";
 import { useAccount } from "../context/AccountContext";
 import {
   newOffRampIntent,
   getUsersOpenOffRampIntents,
 } from "../services/OrchestratorOffRampService";
-import OffRampIcon from "../icons/icons8-münzen-48.png"; // Import the PNG file
 import OkIcon from "../icons/icons8-ok-48.png"; // Import the PNG file
 import useErrorHandler from "../hooks/useErrorHandler";
 import ErrorSnackbar from "../components/ErrorSnackbar"; // Adjust the path as necessary
@@ -119,9 +120,12 @@ const OffRamp = () => {
         <Stack spacing={3}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Box sx={{ display: "flex", alignItems: "center", width: "60%" }}>
-              <Typography sx={{ width: "100%", fontSize: 18 }}>
-                Set the amount to offramp
-              </Typography>
+              <Box
+                sx={{ display: "flex", alignItems: "center", width: "100%" }}
+              >
+                <OffRampIcon sx={{ mr: 2, color: "gray", fontSize: 24 }} />
+                <CustomTypographyLabel value="set the amount to offramp" />
+              </Box>
             </Box>
             <CustomTextField value={amount} />
           </Box>

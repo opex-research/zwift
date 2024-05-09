@@ -3,10 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useAccount } from "../context/AccountContext";
 import useErrorHandler from "../hooks/useErrorHandler";
 import ErrorSnackbar from "../components/ErrorSnackbar";
-import LoadingMessage from "../components/LoadingMessage";
 import ActionButton from "./ActionButton";
 import RegistrationButtons from "./RegistrationButtons";
-import { Card, CardContent, Typography, Button } from "@mui/material";
+import { Paper, Box, Stack, CircularProgress } from "@mui/material";
+import CustomTypographyLabel from "./EssentialComponents/CustomTypographyLabel";
+import CustomButton from "./EssentialComponents/CustomButton";
+import LoadingAccount from "./LoadingAccount";
+import LoginIcon from "@mui/icons-material/Login";
+
 import {
   loginUserAccount,
   registerUserAccount,
@@ -48,19 +52,7 @@ const LoginCard = () => {
       sessionStorage.removeItem("paypalEmail");
     }
   }, [paypalEmail]);
-  useEffect(() => {
-    const connectMetaMask = async () => {
-      if (!metaMaskLogged) {
-        try {
-          await handleMetaMaskConnection();
-        } catch (err) {
-          console.error("Failed to connect to MetaMask:", err);
-        }
-      }
-    };
 
-    connectMetaMask();
-  }, []);
   useEffect(() => {
     if (metaMaskLogged && metaMaskAccountHelperAddress) {
       fetchRegistrationStatus();
@@ -115,6 +107,7 @@ const LoginCard = () => {
       showError(error.message);
     }
   };
+
   const handleMetaMaskConnection = async () => {
     setLoading(true);
     try {
@@ -131,6 +124,7 @@ const LoginCard = () => {
       setLoading(false);
     }
   };
+
   const handleLogin = async () => {
     try {
       const userAccount = await loginUserAccount();
@@ -154,9 +148,11 @@ const LoginCard = () => {
       }
     }
   };
+
   useEffect(() => {
     setRegistrationAttempted(false);
   }, [paypalEmail, registrationStatus]);
+
   useEffect(() => {
     if (
       paypalEmail &&
@@ -167,6 +163,7 @@ const LoginCard = () => {
       setRegistrationAttempted(true);
     }
   }, [paypalEmail, registrationStatus, registrationAttempted, handleSignUp]);
+
   const handleRegistrationSuccessSimulation = async () => {
     try {
       await simulateRegistrationChangeToSuccess(metaMaskAccountHelperAddress);
@@ -176,18 +173,33 @@ const LoginCard = () => {
   };
 
   if (loading) {
-    return <LoadingMessage message="Please wait..." />;
+    return <LoadingAccount />;
   }
 
   return (
-    <Card sx={{ maxWidth: 700, mx: "auto", borderRadius: 4 }}>
-      <CardContent>
-        <Button onClick={handleRegistrationSuccessSimulation}>
-          Simulate a server check that confirms transaction
-        </Button>
-        <Typography variant="h5" sx={{ mb: 4 }}>
-          Authentication Required
-        </Typography>
+    <Paper
+      sx={{
+        padding: 4,
+        background: "black",
+        color: "white",
+        borderRadius: "12px",
+        margin: "auto",
+        minWidth: 550,
+        maxWidth: 700,
+        boxShadow:
+          "0px 4px 8px rgba(0, 0, 0, 0.1), 0px 6px 20px rgba(0, 0, 0, 0.19)",
+      }}
+      elevation={4}
+    >
+      <Stack spacing={3}>
+        <CustomButton
+          onClick={handleRegistrationSuccessSimulation}
+          buttonText="Simulate a server check that confirms transaction"
+        />
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <LoginIcon sx={{ mr: 2, color: "gray", fontSize: 24 }} />
+          <CustomTypographyLabel value="authenticate yourself" />
+        </Box>
         <ActionButton
           status={registrationStatus}
           onConnect={handleMetaMaskConnection}
@@ -195,16 +207,13 @@ const LoginCard = () => {
           metaMaskLogged={metaMaskLogged}
           email={paypalEmail}
         />
-        {!paypalEmail && registrationStatus === "not_registered" && (
-          <RegistrationButtons setPaypalEmail={setPaypalEmail} />
-        )}
         <ErrorSnackbar
           open={!!error}
           handleClose={() => showError(null)}
           errorMessage={error}
         />
-      </CardContent>
-    </Card>
+      </Stack>
+    </Paper>
   );
 };
 
