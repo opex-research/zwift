@@ -131,10 +131,6 @@ const HomePage = () => {
       </Box>
       {isLocal && (
         <>
-          <CustomButton
-            onClick={handleRegistrationSuccessSimulation}
-            buttonText="Simulate a server check that confirms transaction"
-          />
           <Button
             variant="contained"
             color="primary"
