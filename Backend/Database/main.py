@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 import database
+import asyncio
 from schemas import TransactionBase, OnrampBase
 from fastapi.middleware.cors import CORSMiddleware
 import logging
+
 from fastapi.responses import JSONResponse
 from sync_transaction_statuses import fetch_newest_zksync_transaction_status
 import asyncio
@@ -547,3 +549,15 @@ def delete_wallet_address(wallet_address: str):
     finally:
         cur.close()
         conn.close()
+
+
+async def periodic_update():
+    while True:
+        print("fetching blockchain transactions - updating database entries")
+        await update_transaction_statuses()
+        await asyncio.sleep(600)
+
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(periodic_update())
