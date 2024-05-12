@@ -29,7 +29,7 @@ const HomePage = () => {
   });
   const theme = useTheme();
   const { openOffRampsInQueue, account } = useAccount();
-  const isLocal = process.env.REACT_APP_IS_LOCAL === "true";
+  const isLocal = process.env.REACT_APP_IS_LOCAL === "TRUE";
 
   const handleChange = (event, newValue) => {
     setActiveTab(newValue);

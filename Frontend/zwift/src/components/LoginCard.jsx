@@ -31,7 +31,7 @@ const LoginCard = () => {
     setPaypalEmail,
     paypalEmail: initialPaypalEmail,
   } = useAccount();
-  const isLocal = process.env.REACT_APP_IS_LOCAL === "true";
+  const isLocal = process.env.REACT_APP_IS_LOCAL === "TRUE";
   const [loading, setLoading] = useState(false);
   const [registrationStatus, setRegistrationStatus] = useState("");
   const { error, showError } = useErrorHandler();
