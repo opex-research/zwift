@@ -25,7 +25,7 @@ func init() {
 	store = session.New(session.Config{
 		Expiration:     24 * time.Hour, // Set session expiration duration
 		CookieHTTPOnly: true,           // JavaScript cannot access cookies
-		CookieSecure:   true,           // Only transfer cookies over HTTPS
+		CookieSecure:   false,          // Only transfer cookies over HTTPS
 		CookieSameSite: "None",         // Necessary for cross-origin requests
 	})
 }
