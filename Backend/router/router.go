@@ -9,15 +9,15 @@ import (
 	handlers "github.com/opex-research/zwift/handlers"
 )
 
-// SetupRoutes func
+// SetupRoutes configures the application routes
 func SetupRoutes(app *fiber.App, store *session.Store) {
 	h := &handlers.Handler{Store: store}
 
 	// Configuring CORS to be completely open for debugging
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "*",
-		AllowMethods:     "GET, POST, HEAD, PUT, DELETE, PATCH",
-		AllowHeaders:     "*",
+		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
+		AllowHeaders:     "Origin,Content-Type,Accept",
 		AllowCredentials: true,
 	}))
 
@@ -30,6 +30,6 @@ func SetupRoutes(app *fiber.App, store *session.Store) {
 	// Public routes
 	app.Post("/api/auth/login", h.Login)
 	app.Get("/api/auth/checksession", h.CheckSession)
-	app.Post("/api/paypal/checkout/", h.InitiateCheckout)
-	app.Post("/api/paypal/verify-payment/", h.VerifyPayment)
+	app.Post("/api/paypal/checkout", h.InitiateCheckout)
+	app.Post("/api/paypal/verify-payment", h.VerifyPayment)
 }
