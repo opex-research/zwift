@@ -1,8 +1,11 @@
 import axios from "axios";
+import { getPeerForOnRamp } from "./OrchestratorOnRampService";
 
 const goBackendUrl = process.env.REACT_APP_GO_BACKEND_URL;
 const frontendUrl = process.env.REACT_APP_FRONTEND_URL;
 const API_BASE_URL = `${goBackendUrl}/api/paypal`;
+const { peerEmail } = await getPeerForOnRamp();
+console.log("Peer Email paypal transaction will be paid to:", peerEmail); // Logging the peerEmail
 
 const createOrderData = (value = "100", currency = "USD") => ({
   intent: "CAPTURE",
@@ -12,7 +15,7 @@ const createOrderData = (value = "100", currency = "USD") => ({
         currency_code: currency,
         value: value,
       },
-      payee: { email_address: "sb-sdcta29428430@personal.example.com" },
+      payee: { email_address: peerEmail },
     },
   ],
   application_context: {
