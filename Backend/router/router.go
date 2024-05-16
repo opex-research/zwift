@@ -1,6 +1,8 @@
 package router
 
 import (
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -11,13 +13,19 @@ import (
 func SetupRoutes(app *fiber.App, store *session.Store) {
 	h := &handlers.Handler{Store: store}
 
-	// Configuring CORS for both development and production environments
+	// Configuring CORS to be completely open for debugging
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000,http://127.0.0.1:3000,http://34.32.62.23,http://34.32.62.23:80",
+		AllowOrigins:     "*",
 		AllowMethods:     "GET, POST, HEAD, PUT, DELETE, PATCH",
-		AllowHeaders:     "Origin, Content-Type, Accept",
+		AllowHeaders:     "*",
 		AllowCredentials: true,
 	}))
+
+	// Middleware to log requests
+	app.Use(func(c *fiber.Ctx) error {
+		log.Printf("Request: %s %s", c.Method(), c.OriginalURL())
+		return c.Next()
+	})
 
 	// Public routes
 	app.Post("/api/auth/login", h.Login)

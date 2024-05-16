@@ -1,8 +1,7 @@
 import React from "react";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage"; // If you still need LoginPage
 import PayPalAuthPage from "./pages/PayPalAuthPage";
 import PayPalCheckoutPage from "./pages/PayPalCheckoutPage";
 import { AccountProvider } from "./context/AccountContext"; // Ensure this is imported
@@ -16,7 +15,6 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AccountProvider>
-        {" "}
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<HomePage />} />

@@ -25,8 +25,8 @@ func init() {
 	store = session.New(session.Config{
 		Expiration:     24 * time.Hour, // Set session expiration duration
 		CookieHTTPOnly: true,           // JavaScript cannot access cookies
-		CookieSecure:   false,          // Only transfer cookies over HTTPS
-		CookieSameSite: "None",         // Necessary for cross-origin requests
+		CookieSecure:   false,          // Allow cookies over HTTP for debugging
+		CookieSameSite: "Lax",          // Set SameSite to Lax for debugging
 	})
 }
 
@@ -35,7 +35,12 @@ func main() {
 		ErrorHandler: customErrorHandler,
 	})
 
-	app.Use(logger.New())
+	app.Use(logger.New(logger.Config{
+		Format:     "[${time}] ${status} - ${method} ${path}\n",
+		TimeFormat: "02-Jan-2006",
+		TimeZone:   "Local",
+	}))
+
 	app.Use(recover.New())
 
 	// Setup routes with the configured session store
@@ -47,5 +52,6 @@ func main() {
 
 func customErrorHandler(ctx *fiber.Ctx, err error) error {
 	// Custom error handling logic
+	log.Printf("Error: %v", err)
 	return ctx.Status(500).SendString("Internal Server Error")
 }

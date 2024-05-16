@@ -1,7 +1,7 @@
 import axios from "axios";
+
 const goBackendUrl = process.env.REACT_APP_GO_BACKEND_URL;
 const frontendUrl = process.env.REACT_APP_FRONTEND_URL;
-const pythonBackendUrl = process.env.REACT_APP_PYTHON_BACKEND_URL;
 const API_BASE_URL = `${goBackendUrl}/api/paypal`;
 
 const createOrderData = (value = "100", currency = "USD") => ({
@@ -32,13 +32,13 @@ const PayPalService = {
           orderData,
         },
         {
-          withCredentials: true, // Add this option
+          withCredentials: true,
         }
       );
-      console.log(response);
+      console.log("Checkout response:", response);
       return response.data.checkoutUrl;
     } catch (error) {
-      console.error("Error initiating checkout:", error);
+      console.error("Error initiating checkout:", error.response || error);
       throw error; // Rethrow to let the caller handle it
     }
   },
@@ -51,13 +51,13 @@ const PayPalService = {
           PayerID,
         },
         {
-          withCredentials: true, // Add this option
+          withCredentials: true,
         }
       );
-      console.log(response);
+      console.log("Verify payment response:", response);
       return response.data;
     } catch (error) {
-      console.error("Error verifying payment:", error);
+      console.error("Error verifying payment:", error.response || error);
       throw error;
     }
   },
