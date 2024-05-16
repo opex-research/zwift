@@ -88,13 +88,14 @@ func (h *Handler) VerifyPayment(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
 	}
 
+	log.Printf("Session ID in verify: %s", sess.ID())
+
 	// Get the access token from the session
 	accessToken, ok := sess.Get("accessToken").(string)
 	if !ok {
 		return c.Status(fiber.StatusUnauthorized).SendString("Access token not found in session")
 	}
 	log.Printf("Access token retrieved from session: %s", accessToken)
-	log.Printf("Session ID in verify: %s", sess.ID())
 
 	// Call the CaptureOrder function from your paypal package
 	captureDetails, err := paypal.CaptureOrder(accessToken, request.OrderID)
