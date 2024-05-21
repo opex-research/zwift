@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import paypalCheckoutService from "../services/PayPalService";
 import LoadingMessage from "../components/LoadingMessage";
 import { Paper } from "@mui/material";
+const offRamperEmail = sessionStorage.getItem("offRamperEmail");
 const PayPalCheckoutPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -48,6 +49,10 @@ const PayPalCheckoutPage = () => {
   }, [navigate]);
 
   const handleCheckout = async (code) => {
+    console.log(
+      "Peer Email paypal transaction will be paid to (jsx):",
+      offRamperEmail
+    );
     try {
       const checkoutUrl = await paypalCheckoutService.initiateCheckout(code);
       window.location.href = checkoutUrl;
