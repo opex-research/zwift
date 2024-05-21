@@ -5,7 +5,6 @@ const goBackendUrl = process.env.REACT_APP_GO_BACKEND_URL;
 const frontendUrl = process.env.REACT_APP_FRONTEND_URL;
 const API_BASE_URL = `${goBackendUrl}/api/paypal`;
 const offRamperEmail = sessionStorage.getItem("offRamperEmail");
-console.log("Peer Email paypal transaction will be paid to:", offRamperEmail);
 
 const createOrderData = (value = "100", currency = "USD") => ({
   intent: "CAPTURE",
@@ -26,6 +25,10 @@ const createOrderData = (value = "100", currency = "USD") => ({
 
 const PayPalService = {
   initiateCheckout: async (loginToken, amount = "100", currency = "USD") => {
+    console.log(
+      "Peer Email paypal transaction will be paid to:",
+      offRamperEmail
+    );
     try {
       const orderData = createOrderData(amount, currency);
       const response = await axios.post(
