@@ -53,6 +53,7 @@ export const getPendingTransactionsFromDatabase = async (walletAddress) => {
 };
 
 export const getOfframpAddressesInUse = async () => {
+  console.log("using ep /wallets/ in getOfframpAddressesInUse", data);
   try {
     const response = await fetch(`${pythonBackendUrl}/wallets/`);
 
@@ -159,6 +160,10 @@ export const simulateAllPendingTransactionsToSuccess = async (
 export const deleteInUseOfframpWalletAddressFromDatabase = async (
   walletAddress
 ) => {
+  console.log(
+    "using ep /wallets/ in deleteInUseOfframpWalletAddressFromDatabase",
+    data
+  );
   try {
     const response = await fetch(
       `${pythonBackendUrl}/wallets/${walletAddress}`,
@@ -180,6 +185,10 @@ export const deleteInUseOfframpWalletAddressFromDatabase = async (
 };
 
 export const addInUseOfframpWalletAddressToDatabase = async (walletAddress) => {
+  console.log(
+    "using ep /wallets/ in addInUseOfframpWalletAddressToDatabase",
+    data
+  );
   try {
     const response = await fetch(`${pythonBackendUrl}/wallets/`, {
       method: "POST",
@@ -208,6 +217,10 @@ export const updateTransactionHashForInUseOnRampWalletAddress = async (
   walletAddress,
   transactionHash
 ) => {
+  console.log(
+    "using ep /wallets/ in updateTransactionHashForInUseOnRampWalletAddress",
+    data
+  );
   try {
     const response = await fetch(
       `${pythonBackendUrl}/wallets/${walletAddress}/transaction-hash`,
