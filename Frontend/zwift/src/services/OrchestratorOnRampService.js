@@ -81,12 +81,20 @@ export const onRamp = async (
     signer
   );
   try {
+    const parsedAmount = utils.parseUnits(amount.toString(), "ether");
+    const parsedTransactionAmount = utils.parseUnits(transactionAmount.toString(), "ether");
+    console.log("Transaction onRamp data that is send in onRamp:");
+    console.log("Amount:", parsedAmount);
+    console.log("TransactionAmount:", parsedTransactionAmount);
+    console.log("OffRamper:", offRamper);
+    console.log("TransactionSencer:", transactionSenderEmail);
+    console.log("TransactinoReceiver:", transactionReceiverEmail);
     const txResponse = await orchestratorContract.onRamp(
-      utils.parseUnits(amount.toString(), "ether"),
+      parsedAmount,
       offRamper,
       transactionSenderEmail,
       transactionReceiverEmail,
-      utils.parseUnits(transactionAmount.toString(), "ether")
+      parsedTransactionAmount
     );
     const transactionHash = txResponse.hash;
     try {
