@@ -68,6 +68,7 @@ const OnRamp = () => {
       console.log("");
       sessionStorage.setItem("offRamperAddress", peerAddress);
       sessionStorage.setItem("offRamperEmail", peerEmail);
+      sessionStorage.setItem("onRamperEmailSession", registeredEmail);
       //setOffRamperAddress(peerAddress);
       setSearchForPeer("found");
       // paypal integration to perform checkout initialization
@@ -89,6 +90,7 @@ const OnRamp = () => {
     console.log("Executing further steps after payment success.");
     const offRamperAddress = sessionStorage.getItem("offRamperAddress");
     const offRamperEmail = sessionStorage.getItem("offRamperEmail");
+    const onRamperEmail = sessionStorage.getItem("onRamperEmailSession")
     try {
       // Assuming `amount` and `transactionAmount` should be passed as strings representing ether (to be parsed in the onRamp function)
       // And offRamperAddress, registeredEmail, peerEmail are already defined with appropriate values.
@@ -96,7 +98,7 @@ const OnRamp = () => {
       const result = await onRamp(
         "0.00035", //this is the amount that we expect for an onRamp
         offRamperAddress,
-        registeredEmail,
+        onRamperEmail,
         offRamperEmail,
         "0.00035", //this is the fiat amount converted to eth that we sent via the paypal transaction
         account
