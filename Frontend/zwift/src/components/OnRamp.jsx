@@ -35,7 +35,7 @@ const OnRamp = () => {
   // State to manage the visibility of the payment success message
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState("EUR");
-  const [amount, setAmount] = useState("0.00035");
+  const [amount, setAmount] = useState("5");
   const [showAmountInput, setShowAmountInput] = useState(true);
   const [showSearchButton, setShowSearchButton] = useState(true);
   const currencies = ["USD", "EUR", "JPY"];
@@ -90,17 +90,17 @@ const OnRamp = () => {
     console.log("Executing further steps after payment success.");
     const offRamperAddress = sessionStorage.getItem("offRamperAddress");
     const offRamperEmail = sessionStorage.getItem("offRamperEmail");
-    const onRamperEmail = sessionStorage.getItem("onRamperEmailSession")
+    const onRamperEmail = sessionStorage.getItem("onRamperEmailSession");
     try {
       // Assuming `amount` and `transactionAmount` should be passed as strings representing ether (to be parsed in the onRamp function)
       // And offRamperAddress, registeredEmail, peerEmail are already defined with appropriate values.
       console.log("Off ramper address", offRamperAddressRef);
       const result = await onRamp(
-        "0.00035", //this is the amount that we expect for an onRamp
+        "5", //this is the amount that we expect for an onRamp
         offRamperAddress,
         onRamperEmail,
         offRamperEmail,
-        "0.00035", //this is the fiat amount converted to eth that we sent via the paypal transaction
+        "5", //this is the fiat amount converted to eth that we sent via the paypal transaction
         account
       );
       console.log("OnRamp Success:", result);
@@ -237,7 +237,7 @@ const OnRamp = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    0.00035 ETH
+                    5 ETH
                   </Box>
                 </Typography>
 
