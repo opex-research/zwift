@@ -1,6 +1,7 @@
 .DS_Store
 .vscode
 .env
+.todo.txt
 cockroach-data/
 *.log
 __pycache__/
