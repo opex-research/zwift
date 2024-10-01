@@ -12,20 +12,6 @@ Zwift leverages the power of Zero-Knowledge Proofs (ZKPs) and TLS Oracles to cre
 
 </div>
 
-## Table of Contents
-
-- [Introduction](#zwift-a-trustless-cryptocurrency-trading-platform)
-- [Objectives](#objectives)
-- [Submodules](#submodules)
-  - [TLS Oracle (ORIGO)](#tls-oracle-origo)
-  - [Forge Standard Library](#forge-standard-library)
-  - [OpenZeppelin Contracts](#openzeppelin-contracts)
-- [Getting Started](#getting-started)
-  - [How to Start](#how-to-start)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
 
 ## Objectives
 
@@ -33,7 +19,7 @@ Zwift leverages the power of Zero-Knowledge Proofs (ZKPs) and TLS Oracles to cre
 - **Privacy-Preserving P2P AMM:** Prototype a decentralized, privacy-focused Automated Market Maker.
 - **Optimized TLS Oracles:** Enhance the performance and reliability of SNARK-based TLS Oracles.
 
-## Submodules
+<!-- ## Submodules
 
 ### TLS Oracle (ORIGO)
 
@@ -54,11 +40,9 @@ Zwift leverages the power of Zero-Knowledge Proofs (ZKPs) and TLS Oracles to cre
 **Purpose:** A foundational library for secure smart contract development, offering a wide range of security-focused modules and templates.
 
 - **Location:** `Contracts/lib/openzeppelin-contracts`
-- **Repository:** [openzeppelin-contracts](https://github.com/OpenZeppelin/openzeppelin-contracts)
+- **Repository:** [openzeppelin-contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) -->
 
-## Getting Started
-
-### How to Start
+## How to Run
 
 1. **Setup and Dependencies:**
     ```sh
@@ -66,19 +50,30 @@ Zwift leverages the power of Zero-Knowledge Proofs (ZKPs) and TLS Oracles to cre
     ```
     This script installs necessary dependencies and configures the development environment.
 
-2. **Local Blockchain Integration:**
+2. **Setup Local Blockchain + Metamask Integration:**
     - Configure MetaMask to connect with the local Anvil chain for streamlined development testing.
+    - Add RPC URL - http://127.0.0.1:8545
+    - Chain ID - 31337
+    - Currency - ZWIFT (or whatever you want to name it)
+    - Check newly created anvil account and private key in terminal
+    - Add a private key from the local blockchain into MetaMask for interacting with ZWIFT contracts.
 
-3. **Private Key Integration:**
-    - Select and integrate a private key from the local blockchain into MetaMask for contract interactions.
+The anvil testnet should have deployed the contracts already and you should be ready to interact with them given the above specified tokens on the local testnet.
+Before restarting, ensure that the "activity tab data" is cleared in Metamask.
 
-## Usage
+3. **Create OffRamp Intent:**
+- Navigate OffRamp page
+- Click on "Create OffRamp Intent"
+- Fill out the form and click "Create"
+- You should see a success message and the OffRamp Intent ID
 
-Navigate to [http://localhost:3000](http://localhost:3000) to access the platform. Users can register as buyers or sellers, engaging in secure transactions through the innovative use of ZKPs and TLS Oracles.
+In case you want to re-run the local demo, clean the database files by running:
 
-![Welcome screen after opening http://localhost:3000](/welcome.jpeg)
+```sh
+./cleanup_project.sh  
+```
 
-## Contributing
+<!-- ## Contributing
 
 Contributions are welcomed and appreciated:
 
@@ -86,7 +81,7 @@ Contributions are welcomed and appreciated:
 2. **Create** your feature branch: `git checkout -b feature/YourAmazingFeature`.
 3. **Commit** your changes: `git commit -m 'Add some YourAmazingFeature'`.
 4. **Push** to the branch: `git push origin feature/YourAmazingFeature`.
-5. **Submit** a pull request.
+5. **Submit** a pull request. -->
 
 ## License
 
