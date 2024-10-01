@@ -28,19 +28,24 @@ func RequestAccessToken(authorizationCode string) (*PayPalTokenResponse, error) 
 	apiURL := "https://api-m.sandbox.paypal.com/v1/oauth2/token"
 	clientID := os.Getenv("PAYPAL_CLIENT_ID")
 	clientSecret := os.Getenv("PAYPAL_CLIENT_SECRET")
+
+	// Prepare form data.
 	data := url.Values{}
 	data.Set("grant_type", "authorization_code")
 	data.Set("code", authorizationCode)
 
+	// Create a new HTTP request.
 	req, err := http.NewRequest("POST", apiURL, bytes.NewBufferString(data.Encode()))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %v", err)
 	}
 
+	// Add headers.
 	authHeader := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", clientID, clientSecret)))
 	req.Header.Add("Authorization", "Basic "+authHeader)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
+	// Execute the request.
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -48,12 +53,13 @@ func RequestAccessToken(authorizationCode string) (*PayPalTokenResponse, error) 
 	}
 	defer resp.Body.Close()
 
+	// Handle non-OK responses.
 	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(resp.Body) // Ignore error on purpose for simplicity
-
+		bodyBytes, _ := io.ReadAll(resp.Body)
 		return nil, fmt.Errorf("unexpected status code: %d, response: %s", resp.StatusCode, string(bodyBytes))
 	}
 
+	// Decode the response.
 	var tokenResp PayPalTokenResponse
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %v", err)
@@ -66,17 +72,18 @@ func RequestAccessToken(authorizationCode string) (*PayPalTokenResponse, error) 
 	return &tokenResp, nil
 }
 
-// GetUserEmail uses the access token to request the user's email from PayPal's user info endpoint.
+// GetUserEmail retrieves the user's email using the access token.
 func GetUserEmail(accessToken string) (string, error) {
 	req, err := http.NewRequest("GET", "https://api-m.sandbox.paypal.com/v1/identity/openidconnect/userinfo?schema=openid", nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %v", err)
 	}
 
-	// Add required headers.
+	// Add headers.
 	req.Header.Add("Authorization", "Bearer "+accessToken)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
+	// Execute the request.
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -84,10 +91,12 @@ func GetUserEmail(accessToken string) (string, error) {
 	}
 	defer resp.Body.Close()
 
+	// Handle non-OK responses.
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
+	// Decode the response.
 	var userInfo PayPalUserInfo
 	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
 		return "", fmt.Errorf("failed to decode user info: %v", err)
@@ -157,11 +166,9 @@ type CaptureOrderResponse struct {
 					Value        string `json:"value"`
 				} `json:"amount"`
 				FinalCapture bool `json:"final_capture"`
-				// Add more fields as necessary
 			} `json:"captures"`
 		} `json:"payments"`
 	} `json:"purchase_units"`
-	// Include additional fields as necessary
 }
 
 // CaptureOrder captures a payment for an order by its ID using the given access token.
