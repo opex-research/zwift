@@ -21,7 +21,6 @@ func SetupRoutes(app *fiber.App, store *session.Store) {
 
 	// Public routes
 	app.Post("/api/auth/login", h.Login)
-	app.Get("/api/auth/checksession", h.CheckSession)
 	app.Post("/api/paypal/checkout/", h.InitiateCheckout)
 	app.Post("/api/paypal/verify-payment/", h.VerifyPayment)
 }
