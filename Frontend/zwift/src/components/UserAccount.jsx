@@ -13,16 +13,20 @@ import useErrorHandler from "../hooks/useErrorHandler";
 import ErrorSnackbar from "../components/ErrorSnackbar";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import LoginCard from "../components/LoginCard";
-
 import { getAccountInfo } from "../services/AccountInfoService";
 import CustomButton from "./EssentialComponents/CustomButton";
 import CustomTypographyLabel from "./EssentialComponents/CustomTypographyLabel";
 import CustomTypographyValue from "./EssentialComponents/CustomTypographyValue";
 
+/**
+ * UserAccount Component
+ *
+ * This component displays user account information and provides functionality
+ * for logging out and refreshing account data.
+ */
 const UserAccount = () => {
   const [loading, setLoading] = useState(false);
   const [refreshLoading, setRefreshLoading] = useState(false);
-  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { error, showError } = useErrorHandler();
   const {
@@ -37,7 +41,6 @@ const UserAccount = () => {
     usersOffRampIntent,
     setUsersOffRampIntent,
     setOpenOffRampsInQueue,
-    usersPendingOffRampIntents,
     setUsersPendingOffRampIntents,
   } = useAccount();
 
@@ -47,7 +50,11 @@ const UserAccount = () => {
     }
   }, [account, logged]);
 
+  /**
+   * Fetches user account data from the server
+   */
   const fetchData = async () => {
+    setRefreshLoading(true);
     try {
       const accountInfo = await getAccountInfo(account);
       setBalance(accountInfo.returnedBalance);
@@ -57,16 +64,21 @@ const UserAccount = () => {
       setUsersPendingOffRampIntents(
         accountInfo.returnedUsersPendingOffRampIntents
       );
-      setRefreshLoading(false);
     } catch (error) {
       showError(error.message);
+    } finally {
       setRefreshLoading(false);
     }
   };
 
+  /**
+   * Handles user logout
+   */
   const handleLogout = async () => {
     setLoading(true);
+    // Simulate logout process
     await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Reset user data
     setLogged(false);
     setAccount(null);
     setBalance(null);
@@ -79,11 +91,9 @@ const UserAccount = () => {
   };
 
   if (!logged) {
-    // Show login card if not logged in
     return <LoginCard />;
   }
 
-  // Show account details if logged in
   return (
     <div style={{ paddingTop: "20px" }}>
       <Paper
@@ -121,8 +131,8 @@ const UserAccount = () => {
           </Stack>
         </Stack>
         <ErrorSnackbar
-          open={open}
-          handleClose={() => setOpen(false)}
+          open={!!error}
+          handleClose={() => showError(null)}
           errorMessage={error}
         />
       </Paper>
@@ -130,6 +140,10 @@ const UserAccount = () => {
   );
 };
 
+/**
+ * LogoutButton Component
+ * Renders a logout button or loading indicator
+ */
 const LogoutButton = ({ loading, handleLogout }) => (
   <Box sx={{ display: "flex", alignItems: "center", ml: 1 }}>
     {loading ? (
@@ -139,10 +153,10 @@ const LogoutButton = ({ loading, handleLogout }) => (
         color="error"
         onClick={handleLogout}
         sx={{
-          color: "#8B0000", // Dark red color
+          color: "#8B0000",
           fontSize: "16px",
           textTransform: "none",
-          "&:hover": { backgroundColor: "#FFA07A" }, // Light red hover color
+          "&:hover": { backgroundColor: "#FFA07A" },
         }}
       >
         LOGOUT
@@ -151,6 +165,10 @@ const LogoutButton = ({ loading, handleLogout }) => (
   </Box>
 );
 
+/**
+ * RefreshButton Component
+ * Renders a refresh button or loading indicator
+ */
 const RefreshButton = ({ loading, handleRefresh }) => (
   <Box sx={{ display: "flex", alignItems: "center" }}>
     {loading ? (
@@ -160,31 +178,44 @@ const RefreshButton = ({ loading, handleRefresh }) => (
         color="error"
         onClick={handleRefresh}
         sx={{
-          color: "#8B0000", // Dark red color
+          color: "#8B0000",
           fontSize: "24px",
-          "&:hover": { backgroundColor: "#FFA07A" }, // Light red hover color
+          cursor: "pointer",
+          "&:hover": { backgroundColor: "#FFA07A" },
         }}
       />
     )}
   </Box>
 );
 
+/**
+ * Formats the wallet address for display
+ * @param {string} address - The full wallet address
+ * @returns {string} Formatted address or placeholder text
+ */
 const formatAddress = (address) =>
-  address
-    ? `0x...${address.substring(address.length - 4)}`
-    : "No wallet address";
+  address ? `0x...${address.slice(-4)}` : "No wallet address";
 
+/**
+ * Formats the balance for display
+ * @param {string|number} balance - The account balance
+ * @returns {string} Formatted balance or error message
+ */
 const formatBalance = (balance) =>
   Number.isNaN(parseFloat(balance))
     ? "Error loading balance"
     : `ETH ${balance}`;
 
+/**
+ * AccountDetail Component
+ * Renders a single account detail with a label and value
+ */
 const AccountDetail = ({ label, value }) => (
   <Stack direction="row" spacing={4}>
     <Box width={200} textAlign="right">
-      <CustomTypographyLabel value={label}></CustomTypographyLabel>
+      <CustomTypographyLabel value={label} />
     </Box>
-    <CustomTypographyValue value={value}></CustomTypographyValue>
+    <CustomTypographyValue value={value} />
   </Stack>
 );
 
