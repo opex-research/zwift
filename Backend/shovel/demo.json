@@ -1,0 +1,28 @@
+{
+  "pg_url": "postgres:///shovel",
+  "eth_sources": [
+    {
+      "name": "mainnet",
+      "chain_id": 1,
+      "urls": ["https://eth.llamarpc.com"]
+    }
+  ],
+  "integrations": [
+    {
+      "name": "block_numbers",
+      "enabled": true,
+      "sources": [{"name": "mainnet", "start": 0}],  
+      "table": {
+        "name": "block_numbers",
+        "columns": [
+          {"name": "block_num", "type": "numeric"},
+          {"name": "block_hash", "type": "bytea"}
+        ]
+      },
+      "block": [
+        {"name": "block_num", "column": "block_num"},
+        {"name": "block_hash", "column": "block_hash"}
+      ]
+    }
+  ]
+}

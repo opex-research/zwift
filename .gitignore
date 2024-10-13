@@ -5,3 +5,7 @@
 cockroach-data/
 *.log
 __pycache__/
+node_modules/
+dist/
+shovel/node_modules/
+Backend/shovel/shovel/
