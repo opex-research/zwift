@@ -1,0 +1,28 @@
+# Offramper
+
+(Some of the below are implemented in OffRamperAdapted.sol)
+
+- [ ] Add a function to refund the remaining escrow balance to a user
+- [ ] Update Solidity version
+- [ ] Issue - No management users beyond their addresses; no unique IDs or global account information.
+    - [ ] Why is registrator.sol not imported and used?
+- [ ] Events
+    - [ ] OffRampIntentCreated
+    - [ ] FundsReleased
+    - [ ] EscrowRefunded
+- [ ] Security
+    - Reentrancy Attacks
+    - The contract uses transfer and call without appropriate security checks, potentially exposing it to reentrancy vulnerabilities.
+    - e.g. releasePartialFundsToOnRamper is callable by anyone
+    - Need an on ramp cooldown period - otherwise if someone exploits a loophole, they can repeatedly exploit it to drain the contract
+- [ ] Sustainability fee
+    - [ ] This is a fee that is paid to the sustainability fund - should ensure that it's not the null address
+    - [ ] Need to be able to change the sustainability fee recipient
+    - [ ] Need to be able to change the sustainability fee
+- [ ] Registrator contract
+    - [ ] Need to be able to check whether an account is registered
+- [ ] Upgradable Contracts!!!
+    - [ ] Follow the proxy pattern
+    - Proxy Contract: This contract holds the contract's address and forwards function calls to the Logic (or Implementation) Contract. It does not contain the logic of the application but instead delegates calls to the implementation contract.
+    - Logic (Implementation) Contract: This is the contract that contains the business logic, state variables, and functions that the proxy will call. The address of this contract can be upgraded to point to a new version of the logic contract without changing the proxy contract’s address.
+    - Check out how to do this: https://docs.openzeppelin.com/contracts/4.x/api/proxy#Proxy  
