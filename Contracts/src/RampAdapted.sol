@@ -7,21 +7,12 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
+import { Uint256ArrayUtils } from "../../external/Uint256ArrayUtils.sol";
+
 contract OffRamper is Ownable, ReentrancyGuard {
-    IERC20 public token;
-    Registrator public registrator;
 
-    uint256 public intentExpirationPeriod = 1 days;
-
-    struct Intent {
-        uint256 amount;
-        uint256 timestamp;
-        address onRamperAddress;
-        bool isActive;
-    }
-
-    mapping(address => uint256) private escrowBalances;
-    mapping(address => Intent[]) private offRamperIntents;
+    // For e.g. removeStorage function
+    using Uint256ArrayUtils for uint256[];
 
     /* ============ Events ============ */
     // Intent is created by the off-ramper
@@ -30,7 +21,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
     event OffRampIntentCreated(
         uint256 indexed offRampIntentID,
         address indexed user,
-        string paypalEmail,
+        string paypalID,
         uint256 offRampAmount,
         uint256 conversionRate
     );
@@ -68,15 +59,13 @@ contract OffRamper is Ownable, ReentrancyGuard {
     /* ============ Structs ============ */
     struct OffRampIntent {
         address offRamperAddress;
-        string paypalEmail;
+        string paypalID;
         address verifierSigningKey;         
         bytes32 notaryKeyHash;              // Hash of notary's public key
         uint256 offRampAmount;              // Amount of USDC deposited
         bytes32 receiveCurrencyId;          // Id of the currency to be received off-chain (bytes32(currency code))
         uint256 remainingDeposits;          // Amount of remaining deposited liquidity
-        uint256 outstandingIntentAmount;    // Amount of outstanding intents (may include expired intents)
         uint256 conversionRate;             // Conversion required by off-ramper between USDC/USD
-        bytes32[] intentHashes;             // Array of hashes of all open intents (may include some expired if not pruned)
     }
 
     /* ============ Modifiers ============ */
@@ -94,9 +83,10 @@ contract OffRamper is Ownable, ReentrancyGuard {
     uint256 internal constant PRECISE_UNIT = 1e18;      // Allows for precise arithmetic operations by expanding the number of decimal places
     uint256 internal constant MAX_DEPOSITS = 5;         // An account can only have max 5 different deposit parameterizations to prevent locking funds
     uint256 constant MAX_SUSTAINABILITY_FEE = 5e16;     // 5% max sustainability fee
+    uint256 public intentExpirationPeriod = 1 days;
 
     /* ============ State Variables ============ */
-    IERC20 public immutable usdc;                                   // USDC token contract
+    IERC20 public token;                                            // USDC token contract
     IPayPalAccountRegistry public registrator;                      // Account Registry contract for PayPal
     IOnRampProcessor public onRampProcessor;                        // Address of the processor contract to verify notarizations
 
@@ -107,6 +97,10 @@ contract OffRamper is Ownable, ReentrancyGuard {
     uint256 public onRampCooldownPeriod;                            // Time period that must elapse between completing an on-ramp and signaling a new intent
     uint256 public sustainabilityFee;                               // Fee charged to on-rampers in preciseUnits (1e16 = 1%)
     address public sustainabilityFeeRecipient;                      // Address that receives the sustainability fee
+
+    uint256 public offRampIntentCounter;                            // Counter for offRampIntent IDs
+
+    mapping(uint256 => OffRampIntent) public offRamperIntents;
 
     /* ============ Constructor ============ */
     // Ensures:
@@ -144,12 +138,12 @@ contract OffRamper is Ownable, ReentrancyGuard {
     /**
     * @notice Initialize Ramp with the addresses of the Processors. Needed to set the addresses of the Registrator and OnRampProcessor contracts, which may not be known at the time of deployment.
     *
-    * @param _reg     Account Registry contract for Revolut
-    * @param _sendProcessor       Send processor address
+    * @param _registrator           Account Registry contract for PayPal, registers PayPal ID's
+    * @param _onRampProcessor       Send processor address, processor verifies OnRamps
     */
     function initialize(
-        IRevolutAccountRegistry _registrator,
-        IRevolutSendProcessor _onRampProcessor
+        IPayPalAccountRegistry _registrator,
+        IOnRampProcessor _onRampProcessor
     )
         external
         onlyOwner
@@ -162,7 +156,11 @@ contract OffRamper is Ownable, ReentrancyGuard {
         isInitialized = true;
     }
 
-    // TODO: Needs expansion regarding logic. Currently insecure.
+    /**
+    * @notice Create a new offRamp intent. Only registered users can create offramp intents (enforced by modifier).
+    * @param _registrator     Account Registry contract for Revolut
+    * @param _onRampProcessor       Send processor address
+    */
     function newOffRampIntent(
         string calldata _paypalID,
         uint256 _depositAmount,
@@ -173,19 +171,65 @@ contract OffRamper is Ownable, ReentrancyGuard {
         external
         onlyRegisteredUser 
     {
-        require(token.transferFrom(msg.sender, address(this), amount),"Token transfer failed");
+        bytes32 offRamperId = registrator.getAccountId(msg.sender);
+
+        require(keccak256(abi.encode(_revolutTag)) == offRamperId, "Submitted PayPal ID must match the registered ID");
+        require(globalAccountInfo.deposits.length < MAX_DEPOSITS, "Maximum deposit amount reached");
         require(_depositAmount >= minDepositAmount, "Deposit amount must be greater than min deposit amount");
-        escrowBalances[msg.sender] += amount;
-        offRamperIntents[msg.sender].push(
-            Intent({
-                amount: amount,
-                timestamp: block.timestamp,
-                onRamperAddress: address(0),
-                isActive: true
-            })
-        );
-        emit OffRampIntentCreated(msg.sender, amount, block.timestamp);
+        require(_receiveAmount > 0, "Receive amount must be greater than 0");
+
+        uint256 conversionRate = (_depositAmount * PRECISE_UNIT) / _receiveAmount;
+        uint256 offRampIntentID = offRampIntentCounter++;
+
+        offRamperIntents[offRampIntentID] = Deposit({
+            offRamperAddress: msg.sender,
+            paypalID: _paypalID,
+            verifierSigningKey: _verifierSigningKey,
+            notaryKeyHash: _notaryKeyHash,
+            offRampAmount: _offRampAmount,
+            remainingDeposits: _offRampAmount,
+            receiveCurrencyId: _receiveCurrencyId,
+            conversionRate: conversionRate
+        });
+
+        usdc.transferFrom(msg.sender, address(this), _offRampAmount);
+
+        emit OffRampIntentCreated(offRampIntentID,msg.sender, _paypalID, _offRampAmount, conversionRate);
     }
+
+
+    /**
+     * @notice Caller must be the depositor for each offRampIntentID in the array. The depositor is returned all
+     * remaining deposits and any outstanding intents that are expired. The intent will be deleted if there are no more outstanding deposits.
+     *
+     * @param _offRampIntentIDs   Array of offRampIntentIDs the depositor is attempting to withdraw
+     */
+    function withdrawDeposit(uint256[] memory _offRampIntentID) external nonReentrant {
+        uint256 returnAmount;
+
+        for (uint256 i = 0; i < _offRampIntentID.length; ++i) {
+            uint256 offRampIntentID = _offRampIntentID[i];
+            OffRampIntent storage offRamperIntent = offRamperIntents[offRampIntentID];
+
+            require(offRamperIntent.offRamperAddress == msg.sender, "Sender must be the depositor");
+
+            returnAmount += offRamperIntent.remainingDeposits;
+
+            emit OffRampIntentCancelled(offRampIntentID, offRamperIntent.offRamperAddress, offRamperIntent.remainingDeposits);
+            
+            delete offRamperIntent.remainingDeposits;
+            // _closeDepositIfNecessary(depositId, deposit);
+
+            if (offRampIntentID.remainingDeposits == 0) {
+                delete offRamperIntents[offRampIntentID];
+            }   
+        }
+        token.safeTransfer(msg.sender, returnAmount);
+        emit OffRampIntentRefunded(offRampIntentID, msg.sender, offRampAmount);
+    }
+
+
+
 
     // NOTE:Signal OnRamping Intent --> Is done in the centralized server for now. Maintains persistent state.
 
