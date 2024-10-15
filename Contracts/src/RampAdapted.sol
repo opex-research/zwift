@@ -6,18 +6,16 @@ import "./Registrator.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import { Uint256ArrayUtils } from "../../external/Uint256ArrayUtils.sol";
 
 contract OffRamper is Ownable, ReentrancyGuard {
-
-    // For e.g. removeStorage function
     using Uint256ArrayUtils for uint256[];
+    using SafeERC20 for IERC20;
 
     /* ============ Events ============ */
-    // Intent is created by the off-ramper
-    // TODO: Change to only emit the hash of the paypal email`
-    // NOTE: Timestamp is not emitted as it is equal to block.timestamp --> Redundant
+    // Existing Events
     event OffRampIntentCreated(
         uint256 indexed offRampIntentID,
         address indexed user,
@@ -25,21 +23,11 @@ contract OffRamper is Ownable, ReentrancyGuard {
         uint256 offRampAmount,
         uint256 conversionRate
     );
-    // Intent is cancelled by the off-ramper
-    event OffRampIntentCancelled(
-        uint256 indexed offRampIntentID,
-        address indexed user,
-        uint256 offRampAmount
-    );
-    // Intent is refunded to the off-ramper
-    // This is emitted once the intent has been refunded upon cancellation.
     event OffRampIntentRefunded(
         uint256 indexed offRampIntentID,
         address indexed user,
         uint256 offRampAmount
     );
-    // Intent is fulfilled by the on-ramper, escrow released to the on-ramper address, signature verified
-    // NOTE: Address to send funds to can be different from the on-ramper address!
     event OnRampIntentVerified(
         uint256 indexed offRampIntentID,
         address indexed offRamperAddress,
@@ -49,30 +37,56 @@ contract OffRamper is Ownable, ReentrancyGuard {
         uint256 feeAmount
     );
 
-    // Emitted when the minimum deposit amount is set
+    // Additional Events for Timelock
+    event CancellationQueued(
+        bytes32 indexed cancellationId,
+        uint256 indexed offRampIntentID,
+        address indexed user,
+        uint256 executeAt
+    );
+    event CancellationExecuted(
+        bytes32 indexed cancellationId,
+        uint256 indexed offRampIntentID,
+        address indexed user,
+        uint256 amount
+    );
+    event CancellationCancelled(
+        bytes32 indexed cancellationId,
+        uint256 indexed offRampIntentID,
+        address indexed user
+    );
+
+    // Event for setting parameters
     event MinDepositAmountSet(uint256 minDepositAmount);
-    // Emitted when the maximum on-ramp amount is set
     event MaxOnRampAmountSet(uint256 maxOnRampAmount);
-    // Emitted when the on-ramp cooldown period is set
     event OnRampCooldownPeriodSet(uint256 onRampCooldownPeriod);
+    event SustainabilityFeeSet(uint256 sustainabilityFee);
+    event SustainabilityFeeRecipientSet(address sustainabilityFeeRecipient);
 
     /* ============ Structs ============ */
     struct OffRampIntent {
         address offRamperAddress;
         string paypalID;
         address verifierSigningKey;         
-        bytes32 notaryKeyHash;              // Hash of notary's public key
-        uint256 offRampAmount;              // Amount of USDC deposited
-        bytes32 receiveCurrencyId;          // Id of the currency to be received off-chain (bytes32(currency code))
-        uint256 remainingDeposits;          // Amount of remaining deposited liquidity
-        uint256 conversionRate;             // Conversion required by off-ramper between USDC/USD
+        bytes32 notaryKeyHash;              
+        uint256 offRampAmount;              
+        bytes32 receiveCurrencyId;          
+        uint256 remainingDeposits;          
+        uint256 conversionRate;             
+        uint256 createdAt;                  // Timestamp when the intent was created
+    }
+
+    struct Cancellation {
+        uint256 offRampIntentID;
+        address user;
+        uint256 amount;
+        uint256 executeAt; // Timestamp when cancellation can be executed
+        bool executed;
     }
 
     /* ============ Modifiers ============ */
-    // TODO: isRegistered function is not implemented in the Registrator contract so far!
     modifier onlyRegisteredUser() {
         require(
-            
             registrator.isRegistered(msg.sender),
             "You need to register first"
         );
@@ -81,9 +95,14 @@ contract OffRamper is Ownable, ReentrancyGuard {
 
     /* ============ Constants ============ */
     uint256 internal constant PRECISE_UNIT = 1e18;      // Allows for precise arithmetic operations by expanding the number of decimal places
-    uint256 internal constant MAX_DEPOSITS = 5;         // An account can only have max 5 different deposit parameterizations to prevent locking funds
+    uint256 internal constant MAX_DEPOSITS = 5;        // An account can only have max 5 different deposit parameterizations to prevent locking funds
     uint256 constant MAX_SUSTAINABILITY_FEE = 5e16;     // 5% max sustainability fee
     uint256 public intentExpirationPeriod = 1 days;
+
+    // Timelock Constants
+    uint256 public constant MIN_DELAY = 10 minutes;     // Minimum delay for cancellation
+    uint256 public constant MAX_DELAY = 1 days;         // Maximum allowed delay
+    uint256 public constant GRACE_PERIOD = 2 days;      // Grace period for executing cancellation after delay
 
     /* ============ State Variables ============ */
     IERC20 public token;                                            // USDC token contract
@@ -95,22 +114,18 @@ contract OffRamper is Ownable, ReentrancyGuard {
     uint256 public minDepositAmount;                                // Minimum amount of USDC that can be deposited
     uint256 public maxOnRampAmount;                                 // Maximum amount of USDC that can be on-ramped in a single transaction
     uint256 public onRampCooldownPeriod;                            // Time period that must elapse between completing an on-ramp and signaling a new intent
-    uint256 public sustainabilityFee;                               // Fee charged to on-rampers in preciseUnits (1e16 = 1%)
+    uint256 public sustainabilityFee;                               // Fee charged to on-ramper in preciseUnits (1e16 = 1%)
     address public sustainabilityFeeRecipient;                      // Address that receives the sustainability fee
 
     uint256 public offRampIntentCounter;                            // Counter for offRampIntent IDs
 
     mapping(uint256 => OffRampIntent) public offRamperIntents;
 
+    // Timelock Mappings
+    mapping(bytes32 => bool) public queuedCancellations;            // Tracks if a cancellation is queued
+    mapping(bytes32 => Cancellation) public cancellations;          // Details of each cancellation
+
     /* ============ Constructor ============ */
-    // Ensures:
-    // - Ownable contract is a widely used pattern in Solidity that provides a basic access control mechanism, 
-    //   where an owner account is granted exclusive access to specific functions. In this case, the owner is the 
-    //   contract deployer. Only the owner can transfer ownership.
-    // - Min and max deposit amounts are set
-    // - Intent expiration period is set (How long offboard exists before it is refunded)
-    // - On-ramp cooldown period is set (How long onboard must wait before it can be used again)
-    // - Sustainability fee and recipient are set
     constructor(
         address _owner,
         IERC20 _usdc,
@@ -123,7 +138,11 @@ contract OffRamper is Ownable, ReentrancyGuard {
     )
         Ownable()
     {
-        usdc = _usdc;
+        require(_owner != address(0), "Owner address cannot be zero");
+        require(address(_usdc) != address(0), "USDC address cannot be zero");
+        require(_sustainabilityFee <= MAX_SUSTAINABILITY_FEE, "Sustainability fee exceeds maximum");
+
+        token = _usdc;
         minDepositAmount = _minDepositAmount;
         maxOnRampAmount = _maxOnRampAmount;
         intentExpirationPeriod = _intentExpirationPeriod;
@@ -135,12 +154,13 @@ contract OffRamper is Ownable, ReentrancyGuard {
     }
 
     /* ============ External Functions ============ */
+
     /**
-    * @notice Initialize Ramp with the addresses of the Processors. Needed to set the addresses of the Registrator and OnRampProcessor contracts, which may not be known at the time of deployment.
-    *
-    * @param _registrator           Account Registry contract for PayPal, registers PayPal ID's
-    * @param _onRampProcessor       Send processor address, processor verifies OnRamps
-    */
+     * @notice Initialize Ramp with the addresses of the Processors. Needed to set the addresses of the Registrator and OnRampProcessor contracts, which may not be known at the time of deployment.
+     *
+     * @param _registrator           Account Registry contract for PayPal, registers PayPal IDs
+     * @param _onRampProcessor       Processor contract address to verify notarizations
+     */
     function initialize(
         IPayPalAccountRegistry _registrator,
         IOnRampProcessor _onRampProcessor
@@ -149,94 +169,230 @@ contract OffRamper is Ownable, ReentrancyGuard {
         onlyOwner
     {
         require(!isInitialized, "Already initialized");
+        require(address(_registrator) != address(0), "Registrator address cannot be zero");
+        require(address(_onRampProcessor) != address(0), "OnRampProcessor address cannot be zero");
 
         registrator = _registrator;
-        sendProcessor = _onRampProcessor;
+        onRampProcessor = _onRampProcessor;
 
         isInitialized = true;
     }
 
     /**
-    * @notice Create a new offRamp intent. Only registered users can create offramp intents (enforced by modifier).
-    * @param _registrator     Account Registry contract for Revolut
-    * @param _onRampProcessor       Send processor address
-    */
+     * @notice Create a new offRamp intent. Only registered users can create offramp intents (enforced by modifier).
+     * @param _paypalID           PayPal ID of the user
+     * @param _depositAmount      Amount of USDC to deposit
+     * @param _receiveAmount      Amount of currency to receive off-chain
+     * @param _verifierSigningKey Verifier's signing key
+     * @param _notaryKeyHash      Hash of notary's public key
+     */
     function newOffRampIntent(
         string calldata _paypalID,
         uint256 _depositAmount,
         uint256 _receiveAmount,
         address _verifierSigningKey,
         bytes32 _notaryKeyHash
-        )
-        external
-        onlyRegisteredUser 
-    {
+    ) external onlyRegisteredUser {
         bytes32 offRamperId = registrator.getAccountId(msg.sender);
-
-        require(keccak256(abi.encode(_revolutTag)) == offRamperId, "Submitted PayPal ID must match the registered ID");
-        require(globalAccountInfo.deposits.length < MAX_DEPOSITS, "Maximum deposit amount reached");
+        require(keccak256(abi.encode(_paypalID)) == offRamperId, "Submitted PayPal ID must match the registered ID");
+        require(offRampIntentCounter < MAX_DEPOSITS, "Maximum deposit amount reached");
         require(_depositAmount >= minDepositAmount, "Deposit amount must be greater than min deposit amount");
         require(_receiveAmount > 0, "Receive amount must be greater than 0");
 
         uint256 conversionRate = (_depositAmount * PRECISE_UNIT) / _receiveAmount;
         uint256 offRampIntentID = offRampIntentCounter++;
 
-        offRamperIntents[offRampIntentID] = Deposit({
+        offRamperIntents[offRampIntentID] = OffRampIntent({
             offRamperAddress: msg.sender,
             paypalID: _paypalID,
             verifierSigningKey: _verifierSigningKey,
             notaryKeyHash: _notaryKeyHash,
-            offRampAmount: _offRampAmount,
-            remainingDeposits: _offRampAmount,
-            receiveCurrencyId: _receiveCurrencyId,
-            conversionRate: conversionRate
+            offRampAmount: _depositAmount,
+            receiveCurrencyId: bytes32(0),  // Assuming this needs to be set appropriately
+            remainingDeposits: _depositAmount,
+            conversionRate: conversionRate,
+            createdAt: block.timestamp
         });
 
-        usdc.transferFrom(msg.sender, address(this), _offRampAmount);
+        token.safeTransferFrom(msg.sender, address(this), _depositAmount);
 
-        emit OffRampIntentCreated(offRampIntentID,msg.sender, _paypalID, _offRampAmount, conversionRate);
+        emit OffRampIntentCreated(offRampIntentID, msg.sender, _paypalID, _depositAmount, conversionRate);
     }
-
 
     /**
-     * @notice Caller must be the depositor for each offRampIntentID in the array. The depositor is returned all
-     * remaining deposits and any outstanding intents that are expired. The intent will be deleted if there are no more outstanding deposits.
-     *
-     * @param _offRampIntentIDs   Array of offRampIntentIDs the depositor is attempting to withdraw
+     * @notice Queue a cancellation for an offRamp intent. This will allow the user to execute the cancellation after a 10-minute delay.
+     * @param _offRampIntentID   The ID of the offRamp intent to cancel
      */
-    function withdrawDeposit(uint256[] memory _offRampIntentID) external nonReentrant {
-        uint256 returnAmount;
+    function queueCancellation(uint256 _offRampIntentID) external nonReentrant {
+        OffRampIntent storage intent = offRamperIntents[_offRampIntentID];
+        require(intent.offRamperAddress == msg.sender, "Sender must be the depositor");
+        require(intent.remainingDeposits > 0, "No deposits to withdraw");
 
-        for (uint256 i = 0; i < _offRampIntentID.length; ++i) {
-            uint256 offRampIntentID = _offRampIntentID[i];
-            OffRampIntent storage offRamperIntent = offRamperIntents[offRampIntentID];
+        // Generate a unique cancellation ID
+        bytes32 cancellationId = getCancellationId(_offRampIntentID, msg.sender, block.timestamp);
 
-            require(offRamperIntent.offRamperAddress == msg.sender, "Sender must be the depositor");
+        require(!queuedCancellations[cancellationId], "Cancellation already queued");
 
-            returnAmount += offRamperIntent.remainingDeposits;
+        uint256 executeAt = block.timestamp + MIN_DELAY;
+        require(executeAt <= block.timestamp + MAX_DELAY, "Execute time exceeds maximum delay");
 
-            emit OffRampIntentCancelled(offRampIntentID, offRamperIntent.offRamperAddress, offRamperIntent.remainingDeposits);
-            
-            delete offRamperIntent.remainingDeposits;
-            // _closeDepositIfNecessary(depositId, deposit);
+        // Queue the cancellation
+        queuedCancellations[cancellationId] = true;
+        cancellations[cancellationId] = Cancellation({
+            offRampIntentID: _offRampIntentID,
+            user: msg.sender,
+            amount: intent.remainingDeposits,
+            executeAt: executeAt,
+            executed: false
+        });
 
-            if (offRampIntentID.remainingDeposits == 0) {
-                delete offRamperIntents[offRampIntentID];
-            }   
-        }
-        token.safeTransfer(msg.sender, returnAmount);
-        emit OffRampIntentRefunded(offRampIntentID, msg.sender, offRampAmount);
+        emit CancellationQueued(cancellationId, _offRampIntentID, msg.sender, executeAt);
     }
 
+    /**
+     * @notice Execute a queued cancellation after the timelock period has passed
+     * @param _cancellationId    The unique ID of the cancellation to execute
+     */
+    function executeCancellation(bytes32 _cancellationId) external nonReentrant {
+        Cancellation storage cancellation = cancellations[_cancellationId];
+        require(cancellation.user == msg.sender, "Only the user can execute their cancellation");
+        require(queuedCancellations[_cancellationId], "Cancellation is not queued");
+        require(!cancellation.executed, "Cancellation already executed");
+        require(block.timestamp >= cancellation.executeAt, "Timelock not yet expired");
+        require(block.timestamp <= cancellation.executeAt + GRACE_PERIOD, "Timelock period expired");
 
+        // Mark as executed
+        cancellation.executed = true;
+        queuedCancellations[_cancellationId] = false;
 
+        // Retrieve intent
+        OffRampIntent storage intent = offRamperIntents[cancellation.offRampIntentID];
+        uint256 refundAmount = cancellation.amount;
 
-    // NOTE:Signal OnRamping Intent --> Is done in the centralized server for now. Maintains persistent state.
+        // Update the intent
+        intent.remainingDeposits = 0;
 
-    // Function: OnRamp 
-    // TODO: Needs to
-    // - Verify the signature provided by the on-ramper
-    //   -  This can be done with isValidSignatureNow through the following import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
-    // TODO: What's the additional logic needed in onRamping?
+        // Transfer the funds back to the user
+        token.safeTransfer(cancellation.user, refundAmount);
 
+        emit OffRampIntentRefunded(cancellation.offRampIntentID, cancellation.user, refundAmount);
+        emit CancellationExecuted(_cancellationId, cancellation.offRampIntentID, cancellation.user, refundAmount);
+
+        // Clean up the intent if no deposits remain
+        if (intent.remainingDeposits == 0) {
+            delete offRamperIntents[cancellation.offRampIntentID];
+        }
+    }
+
+    /**
+     * @notice Cancel a queued cancellation before it has been executed
+     * @param _cancellationId    The unique ID of the cancellation to cancel
+     */
+    function cancelQueuedCancellation(bytes32 _cancellationId) external nonReentrant {
+        Cancellation storage cancellation = cancellations[_cancellationId];
+        require(cancellation.user == msg.sender, "Only the user can cancel their cancellation");
+        require(queuedCancellations[_cancellationId], "Cancellation is not queued");
+        require(!cancellation.executed, "Cancellation already executed");
+
+        // Remove the queued cancellation
+        queuedCancellations[_cancellationId] = false;
+        delete cancellations[_cancellationId];
+
+        emit CancellationCancelled(_cancellationId, cancellation.offRampIntentID, cancellation.user);
+    }
+
+    /* ============ Internal Functions ============ */
+
+    /**
+     * @notice Generate a unique cancellation ID
+     * @param _offRampIntentID   The ID of the offRamp intent
+     * @param _user              The address of the user
+     * @param _timestamp         The current timestamp
+     * @return bytes32           The unique cancellation ID
+     */
+    function getCancellationId(
+        uint256 _offRampIntentID,
+        address _user,
+        uint256 _timestamp
+    ) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_offRampIntentID, _user, _timestamp));
+    }
+
+    /* ============ Admin Functions ============ */
+
+    /**
+     * @notice Set the minimum deposit amount
+     * @param _minDepositAmount  The new minimum deposit amount
+     */
+    function setMinDepositAmount(uint256 _minDepositAmount) external onlyOwner {
+        minDepositAmount = _minDepositAmount;
+        emit MinDepositAmountSet(_minDepositAmount);
+    }
+
+    /**
+     * @notice Set the maximum on-ramp amount
+     * @param _maxOnRampAmount   The new maximum on-ramp amount
+     */
+    function setMaxOnRampAmount(uint256 _maxOnRampAmount) external onlyOwner {
+        maxOnRampAmount = _maxOnRampAmount;
+        emit MaxOnRampAmountSet(_maxOnRampAmount);
+    }
+
+    /**
+     * @notice Set the on-ramp cooldown period
+     * @param _onRampCooldownPeriod The new cooldown period in seconds
+     */
+    function setOnRampCooldownPeriod(uint256 _onRampCooldownPeriod) external onlyOwner {
+        onRampCooldownPeriod = _onRampCooldownPeriod;
+        emit OnRampCooldownPeriodSet(_onRampCooldownPeriod);
+    }
+
+    /**
+     * @notice Set the sustainability fee
+     * @param _sustainabilityFee The new sustainability fee
+     */
+    function setSustainabilityFee(uint256 _sustainabilityFee) external onlyOwner {
+        require(_sustainabilityFee <= MAX_SUSTAINABILITY_FEE, "Fee exceeds maximum");
+        sustainabilityFee = _sustainabilityFee;
+        emit SustainabilityFeeSet(_sustainabilityFee);
+    }
+
+    /**
+     * @notice Set the sustainability fee recipient
+     * @param _sustainabilityFeeRecipient The new fee recipient address
+     */
+    function setSustainabilityFeeRecipient(address _sustainabilityFeeRecipient) external onlyOwner {
+        require(_sustainabilityFeeRecipient != address(0), "Recipient cannot be zero address");
+        sustainabilityFeeRecipient = _sustainabilityFeeRecipient;
+        emit SustainabilityFeeRecipientSet(_sustainabilityFeeRecipient);
+    }
+
+    /* ============ View Functions ============ */
+
+    /**
+     * @notice Check if a cancellation is queued
+     * @param _cancellationId The ID of the cancellation
+     * @return bool            True if queued, else false
+     */
+    function isCancellationQueued(bytes32 _cancellationId) external view returns (bool) {
+        return queuedCancellations[_cancellationId];
+    }
+
+    /**
+     * @notice Get details of a cancellation
+     * @param _cancellationId The ID of the cancellation
+     * @return Cancellation    The cancellation details
+     */
+    function getCancellation(bytes32 _cancellationId) external view returns (Cancellation memory) {
+        return cancellations[_cancellationId];
+    }
 }
+
+// NOTE:Signal OnRamping Intent --> Is done in the centralized server for now. Maintains persistent state.
+
+// Function: OnRamp 
+// TODO: Needs to
+// - Verify the signature provided by the on-ramper
+//   -  This can be done with isValidSignatureNow through the following import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+// TODO: What's the additional logic needed in onRamping?
+
