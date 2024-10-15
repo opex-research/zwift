@@ -1,0 +1,5 @@
+[profile.default]
+src = "paypal"
+out = "out"
+libs = ["lib"]
+tests = "test"
