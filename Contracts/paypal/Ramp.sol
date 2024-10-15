@@ -5,10 +5,12 @@ pragma solidity ^0.8.0;
 import "./Registrator.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import { Uint256ArrayUtils } from "../../external/Uint256ArrayUtils.sol";
+import { Uint256ArrayUtils } from "../external/Uint256ArrayUtils.sol";
+import { IPayPalAccountRegistry } from "./interfaces/IPayPalAccountRegistry.sol";
+import { IOnRampProcessor } from "./interfaces/IOnRampProcessor.sol";
 
 contract OffRamper is Ownable, ReentrancyGuard {
     using Uint256ArrayUtils for uint256[];
@@ -135,9 +137,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
         uint256 _onRampCooldownPeriod,
         uint256 _sustainabilityFee,
         address _sustainabilityFeeRecipient
-    )
-        Ownable()
-    {
+    ) Ownable(_owner) {
         require(_owner != address(0), "Owner address cannot be zero");
         require(address(_usdc) != address(0), "USDC address cannot be zero");
         require(_sustainabilityFee <= MAX_SUSTAINABILITY_FEE, "Sustainability fee exceeds maximum");
@@ -223,7 +223,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
      * @notice Queue a cancellation for an offRamp intent. This will allow the user to execute the cancellation after a 10-minute delay.
      * @param _offRampIntentID   The ID of the offRamp intent to cancel
      */
-    function queueCancellation(uint256 _offRampIntentID) external nonReentrant {
+    function queueCancellation(uint256 _offRampIntentID) external onlyRegisteredUser {
         OffRampIntent storage intent = offRamperIntents[_offRampIntentID];
         require(intent.offRamperAddress == msg.sender, "Sender must be the depositor");
         require(intent.remainingDeposits > 0, "No deposits to withdraw");
@@ -296,9 +296,10 @@ contract OffRamper is Ownable, ReentrancyGuard {
 
         // Remove the queued cancellation
         queuedCancellations[_cancellationId] = false;
-        delete cancellations[_cancellationId];
 
         emit CancellationCancelled(_cancellationId, cancellation.offRampIntentID, cancellation.user);
+
+        delete cancellations[_cancellationId];
     }
 
     /* ============ Internal Functions ============ */
@@ -314,7 +315,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
         uint256 _offRampIntentID,
         address _user,
         uint256 _timestamp
-    ) internal pure returns (bytes32) {
+    ) public pure returns (bytes32) { // Changed from internal to public
         return keccak256(abi.encodePacked(_offRampIntentID, _user, _timestamp));
     }
 
@@ -395,4 +396,3 @@ contract OffRamper is Ownable, ReentrancyGuard {
 // - Verify the signature provided by the on-ramper
 //   -  This can be done with isValidSignatureNow through the following import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 // TODO: What's the additional logic needed in onRamping?
-
