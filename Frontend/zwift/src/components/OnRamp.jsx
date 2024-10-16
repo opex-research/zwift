@@ -91,18 +91,26 @@ const OnRamp = () => {
     const offRamperAddress = sessionStorage.getItem("offRamperAddress");
     const offRamperEmail = sessionStorage.getItem("offRamperEmail");
     const onRamperEmail = sessionStorage.getItem("onRamperEmailSession");
+    const signature = sessionStorage.getItem("paymentSignature");
+    const timestamp = sessionStorage.getItem("paymentTimestamp");
+
     try {
       // Assuming `amount` and `transactionAmount` should be passed as strings representing ether (to be parsed in the onRamp function)
       // And offRamperAddress, registeredEmail, peerEmail are already defined with appropriate values.
-      console.log("Off ramper address", offRamperAddressRef);
+      console.log("Off ramper address", offRamperAddress);
+
+      // Update the onRamp function call to pass signature and timestamp
       const result = await onRamp(
-        "5", //this is the amount that we expect for an onRamp
+        "5", // This is the amount expected for an onRamp (in ether)
         offRamperAddress,
         onRamperEmail,
         offRamperEmail,
-        "5", //this is the fiat amount converted to eth that we sent via the paypal transaction
-        account
+        "5", // This is the fiat amount converted to eth that was sent via the PayPal transaction
+        account,
+        signature, // Add signature
+        timestamp // Add timestamp
       );
+
       console.log("OnRamp Success:", result);
       setSearchForPeer("found");
     } catch (error) {

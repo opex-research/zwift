@@ -66,14 +66,25 @@ const PayPalCheckoutPage = () => {
 
   const verifyPayment = async (token, PayerID) => {
     try {
+      // Call the backend to verify the payment
       const verificationResult = await paypalCheckoutService.verifyPayment(
         token,
         PayerID
       );
-      const verificationStatus = verificationResult.success
-        ? "success"
-        : "failed";
+
+      // Extract signature and timestamp from the response
+      const { success, orderID, status, timestamp, signature } =
+        verificationResult;
+
+      // Set payment verification status in session storage
+      const verificationStatus = success ? "success" : "failed";
       sessionStorage.setItem("paymentVerified", verificationStatus);
+
+      // Optionally, store the timestamp and signature if needed later for verification or logging
+      sessionStorage.setItem("paymentTimestamp", timestamp);
+      sessionStorage.setItem("paymentSignature", signature);
+
+      // Use a function to navigate based on the verification status
       navigateBasedOnVerification(verificationStatus);
     } catch (error) {
       console.error("Payment verification error:", error);
