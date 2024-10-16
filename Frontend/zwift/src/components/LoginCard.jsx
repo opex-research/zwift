@@ -4,8 +4,7 @@ import { useAccount } from "../context/AccountContext";
 import useErrorHandler from "../hooks/useErrorHandler";
 import ErrorSnackbar from "../components/ErrorSnackbar";
 import ActionButton from "./ActionButton";
-import RegistrationButtons from "./RegistrationButtons";
-import { Paper, Box, Stack, CircularProgress } from "@mui/material";
+import { Paper, Box, Stack } from "@mui/material";
 import CustomTypographyLabel from "./EssentialComponents/CustomTypographyLabel";
 import CustomButton from "./EssentialComponents/CustomButton";
 import LoadingAccount from "./LoadingAccount";
@@ -21,6 +20,13 @@ import {
   simulateRegistrationChangeToSuccess,
 } from "../services/DatabaseService";
 
+/**
+ * LoginCard Component
+ *
+ * This component handles user authentication and registration.
+ * It manages the flow between connecting to MetaMask, registering a new account,
+ * and logging in an existing user.
+ */
 const LoginCard = () => {
   const navigate = useNavigate();
   const {
@@ -33,7 +39,7 @@ const LoginCard = () => {
   } = useAccount();
   const isLocal = process.env.REACT_APP_IS_LOCAL === "TRUE";
   const [loading, setLoading] = useState(false);
-  const [registrationStatus, setRegistrationStatus] = useState("");
+  const [registrationStatus, setRegistrationStatus] = useState("not_connected");
   const { error, showError } = useErrorHandler();
   const [metaMaskAccountHelperAddress, setMetaMaskAccountHelperAddress] =
     useState(null);
@@ -45,7 +51,7 @@ const LoginCard = () => {
     () => sessionStorage.getItem("paypalEmail") || initialPaypalEmail
   );
 
-  // Effect to sync paypalEmail updates to sessionStorage
+  // Sync paypalEmail updates to sessionStorage
   useEffect(() => {
     if (paypalEmail) {
       sessionStorage.setItem("paypalEmail", paypalEmail);
@@ -54,28 +60,46 @@ const LoginCard = () => {
     }
   }, [paypalEmail]);
 
+  // Fetch registration status when MetaMask is connected
   useEffect(() => {
     if (metaMaskLogged && metaMaskAccountHelperAddress) {
       fetchRegistrationStatus();
-    } else {
-      setRegistrationStatus("not_connected");
     }
   }, [metaMaskLogged, paypalEmail, metaMaskAccountHelperAddress]);
 
+  // Check registration status periodically if pending
   useEffect(() => {
     if (registrationStatus === "pending") {
       intervalRef.current = setInterval(
         checkAndUpdateRegistrationStatus,
         100000
       );
-    } else if (intervalRef.current) {
+    } else {
       clearInterval(intervalRef.current);
     }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
+    return () => clearInterval(intervalRef.current);
   }, [registrationStatus, paypalEmail]);
 
+  // Reset registration attempt flag when relevant states change
+  useEffect(() => {
+    setRegistrationAttempted(false);
+  }, [paypalEmail, registrationStatus]);
+
+  // Attempt registration if conditions are met
+  useEffect(() => {
+    if (
+      paypalEmail &&
+      registrationStatus === "not_registered" &&
+      !registrationAttempted
+    ) {
+      handleSignUp();
+      setRegistrationAttempted(true);
+    }
+  }, [paypalEmail, registrationStatus, registrationAttempted]);
+
+  /**
+   * Fetches the user's registration status from the database
+   */
   const fetchRegistrationStatus = async () => {
     try {
       if (metaMaskAccountHelperAddress) {
@@ -92,6 +116,9 @@ const LoginCard = () => {
     }
   };
 
+  /**
+   * Checks and updates the registration status
+   */
   const checkAndUpdateRegistrationStatus = async () => {
     try {
       if (metaMaskAccountHelperAddress) {
@@ -109,6 +136,9 @@ const LoginCard = () => {
     }
   };
 
+  /**
+   * Handles MetaMask connection
+   */
   const handleMetaMaskConnection = async () => {
     setLoading(true);
     try {
@@ -126,6 +156,9 @@ const LoginCard = () => {
     }
   };
 
+  /**
+   * Handles user login
+   */
   const handleLogin = async () => {
     try {
       const userAccount = await loginUserAccount();
@@ -137,6 +170,9 @@ const LoginCard = () => {
     }
   };
 
+  /**
+   * Handles user registration
+   */
   const handleSignUp = async () => {
     if (paypalEmail) {
       try {
@@ -150,21 +186,9 @@ const LoginCard = () => {
     }
   };
 
-  useEffect(() => {
-    setRegistrationAttempted(false);
-  }, [paypalEmail, registrationStatus]);
-
-  useEffect(() => {
-    if (
-      paypalEmail &&
-      registrationStatus === "not_registered" &&
-      !registrationAttempted
-    ) {
-      handleSignUp();
-      setRegistrationAttempted(true);
-    }
-  }, [paypalEmail, registrationStatus, registrationAttempted, handleSignUp]);
-
+  /**
+   * Simulates a successful registration (for local development only)
+   */
   const handleRegistrationSuccessSimulation = async () => {
     try {
       await simulateRegistrationChangeToSuccess(metaMaskAccountHelperAddress);

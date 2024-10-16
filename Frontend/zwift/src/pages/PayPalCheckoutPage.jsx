@@ -7,6 +7,7 @@ const offRamperEmail = sessionStorage.getItem("offRamperEmail");
 const PayPalCheckoutPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+
   // Function to handle URL query parameters and session states
   const getUrlParamsAndSessionStates = () => {
     const urlParams = new URLSearchParams(window.location.search);

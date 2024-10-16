@@ -1,15 +1,19 @@
 import React from "react";
-// Importing UI components from MUI
 import { Button } from "@mui/material";
 
+/**
+ * Initiates the PayPal payment process.
+ * Clears relevant session storage items and redirects to PayPal login.
+ */
 export const handlePayment = () => {
-  sessionStorage.removeItem("checkoutInitiated");
-  sessionStorage.removeItem("paymentVerified");
+  // Clear session storage
+  ["checkoutInitiated", "paymentVerified"].forEach((item) =>
+    sessionStorage.removeItem(item)
+  );
 
+  // Construct PayPal login URL
   const frontendUrl = process.env.REACT_APP_FRONTEND_URL;
-
-  const clientID =
-    "ATWNj8MbBvdUupI3VbC-isIb-fxnQ7j8Op6ch7rds51niwt1xGU0yreyPaFweWF_PZE5Yi71EXILTY7-";
+  const clientID = process.env.REACT_APP_PAYPAL_CLIENT_ID;
   const redirectURI = encodeURIComponent(`${frontendUrl}/checkout-handler`);
   const paypalLoginURL = `https://sandbox.paypal.com/signin/authorize?client_id=${clientID}&response_type=code&redirect_uri=${redirectURI}`;
 
@@ -17,14 +21,17 @@ export const handlePayment = () => {
   window.location.href = paypalLoginURL;
 };
 
-const PayPalPaymentButton = () => {
-  return (
-    <Button onClick={handlePayment} sx={buttonStyle}>
-      PAY
-    </Button>
-  );
-};
-// Button style reused in multiple components
+/**
+ * PayPal payment button component.
+ * Renders a button that initiates the PayPal payment process when clicked.
+ */
+const PayPalPaymentButton = () => (
+  <Button onClick={handlePayment} sx={buttonStyle}>
+    PAY
+  </Button>
+);
+
+// Styles for the PayPal payment button
 const buttonStyle = {
   color: "#1B6AC8",
   fontSize: "20px",
@@ -37,4 +44,5 @@ const buttonStyle = {
     color: "white",
   },
 };
+
 export default PayPalPaymentButton;
