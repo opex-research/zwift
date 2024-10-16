@@ -195,7 +195,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
     ) external onlyRegisteredUser {
         bytes32 offRamperId = registrator.getAccountId(msg.sender);
         require(keccak256(abi.encode(_paypalID)) == offRamperId, "Submitted PayPal ID must match the registered ID");
-        require(offRampIntentCounter < MAX_DEPOSITS, "Maximum deposit amount reached");
+       // require(offRampIntentCounter < MAX_DEPOSITS, "Maximum deposit amount reached");
         require(_depositAmount >= minDepositAmount, "Deposit amount must be greater than min deposit amount");
         require(_receiveAmount > 0, "Receive amount must be greater than 0");
 
@@ -241,7 +241,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
         cancellations[cancellationId] = Cancellation({
             offRampIntentID: _offRampIntentID,
             user: msg.sender,
-            amount: intent.remainingDeposits,
+            amount: intent.offRampAmount,
             executeAt: executeAt,
             executed: false
         });
@@ -270,7 +270,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
         uint256 refundAmount = cancellation.amount;
 
         // Update the intent
-        intent.remainingDeposits = 0;
+       // intent.remainingDeposits = 0;
 
         // Transfer the funds back to the user
         token.safeTransfer(cancellation.user, refundAmount);
@@ -279,9 +279,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
         emit CancellationExecuted(_cancellationId, cancellation.offRampIntentID, cancellation.user, refundAmount);
 
         // Clean up the intent if no deposits remain
-        if (intent.remainingDeposits == 0) {
-            delete offRamperIntents[cancellation.offRampIntentID];
-        }
+        delete offRamperIntents[cancellation.offRampIntentID];
     }
 
     /**
@@ -392,7 +390,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
     function newOnRampIntent(
         uint256 _targetedOffRampIntentID,
         bytes calldata _paymentData
-    ) external onlyRegisteredUser {
+    ) external onlyRegisteredUser, nonReantrant{
         
         // Retrieve the OffRampIntent using the provided ID
         OffRampIntent storage offRampIntent = offRamperIntents[_offRampIntentID];
@@ -409,7 +407,8 @@ contract OffRamper is Ownable, ReentrancyGuard {
         delete offRamperIntents[_offRampIntentID];
 
         //Send onramper the funds from the escrow (here: this contract)
-        token.safeTransfer(token, msg.sender, amountToTransfer);
+        token.safeTransfer(msg.sender, amountToTransfer);
+
 
         
         // Emit an event if necessary (optional)
