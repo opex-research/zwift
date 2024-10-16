@@ -402,12 +402,13 @@ contract OffRamper is Ownable, ReentrancyGuard {
         bool isVerified = PaymentVerifier.verifyPayment(msg.sender, _paymentData, offRampIntent.conversionRate, offRampIntent.offRampAmount);
         require(isVerified, "Payment verification failed");
 
-        // Transfer the funds to the sender (onRamper)
+
         uint256 amountToTransfer = intent.offRampAmount;
+        
         // Delete the OffRampIntent from the mapping
         delete offRamperIntents[_offRampIntentID];
 
-        
+        //Send onramper the funds from the escrow (here: this contract)
         token.safeTransfer(token, msg.sender, amountToTransfer);
 
         
