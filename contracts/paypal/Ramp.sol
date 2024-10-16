@@ -73,7 +73,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
         bytes32 notaryKeyHash;              
         uint256 offRampAmount;              
         bytes32 receiveCurrencyId;          
-        uint256 remainingDeposits;          
+       // uint256 remainingDeposits; //Sören: not needed, since we only target the whole depostit amount         
         uint256 conversionRate;             
         uint256 createdAt;                  // Timestamp when the intent was created
     }
@@ -209,7 +209,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
             notaryKeyHash: _notaryKeyHash,
             offRampAmount: _depositAmount,
             receiveCurrencyId: bytes32(0),  // Assuming this needs to be set appropriately
-            remainingDeposits: _depositAmount,
+            //remainingDeposits: _depositAmount,
             conversionRate: conversionRate,
             createdAt: block.timestamp
         });
@@ -386,6 +386,31 @@ contract OffRamper is Ownable, ReentrancyGuard {
      */
     function getCancellation(bytes32 _cancellationId) external view returns (Cancellation memory) {
         return cancellations[_cancellationId];
+    }
+
+    // New function to create an on-ramp intent
+    function newOnRampIntent(
+        uint256 _targetedOffRampIntentID,
+        bytes calldata _paymentData
+    ) external onlyRegisteredUser {
+        
+        // Retrieve the OffRampIntent using the provided ID
+        OffRampIntent storage offRampIntent = offRamperIntents[_offRampIntentID];
+        require(offRampIntent.offRamperAddress != address(0), "Invalid OffRampIntent ID"); //Checks if OffRampIntent ID is valid
+
+        // Call the verifyPayment function from the PaymentVerifier contract
+        bool isVerified = PaymentVerifier.verifyPayment(msg.sender, _paymentData, offRampIntent.conversionRate, offRampIntent.offRampAmount);
+        require(isVerified, "Payment verification failed");
+
+        // Transfer the funds to the sender (onRamper)
+        uint256 amountToTransfer = intent.offRampAmount;
+        token.safeTransfer(msg.sender, amountToTransfer);
+
+        // Delete the OffRampIntent from the mapping
+        delete offRamperIntents[_offRampIntentID];
+
+        // Emit an event if necessary (optional)
+        emit OnRampIntentVerified(_offRampIntentID, intent.offRamperAddress, msg.sender, msg.sender, amountToTransfer, 0);
     }
 }
 
