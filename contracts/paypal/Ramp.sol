@@ -404,11 +404,13 @@ contract OffRamper is Ownable, ReentrancyGuard {
 
         // Transfer the funds to the sender (onRamper)
         uint256 amountToTransfer = intent.offRampAmount;
-        token.safeTransfer(msg.sender, amountToTransfer);
-
         // Delete the OffRampIntent from the mapping
         delete offRamperIntents[_offRampIntentID];
 
+        
+        token.safeTransfer(token, msg.sender, amountToTransfer);
+
+        
         // Emit an event if necessary (optional)
         emit OnRampIntentVerified(_offRampIntentID, intent.offRamperAddress, msg.sender, msg.sender, amountToTransfer, 0);
     }
