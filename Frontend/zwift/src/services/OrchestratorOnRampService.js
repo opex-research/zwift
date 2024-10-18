@@ -1,7 +1,8 @@
 import {
   orchestratorABI,
   orchestratorAddress,
-  provider, getSigner
+  provider,
+  getSigner,
 } from "../contracts/config";
 import { ethers, utils } from "ethers";
 import {
@@ -72,7 +73,9 @@ export const onRamp = async (
   transactionSenderEmail,
   transactionReceiverEmail,
   transactionAmount,
-  onRamperAccount
+  onRamperAccount,
+  signature,
+  timestamp
 ) => {
   const signer = await getSigner();
   const orchestratorContract = new ethers.Contract(
@@ -82,19 +85,26 @@ export const onRamp = async (
   );
   try {
     const parsedAmount = utils.parseUnits(amount.toString(), "ether");
-    const parsedTransactionAmount = utils.parseUnits(transactionAmount.toString(), "ether");
+    const parsedTransactionAmount = utils.parseUnits(
+      transactionAmount.toString(),
+      "ether"
+    );
     console.log("Transaction onRamp data that is send in onRamp:");
     console.log("Amount:", parsedAmount);
     console.log("TransactionAmount:", parsedTransactionAmount);
     console.log("OffRamper:", offRamper);
     console.log("TransactionSencer:", transactionSenderEmail);
     console.log("TransactinoReceiver:", transactionReceiverEmail);
+    console.log("Signature:", signature);
+    console.log("Timestamp:", timestamp);
     const txResponse = await orchestratorContract.onRamp(
       parsedAmount,
       offRamper,
       transactionSenderEmail,
       transactionReceiverEmail,
-      parsedTransactionAmount
+      parsedTransactionAmount,
+      signature, // pass the signature to the smart contract
+      timestamp // pass the timestamp to the smart contract
     );
     const transactionHash = txResponse.hash;
     try {
