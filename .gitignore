@@ -8,8 +8,7 @@ __pycache__/
 node_modules/
 dist/
 shovel/node_modules/
-Backend/shovel/shovel/
 Backend/shovel/shovel
 Backend/shovel/package-lock.json
 package-lock.json
-Backend/shovel/package-lock.json
+
