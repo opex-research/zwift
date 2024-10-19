@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.4",
+    "@types/node": "^22.7.7"
+  },
+  "dependencies": {
+    "@indexsupply/shovel-config": "^0.0.17",
+    "dotenv": "^16.4.5"
+  }
+}
