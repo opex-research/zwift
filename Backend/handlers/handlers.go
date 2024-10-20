@@ -189,24 +189,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	})
 }
 
-// CheckSession verifies if there's an active user session.
-func (h *Handler) CheckSession(c *fiber.Ctx) error {
-	// Retrieve the session.
-	sess, err := h.Store.Get(c)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
-	}
-
-	// Check if the session has any data set.
-	if sess.ID() != "" && !sess.Fresh() {
-		// Session exists and is not fresh.
-		return c.SendString("Session alive")
-	}
-
-	// No active session found.
-	return c.SendString("No active session found")
-}
-
 // signMessage hashes and signs the message using the private key.
 func signMessage(message string) (string, error) {
 	// Get the private key from environment variable.

@@ -1,0 +1,81 @@
+{
+  "dashboard": {},
+  "pg_url": "postgres:///shovel",
+  "eth_sources": [
+    {
+      "name": "mainnet",
+      "chain_id": 1,
+      "url": "https://eth.llamarpc.com",
+      "urls": [
+        "https://eth.llamarpc.com"
+      ]
+    }
+  ],
+  "integrations": [
+    {
+      "enabled": true,
+      "name": "transfers",
+      "sources": [
+        {
+          "name": "mainnet",
+          "start": "0"
+        }
+      ],
+      "table": {
+        "name": "transfers",
+        "columns": [
+          {
+            "name": "log_addr",
+            "type": "bytea"
+          },
+          {
+            "name": "from",
+            "type": "bytea"
+          },
+          {
+            "name": "to",
+            "type": "bytea"
+          },
+          {
+            "name": "amount",
+            "type": "numeric"
+          }
+        ]
+      },
+      "block": [
+        {
+          "name": "log_addr",
+          "column": "log_addr",
+          "filter_op": "contains",
+          "filter_arg": [
+            "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+          ]
+        }
+      ],
+      "event": {
+        "type": "event",
+        "name": "Transfer",
+        "inputs": [
+          {
+            "indexed": true,
+            "name": "from",
+            "type": "address",
+            "column": "from"
+          },
+          {
+            "indexed": true,
+            "name": "to",
+            "type": "address",
+            "column": "to"
+          },
+          {
+            "indexed": false,
+            "name": "amount",
+            "type": "uint256",
+            "column": "amount"
+          }
+        ]
+      }
+    }
+  ]
+}
