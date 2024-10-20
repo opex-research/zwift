@@ -48,10 +48,10 @@ const cancellationTable: Table = {
 
 /* ============ Blockchain Source Configuration ============ */
 const source: Source = {
-  name: process.env.CHAIN_NAME || "default_chain_name",
-  chain_id: parseInt(process.env.CHAIN_ID || "0"),
-  url: process.env.CHAIN_RPC_URL || "default_rpc_url",
-  urls: [process.env.CHAIN_RPC_URL_BACKUP || "default_rpc_url_backup"],
+  name: "$CHAIN_NAME",
+  chain_id: "$CHAIN_ID",
+  url: "$CHAIN_RPC_URL",
+  urls: ["$CHAIN_RPC_URL_BACKUP"],
 };
 
 /* ============ Event Integrations ============ */
@@ -169,7 +169,7 @@ let integrations: Integration[] = [
 
 /* ============ Shovel Configuration ============ */
 const config = makeConfig({
-  pg_url: process.env.DATABASE_URL_SHOVEL || "default_database_url",
+  pg_url: "$DATABASE_URL_SHOVEL",
   sources: [source],
   integrations: integrations,
 });
@@ -184,8 +184,16 @@ writeFileSync("config.json", toJSON(config, 2));
  * Checks the indexer by adding dummy entries and verifying table contents
  */
 async function checkIndexer() {
+  // Use process.env to get the actual value of the environment variable
+  const databaseUrl = process.env.DATABASE_URL_SHOVEL;
+
+  if (!databaseUrl) {
+    console.error("DATABASE_URL_SHOVEL environment variable is not set");
+    return;
+  }
+
   const client = new Client({
-    connectionString: process.env.DATABASE_URL_SHOVEL || "default_database_url",
+    connectionString: databaseUrl,
   });
 
   try {
@@ -265,8 +273,31 @@ async function checkTable(client: Client, tableName: string) {
   }
 }
 
+/* ============ Environment Variable Checks ============ */
+const requiredEnvVars = [
+  "CHAIN_NAME",
+  "CHAIN_ID",
+  "CHAIN_RPC_URL",
+  "CHAIN_RPC_URL_BACKUP",
+  "DATABASE_URL_SHOVEL",
+];
+
+function checkEnvironmentVariables() {
+  const missingVars = requiredEnvVars.filter(
+    (varName) => !process.env[varName]
+  );
+  if (missingVars.length > 0) {
+    throw new Error(
+      `Missing required environment variables: ${missingVars.join(", ")}`
+    );
+  }
+}
+
+// Execute the check
+checkEnvironmentVariables();
+
 /* ============ Script Execution ============ */
 // Call the function to check the indexer
 checkIndexer().catch((error) =>
-  console.error("Error running checkIndexer:", error)
+  console.error("Error running checkIndexer: ", error)
 );

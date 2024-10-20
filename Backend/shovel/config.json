@@ -1,13 +1,13 @@
 {
   "dashboard": {},
-  "pg_url": "postgresql://michelosswald@localhost:5432/shovel",
+  "pg_url": "$DATABASE_URL_SHOVEL",
   "eth_sources": [
     {
-      "name": "mainnet",
-      "chain_id": 1,
-      "url": "https://ethereum-rpc.publicnode.com",
+      "name": "$CHAIN_NAME",
+      "chain_id": "$CHAIN_ID",
+      "url": "$CHAIN_RPC_URL",
       "urls": [
-        "https://ethereum-rpc.publicnode.com"
+        "$CHAIN_RPC_URL_BACKUP"
       ]
     }
   ],
@@ -17,7 +17,7 @@
       "name": "off_ramp_intents",
       "sources": [
         {
-          "name": "mainnet",
+          "name": "$CHAIN_NAME",
           "start": "0"
         }
       ],
@@ -92,7 +92,7 @@
       "name": "on_ramp_intents_verified",
       "sources": [
         {
-          "name": "mainnet",
+          "name": "$CHAIN_NAME",
           "start": "0"
         }
       ],
@@ -173,7 +173,7 @@
       "name": "cancellations",
       "sources": [
         {
-          "name": "mainnet",
+          "name": "$CHAIN_NAME",
           "start": "0"
         }
       ],
