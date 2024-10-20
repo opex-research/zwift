@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {IPayPalAccountVerifier} from "../interfaces/IPayPalAccountVerifier.sol";
-
+import {DataTypes} from "../datatypes/DataTypes.sol";
 /**
  * @notice This contract is used to verify PayPal accounts.
  */
@@ -13,7 +13,7 @@ contract PayPalAccountVerifier is IPayPalAccountVerifier {
      * @return bool indicating whether the account is verified.
      */
     function verifyAccount(
-        bytes calldata _accountData
+        DataTypes.AccountData calldata _accountData
     ) external pure returns (bool) {
         // For now, we just return true without actual logic
         return true;

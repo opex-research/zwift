@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import {DataTypes} from "../datatypes/DataTypes.sol";
 interface IPayPalPaymentVerifier {
-    struct PaymentData {
-        string onRamperPayPalEmail;
-        string offRamperPayPalEmail;
-        uint256 fiatSendAmount;
-    }
+    
     /**
      * @notice This function verifies a PayPal payment
      * @param sender The address of the sender.
@@ -17,7 +14,7 @@ interface IPayPalPaymentVerifier {
      */
     function verifyPayment(
         address sender,
-        PaymentData memory _paymentData,
+        DataTypes.PaymentData calldata _paymentData,
         uint256 conversionRate,
         uint256 offRampAmount
     ) external view returns (bool);

@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 import { Ownable } from "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
 import {IPayPalAccountVerifier} from "./interfaces/IPayPalAccountVerifier.sol";
+import {DataTypes} from "./datatypes/DataTypes.sol";
 
-
-contract PayPalRegistrator {
+contract PayPalRegistrator is Ownable {
     // Mapping from wallet address to PayPal email
     mapping(address => string) private walletToEmail;
 
@@ -16,11 +16,17 @@ contract PayPalRegistrator {
     bool public isInitialized;
     IPayPalAccountVerifier public payPalAccountVerifier;
     /* ============ External Functions ============ */
+    constructor(
+        address _owner
+    ) Ownable(_owner) {
+        require(_owner != address(0), "Owner address cannot be zero");
+        transferOwnership(_owner);
+    }
 
     /**
      * @notice Initialize Registrator with the addresses of the AccountVerifier. Needed to set the addresses of the AccountVerifier contract, which may not be known at the time of deployment.
      *
-     * @param _accountVerifier          Account Verification contract for PayPal, verify PayPal email accounts
+     * @param _payPalAccountVerifier          Account Verification contract for PayPal, verify PayPal email accounts
      */
     function initialize(
         IPayPalAccountVerifier _payPalAccountVerifier
@@ -38,14 +44,14 @@ contract PayPalRegistrator {
 
     /**
      * @notice Register your wallet address with your PayPal email.
-     * @param email The PayPal email to associate with your wallet.
+     * @param _accountData The PayPal email to associate with your wallet.
      * @return success Indicates successful registration.
      *
      * Requirements:
      * - The caller must not have already registered.
      */
     function register(
-        bytes calldata _accountData
+        DataTypes.AccountData calldata _accountData
     ) external returns (bool success) {
         address wallet = msg.sender;
         require(bytes(walletToEmail[wallet]).length == 0, "Already registered");

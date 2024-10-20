@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
+import {DataTypes} from "../datatypes/DataTypes.sol";
 interface IPayPalRegistrator {
 
     /**
@@ -10,7 +10,7 @@ interface IPayPalRegistrator {
      * @return success Indicates successful registration.
      */
     function register(
-        bytes calldata _accountData
+        DataTypes.AccountData calldata _accountData
     ) external returns (bool success);
 
     /**

@@ -12,7 +12,7 @@ import { SafeERC20 } from "../lib/openzeppelin-contracts/contracts/token/ERC20/u
 import { Uint256ArrayUtils } from "../external/Uint256ArrayUtils.sol";
 import { IPayPalPaymentVerifier } from "./interfaces/IPayPalPaymentVerifier.sol";
 import { IPayPalRegistrator } from "./interfaces/IPayPalRegistrator.sol";
-
+import {DataTypes} from "./datatypes/DataTypes.sol";
 contract Ramp is Ownable, ReentrancyGuard {
     using Uint256ArrayUtils for uint256[];
     using SafeERC20 for IERC20;
@@ -160,11 +160,11 @@ contract Ramp is Ownable, ReentrancyGuard {
      * @notice Initialize Ramp with the addresses of the Processors. Needed to set the addresses of the Registrator and OnRampProcessor contracts, which may not be known at the time of deployment.
      *
      * @param _payPalRegistrator           Account Registry contract for PayPal, registers PayPal IDs
-     * @param _paymentVerifier       Processor contract address to verify notarizations
+     * @param _payPalPaymentVerifier       Processor contract address to verify notarizations
      */
     function initialize(
         IPayPalRegistrator _payPalRegistrator,
-        IPaymentVerifier _payPalPaymentVerifier
+        IPayPalPaymentVerifier _payPalPaymentVerifier
     )
         external
         onlyOwner
@@ -194,9 +194,9 @@ contract Ramp is Ownable, ReentrancyGuard {
         address _verifierSigningKey,
         bytes32 _notaryKeyHash
     ) external onlyRegisteredUser {
-        bytes32 offRamperId = payPalRegistrator.getEmail(msg.sender);
-        require(keccak256(abi.encode(_paypalID)) == offRamperId, "Submitted PayPal ID must match the registered ID");
-       // require(offRampIntentCounter < MAX_DEPOSITS, "Maximum deposit amount reached");
+        string memory offRamperId = payPalRegistrator.getEmail(msg.sender);
+        require(keccak256(abi.encode(_paypalID)) == keccak256(abi.encode(offRamperId)), "Submitted PayPal ID must match the registered ID");
+        // require(offRampIntentCounter < MAX_DEPOSITS, "Maximum deposit amount reached");
         require(_depositAmount >= minDepositAmount, "Deposit amount must be greater than min deposit amount");
         require(_receiveAmount > 0, "Receive amount must be greater than 0");
 
@@ -394,7 +394,7 @@ contract Ramp is Ownable, ReentrancyGuard {
      */
     function newOnRampIntent(
         uint256 _targetedOffRampIntentID,
-        bytes calldata _paymentData
+        DataTypes.PaymentData calldata _paymentData
     ) external onlyRegisteredUser nonReentrant{
         
         // Retrieve the OffRampIntent using the provided ID
@@ -417,7 +417,7 @@ contract Ramp is Ownable, ReentrancyGuard {
 
         
         // Emit an event if necessary (optional)
-        emit OnRampIntentVerified(_offRampIntentID, intent.offRamperAddress, msg.sender, msg.sender, amountToTransfer, 0);
+        emit OnRampIntentVerified(_targetedOffRampIntentID, offRampIntent.offRamperAddress, msg.sender, msg.sender, amountToTransfer, 0);
     }
 }
 

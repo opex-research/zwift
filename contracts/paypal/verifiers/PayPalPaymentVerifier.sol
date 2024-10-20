@@ -2,13 +2,13 @@
 pragma solidity ^0.8.0;
 
 import {IPayPalPaymentVerifier} from "../interfaces/IPayPalPaymentVerifier.sol";
-
+import {DataTypes} from "../datatypes/DataTypes.sol";
 /**
  * @title PayPalPaymentVerifier
  * @notice This contract is used to verify PayPal payments.
  */
 
-contract PayPalPaymentVerifier is IPayPalAccountVerifier {
+contract PayPalPaymentVerifier is IPayPalPaymentVerifier {
     /**
      * @notice This function verifies a PayPal payment
      * @param sender The address of the sender.
@@ -19,7 +19,7 @@ contract PayPalPaymentVerifier is IPayPalAccountVerifier {
      */
     function verifyPayment(
         address sender,
-        PaymentData calldata _paymentData,
+        DataTypes.PaymentData calldata _paymentData,
         uint256 conversionRate,
         uint256 offRampAmount
     ) external pure returns (bool) {
