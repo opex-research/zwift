@@ -10,8 +10,8 @@ import { ReentrancyGuard } from "../lib/openzeppelin-contracts/contracts/utils/R
 import { SafeERC20 } from "../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import { Uint256ArrayUtils } from "../external/Uint256ArrayUtils.sol";
-import { IPaymentVerifier } from "./interfaces/IPayPalPaymentVerifier.sol";
-import { IPayPalRegistrator } from "/interfaces/IPayPalRegistrator.sol";
+import { IPayPalPaymentVerifier } from "./interfaces/IPayPalPaymentVerifier.sol";
+import { IPayPalRegistrator } from "./interfaces/IPayPalRegistrator.sol";
 
 contract Ramp is Ownable, ReentrancyGuard {
     using Uint256ArrayUtils for uint256[];

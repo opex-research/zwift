@@ -61,7 +61,7 @@ contract PayPalRegistrator {
         // Associate the wallet with the provided PayPal email
         walletToEmail[wallet] = _accountData.payPalEmail;
 
-        emit AccountRegistered(wallet, _accountData.payPalEmail;);
+        emit AccountRegistered(wallet, _accountData.payPalEmail);
 
         return true;
     }

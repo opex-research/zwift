@@ -13,6 +13,6 @@ interface IPayPalAccountVerifier {
      * @return bool indicating whether the account is verified.
      */
     function verifyAccount(
-        bytes calldata accountData
+        bytes calldata _accountData
     ) external pure returns (bool);
 }
