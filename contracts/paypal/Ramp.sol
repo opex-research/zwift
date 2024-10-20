@@ -398,7 +398,7 @@ contract Ramp is Ownable, ReentrancyGuard {
     ) external onlyRegisteredUser nonReentrant{
         
         // Retrieve the OffRampIntent using the provided ID
-        OffRampIntent storage offRampIntent = offRamperIntents[_targetedOffRampIntentID];
+        OffRampIntent memory offRampIntent = offRamperIntents[_targetedOffRampIntentID];
         require(offRampIntent.offRamperAddress != address(0), "Invalid OffRampIntent ID"); //Checks if OffRampIntent ID is valid
 
         // Call the verifyPayment function from the PaymentVerifier contract
