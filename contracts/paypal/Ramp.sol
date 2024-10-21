@@ -2,17 +2,18 @@
 
 pragma solidity ^0.8.0;
 
-import "./Registrator.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+
+import { IERC20 } from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import { Ownable } from "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
+import { ReentrancyGuard } from "../lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
+import { SafeERC20 } from "../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import { Uint256ArrayUtils } from "../external/Uint256ArrayUtils.sol";
-import { IPayPalAccountRegistry } from "./interfaces/IPayPalAccountRegistry.sol";
-import { IOnRampProcessor } from "./interfaces/IOnRampProcessor.sol";
-
-contract OffRamper is Ownable, ReentrancyGuard {
+import { IPayPalPaymentVerifier } from "./interfaces/IPayPalPaymentVerifier.sol";
+import { IPayPalRegistrator } from "./interfaces/IPayPalRegistrator.sol";
+import {DataTypes} from "./datatypes/DataTypes.sol";
+contract Ramp is Ownable, ReentrancyGuard {
     using Uint256ArrayUtils for uint256[];
     using SafeERC20 for IERC20;
 
@@ -89,7 +90,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
     /* ============ Modifiers ============ */
     modifier onlyRegisteredUser() {
         require(
-            registrator.isRegistered(msg.sender),
+            payPalRegistrator.isRegistered(msg.sender),
             "You need to register first"
         );
         _;
@@ -108,8 +109,8 @@ contract OffRamper is Ownable, ReentrancyGuard {
 
     /* ============ State Variables ============ */
     IERC20 public token;                                            // USDC token contract
-    IPayPalAccountRegistry public registrator;                      // Account Registry contract for PayPal
-    IOnRampProcessor public onRampProcessor;                        // Address of the processor contract to verify notarizations
+    IPayPalRegistrator public payPalRegistrator;                    // Account Registry contract for PayPal
+    IPayPalPaymentVerifier public payPalPaymentVerifier;            // Address of the payment verifier contract to verify notarizations
 
     bool public isInitialized;                                      // Indicates if contract has been initialized
 
@@ -158,22 +159,22 @@ contract OffRamper is Ownable, ReentrancyGuard {
     /**
      * @notice Initialize Ramp with the addresses of the Processors. Needed to set the addresses of the Registrator and OnRampProcessor contracts, which may not be known at the time of deployment.
      *
-     * @param _registrator           Account Registry contract for PayPal, registers PayPal IDs
-     * @param _onRampProcessor       Processor contract address to verify notarizations
+     * @param _payPalRegistrator           Account Registry contract for PayPal, registers PayPal IDs
+     * @param _payPalPaymentVerifier       Processor contract address to verify notarizations
      */
     function initialize(
-        IPayPalAccountRegistry _registrator,
-        IOnRampProcessor _onRampProcessor
+        IPayPalRegistrator _payPalRegistrator,
+        IPayPalPaymentVerifier _payPalPaymentVerifier
     )
         external
         onlyOwner
     {
         require(!isInitialized, "Already initialized");
-        require(address(_registrator) != address(0), "Registrator address cannot be zero");
-        require(address(_onRampProcessor) != address(0), "OnRampProcessor address cannot be zero");
+        require(address(_payPalRegistrator) != address(0), "Registrator address cannot be zero");
+        require(address(_payPalPaymentVerifier) != address(0), "PayPalPaymentVerifier address cannot be zero");
 
-        registrator = _registrator;
-        onRampProcessor = _onRampProcessor;
+        payPalRegistrator = _payPalRegistrator;
+        payPalPaymentVerifier = _payPalPaymentVerifier;
 
         isInitialized = true;
     }
@@ -193,9 +194,9 @@ contract OffRamper is Ownable, ReentrancyGuard {
         address _verifierSigningKey,
         bytes32 _notaryKeyHash
     ) external onlyRegisteredUser {
-        bytes32 offRamperId = registrator.getAccountId(msg.sender);
-        require(keccak256(abi.encode(_paypalID)) == offRamperId, "Submitted PayPal ID must match the registered ID");
-       // require(offRampIntentCounter < MAX_DEPOSITS, "Maximum deposit amount reached");
+        string memory offRamperId = payPalRegistrator.getEmail(msg.sender);
+        require(keccak256(abi.encode(_paypalID)) == keccak256(abi.encode(offRamperId)), "Submitted PayPal ID must match the registered ID");
+        // require(offRampIntentCounter < MAX_DEPOSITS, "Maximum deposit amount reached");
         require(_depositAmount >= minDepositAmount, "Deposit amount must be greater than min deposit amount");
         require(_receiveAmount > 0, "Receive amount must be greater than 0");
 
@@ -226,7 +227,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
     function queueCancellation(uint256 _offRampIntentID) external onlyRegisteredUser {
         OffRampIntent storage intent = offRamperIntents[_offRampIntentID];
         require(intent.offRamperAddress == msg.sender, "Sender must be the depositor");
-        require(intent.remainingDeposits > 0, "No deposits to withdraw");
+        //require(intent.remainingDeposits > 0, "No deposits to withdraw");
 
         // Generate a unique cancellation ID
         bytes32 cancellationId = getCancellationId(_offRampIntentID, msg.sender, block.timestamp);
@@ -386,25 +387,29 @@ contract OffRamper is Ownable, ReentrancyGuard {
         return cancellations[_cancellationId];
     }
 
-    // New function to create an on-ramp intent
+    /**
+     * @notice Initiates a new on-ramp process
+     * @param _targetedOffRampIntentID The ID of the targeted off-ramp intent
+     * @param _paymentData The fiat payment data for verification
+     */
     function newOnRampIntent(
         uint256 _targetedOffRampIntentID,
-        bytes calldata _paymentData
-    ) external onlyRegisteredUser, nonReantrant{
+        DataTypes.PaymentData calldata _paymentData
+    ) external onlyRegisteredUser nonReentrant{
         
         // Retrieve the OffRampIntent using the provided ID
-        OffRampIntent storage offRampIntent = offRamperIntents[_offRampIntentID];
+        OffRampIntent memory offRampIntent = offRamperIntents[_targetedOffRampIntentID];
         require(offRampIntent.offRamperAddress != address(0), "Invalid OffRampIntent ID"); //Checks if OffRampIntent ID is valid
 
         // Call the verifyPayment function from the PaymentVerifier contract
-        bool isVerified = PaymentVerifier.verifyPayment(msg.sender, _paymentData, offRampIntent.conversionRate, offRampIntent.offRampAmount);
+        bool isVerified = payPalPaymentVerifier.verifyPayment(msg.sender, _paymentData, offRampIntent.conversionRate, offRampIntent.offRampAmount);
         require(isVerified, "Payment verification failed");
 
 
-        uint256 amountToTransfer = intent.offRampAmount;
+        uint256 amountToTransfer = offRampIntent.offRampAmount;
         
         // Delete the OffRampIntent from the mapping
-        delete offRamperIntents[_offRampIntentID];
+        delete offRamperIntents[_targetedOffRampIntentID];
 
         //Send onramper the funds from the escrow (here: this contract)
         token.safeTransfer(msg.sender, amountToTransfer);
@@ -412,7 +417,7 @@ contract OffRamper is Ownable, ReentrancyGuard {
 
         
         // Emit an event if necessary (optional)
-        emit OnRampIntentVerified(_offRampIntentID, intent.offRamperAddress, msg.sender, msg.sender, amountToTransfer, 0);
+        emit OnRampIntentVerified(_targetedOffRampIntentID, offRampIntent.offRamperAddress, msg.sender, msg.sender, amountToTransfer, 0);
     }
 }
 
@@ -423,3 +428,5 @@ contract OffRamper is Ownable, ReentrancyGuard {
 // - Verify the signature provided by the on-ramper
 //   -  This can be done with isValidSignatureNow through the following import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 // TODO: What's the additional logic needed in onRamping?
+// TODO: Check wether we want the registrator to be called through here in order to have a single point of entry
+// TODO: Write test for everything

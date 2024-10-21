@@ -8,4 +8,6 @@ __pycache__/
 node_modules/
 dist/
 shovel/node_modules/
-Backend/shovel/shovel
+Backend/shovel/shovel/
+package.json
+contracts/lib/openzeppelin-contracts/
