@@ -1,78 +1,230 @@
 {
   "dashboard": {},
-  "pg_url": "postgres:///shovel",
+  "pg_url": "$DATABASE_URL_SHOVEL",
   "eth_sources": [
     {
-      "name": "mainnet",
-      "chain_id": 1,
-      "url": "https://eth.llamarpc.com",
+      "name": "$CHAIN_NAME",
+      "chain_id": "$CHAIN_ID",
+      "url": "$CHAIN_RPC_URL",
       "urls": [
-        "https://eth.llamarpc.com"
+        "$CHAIN_RPC_URL_BACKUP"
       ]
     }
   ],
   "integrations": [
     {
       "enabled": true,
-      "name": "transfers",
+      "name": "off_ramp_intents",
       "sources": [
         {
-          "name": "mainnet",
+          "name": "$CHAIN_NAME",
           "start": "0"
         }
       ],
       "table": {
-        "name": "transfers",
+        "name": "off_ramp_intents",
         "columns": [
           {
-            "name": "log_addr",
+            "name": "off_ramp_intent_id",
+            "type": "numeric"
+          },
+          {
+            "name": "user",
             "type": "bytea"
           },
           {
-            "name": "from",
+            "name": "paypal_id",
+            "type": "text"
+          },
+          {
+            "name": "off_ramp_amount",
+            "type": "numeric"
+          },
+          {
+            "name": "conversion_rate",
+            "type": "numeric"
+          },
+          {
+            "name": "created_at",
+            "type": "numeric"
+          }
+        ]
+      },
+      "event": {
+        "type": "event",
+        "name": "OffRampIntentCreated",
+        "inputs": [
+          {
+            "indexed": true,
+            "name": "offRampIntentID",
+            "type": "uint256",
+            "column": "off_ramp_intent_id"
+          },
+          {
+            "indexed": true,
+            "name": "user",
+            "type": "address",
+            "column": "user"
+          },
+          {
+            "indexed": false,
+            "name": "paypalID",
+            "type": "string",
+            "column": "paypal_id"
+          },
+          {
+            "indexed": false,
+            "name": "offRampAmount",
+            "type": "uint256",
+            "column": "off_ramp_amount"
+          },
+          {
+            "indexed": false,
+            "name": "conversionRate",
+            "type": "uint256",
+            "column": "conversion_rate"
+          }
+        ]
+      }
+    },
+    {
+      "enabled": true,
+      "name": "on_ramp_intents_verified",
+      "sources": [
+        {
+          "name": "$CHAIN_NAME",
+          "start": "0"
+        }
+      ],
+      "table": {
+        "name": "on_ramp_intents_verified",
+        "columns": [
+          {
+            "name": "off_ramp_intent_id",
+            "type": "numeric"
+          },
+          {
+            "name": "off_ramper_address",
             "type": "bytea"
           },
           {
-            "name": "to",
+            "name": "on_ramper_address",
+            "type": "bytea"
+          },
+          {
+            "name": "to_address",
             "type": "bytea"
           },
           {
             "name": "amount",
             "type": "numeric"
+          },
+          {
+            "name": "fee_amount",
+            "type": "numeric"
           }
         ]
       },
-      "block": [
-        {
-          "name": "log_addr",
-          "column": "log_addr",
-          "filter_op": "contains",
-          "filter_arg": [
-            "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-          ]
-        }
-      ],
       "event": {
         "type": "event",
-        "name": "Transfer",
+        "name": "OnRampIntentVerified",
         "inputs": [
           {
             "indexed": true,
-            "name": "from",
-            "type": "address",
-            "column": "from"
+            "name": "offRampIntentID",
+            "type": "uint256",
+            "column": "off_ramp_intent_id"
           },
           {
             "indexed": true,
+            "name": "offRamperAddress",
+            "type": "address",
+            "column": "off_ramper_address"
+          },
+          {
+            "indexed": true,
+            "name": "onRamperAddress",
+            "type": "address",
+            "column": "on_ramper_address"
+          },
+          {
+            "indexed": false,
             "name": "to",
             "type": "address",
-            "column": "to"
+            "column": "to_address"
           },
           {
             "indexed": false,
             "name": "amount",
             "type": "uint256",
             "column": "amount"
+          },
+          {
+            "indexed": false,
+            "name": "feeAmount",
+            "type": "uint256",
+            "column": "fee_amount"
+          }
+        ]
+      }
+    },
+    {
+      "enabled": true,
+      "name": "cancellations",
+      "sources": [
+        {
+          "name": "$CHAIN_NAME",
+          "start": "0"
+        }
+      ],
+      "table": {
+        "name": "cancellations",
+        "columns": [
+          {
+            "name": "cancellation_id",
+            "type": "bytea"
+          },
+          {
+            "name": "off_ramp_intent_id",
+            "type": "numeric"
+          },
+          {
+            "name": "user",
+            "type": "bytea"
+          },
+          {
+            "name": "execute_at",
+            "type": "numeric"
+          }
+        ]
+      },
+      "event": {
+        "type": "event",
+        "name": "CancellationQueued",
+        "inputs": [
+          {
+            "indexed": true,
+            "name": "cancellationId",
+            "type": "bytes32",
+            "column": "cancellation_id"
+          },
+          {
+            "indexed": true,
+            "name": "offRampIntentID",
+            "type": "uint256",
+            "column": "off_ramp_intent_id"
+          },
+          {
+            "indexed": true,
+            "name": "user",
+            "type": "address",
+            "column": "user"
+          },
+          {
+            "indexed": false,
+            "name": "executeAt",
+            "type": "uint256",
+            "column": "execute_at"
           }
         ]
       }
